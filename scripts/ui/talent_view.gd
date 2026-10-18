@@ -42,7 +42,7 @@ func _fit() -> void:
 		var p: Array = GameData.talents[id]["pos"]
 		lo = Vector2(minf(lo.x, p[0]), minf(lo.y, p[1]))
 		hi = Vector2(maxf(hi.x, p[0]), maxf(hi.y, p[1]))
-	var ext := (hi - lo) + Vector2(120, 120)
+	var ext := (hi - lo) + Vector2(280, 150)
 	zoom = clampf(minf(size.x / ext.x, size.y / ext.y), 0.5, 1.5)
 	var mid := (lo + hi) * 0.5
 	offset = size * 0.5 - mid * zoom

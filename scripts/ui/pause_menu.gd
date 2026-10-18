@@ -41,6 +41,7 @@ func _ready() -> void:
 		sl.value_changed.connect(func(val: float):
 			SaveSystem.data["settings"][pair[1]] = val
 			Sfx.apply_volumes())
+		sl.drag_ended.connect(func(_c): SaveSystem.save_game())
 		row.add_child(sl)
 		v.add_child(row)
 	v.add_child(UI.label("Steuerung: WASD, Maus, LMB leicht, RMB schwer, Strg Ausweichen,\nF Blocken/Parieren, 1-4 Fähigkeiten, E Interagieren, Tab Zielerfassung", 14, UI.DIM))

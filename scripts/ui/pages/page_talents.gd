@@ -36,7 +36,7 @@ func build() -> void:
 		else:
 			reset_all())
 	top.add_child(_reset_btn)
-	var help := UI.label("Linksklick: erlernen · Rechtsklick: zurücknehmen · Ziehen: verschieben · Mausrad: zoomen. Talentpunkte gibt es für Charakterstufen, Run-Ergebnisse und Erfolge.", 14, UI.DIM)
+	var help := UI.label("Linksklick: erlernen · Rechtsklick: zurücknehmen · Ziehen: verschieben · Mausrad: zoomen. Sechs Hauptpfade = Klassen – spezialisiere dich auf einen; die Nebenpfade zweigen davon ab. Punkte gibt es für Charakterstufen, Runs und Erfolge.", 14, UI.DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(help)
 	var h := HBoxContainer.new()

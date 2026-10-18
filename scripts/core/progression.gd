@@ -43,6 +43,13 @@ static func apply_results(character: Dictionary, result: Dictionary) -> Dictiona
 	else:
 		st["deaths"] += 1
 
+	var gold := int(result.get("kills", 0)) * 2 + int(result.get("elites", 0)) * 12 + int(result.get("level", 1)) * 8
+	if result.get("boss_defeated", false):
+		gold += 200
+	if not victory:
+		gold = gold / 2
+	character["gold"] = int(character.get("gold", 0)) + gold
+	summary["gold"] = gold
 	var pts := compute_points(result)
 	summary["points"] = pts
 	character["talent_points"] = int(character["talent_points"]) + pts

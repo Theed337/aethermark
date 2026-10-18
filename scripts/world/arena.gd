@@ -20,6 +20,10 @@ var player: Player                   # lokaler Spieler (Solo oder Host)
 var players: Array = []              # alle Spieler dieses Runs
 var boss: Boss = null
 var _hazard_t := 0.0
+var victory_pending := false      # Boss besiegt: Zeit zum Einsammeln der Beute, dann Ergebnis
+var victory_t := 0.0
+var _hint_t := 0.0
+const VICTORY_LOOT_TIME := 25.0
 var xp_mult := 1.0               # Ereignisse (Blutmond)
 var event_spawn_mult := 1.0
 var event_text := ""
@@ -231,6 +235,15 @@ func _process(delta: float) -> void:
 			_net_tick(delta)
 		return
 	run_time += delta
+	if victory_pending:
+		victory_t -= delta
+		_hint_t -= delta
+		if _hint_t <= 0.0 and hud != null:
+			_hint_t = 1.0
+			hud.show_hint("Beute einsammeln – Rückkehr in %d s  (Enter: jetzt beenden)" % int(ceil(victory_t)), 1.2)
+		if victory_t <= 0.0 or (Input.is_action_just_pressed("ui_accept") and not RunState.bot_mode and not net_on):
+			_finish(true)
+			return
 	_update_spawner(delta)
 	_update_pickups(delta)
 	_update_hazards(delta)
@@ -282,6 +295,8 @@ func _current_tier() -> Dictionary:
 
 
 func _update_spawner(delta: float) -> void:
+	if victory_pending:
+		return
 	_spawn_timer -= delta
 	if _spawn_timer > 0.0:
 		return
@@ -427,7 +442,9 @@ func _on_enemy_died(e: Enemy) -> void:
 		_drop_item(e.global_position, "common", 1.0, killer)
 	if is_boss:
 		run_stats["boss_defeated"] = true
-		get_tree().create_timer(3.2, false).timeout.connect(func(): _finish(true))
+		victory_pending = true
+		victory_t = 2.0 if RunState.bot_mode else VICTORY_LOOT_TIME
+		banner_all("%s besiegt! Sammle deine Beute …" % GameData.boss.get("name", "Der Wächter"), UI.GOLD, 4.0)
 
 
 ## Erfahrung wird auf alle kampffähigen Spieler verteilt (mit mehr Spielern bekommt jeder etwas weniger, gesamt mehr).
@@ -942,7 +959,7 @@ func build_result(victory: bool, p: Player = null) -> Dictionary:
 		if is_instance_valid(q):
 			names.append(q.display_name)
 	return {
-		"victory": victory, "area_id": RunState.area_id, "boss_id": GameData.boss.get("id", "") if run_stats["boss_defeated"] else "",
+		"victory": victory and not p.is_down() and not p.permadown, "area_id": RunState.area_id, "boss_id": GameData.boss.get("id", "") if run_stats["boss_defeated"] else "",
 		"boss_defeated": run_stats["boss_defeated"], "kills": rs["kills"], "elites": rs["elites"],
 		"minibosses": rs["minibosses"], "level": p.level, "duration": run_time, "damage_dealt": rs["damage_dealt"],
 		"damage_taken": rs["damage_taken"], "downs": rs["downs"], "chests": rs["chests"],

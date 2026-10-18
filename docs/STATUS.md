@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.7)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.8)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -81,3 +81,16 @@
 - Balance: Monster in der Gruppe deutlich schwächer skaliert (LP +30 % statt +55 % je Mitspieler, Schaden +4 % statt +10 %, kleinere Spawn-Obergrenze, Boss-LP +50 %), weniger Beute (Elite 30 %, normale Gegner 1,2 %, Truhen seltener 2. Gegenstand), Fähigkeiten-Stufen brauchen ~40 % mehr EP, Talentpunkte pro Run ca. halbiert (Charakterstufe 170·Stufe EP).
 - Launcher/Update: lädt version.json aus dem Repo-Ordner dist/ (raw.githubusercontent.com/…/main/dist), unterstützt mehrteilige Downloads (GitHub-Dateilimit 100 MB).
 - Nicht verifiziert: Mehrspieler-Fähigkeiten – im Code keine Ursache gefunden (siehe unten), reale Netzwerk-/GPU-Tests stehen aus.
+
+## Änderungen 0.9.8 (Feedback-Runde 5)
+- **Wiederbeleben** ging bei menschlichen Spielern nie: Das Halten der Interaktionstaste wurde nur für Bots erfasst (Host und Clients). Behoben.
+- **„Schwer" nach dem Sterben freigeschaltet**: Der Run zählte als Sieg, sobald der Boss fiel – auch wenn man selbst tot/kampfunfähig war. Jetzt zählt der Sieg nur für Spieler, die am Ende kampffähig sind.
+- **Rückkehr nach dem Endboss**: Nach dem Sieg bleiben 25 s zum Einsammeln der Beute (Hinweis mit Countdown, Enter beendet sofort im Solo-Spiel); Gegner spawnen nicht mehr nach.
+- **Lautstärke** wird auch im Pausemenü gespeichert (vorher nur in den Einstellungen).
+- **Minimap**: größer, undurchsichtiger Hintergrund, größerer Sichtbereich (55 m).
+- **Startfähigkeiten je Waffe** (eine aktive + eine passive Stufe 1): Schwert Kettenblitz+Blutdurst, Axt Frostnova+Weite Hiebe, Hammer Erdbeben+Eiserner Wille, Dolch Geisterlichter+Kritmeisterschaft, Bogen Feuerball+Schnelligkeit, Stab Feuerball+Arkanfokus.
+- **Gegner pro Gebiet**: Smaragdwald = Schleim-/Pflanzenwesen; Ruinen, Aschelande, Frostklippen, Schattenwald, Himmelsfestung = animierte Skelette (KayKit Skeletons, CC0) mit je anderer Mischung, Waffen und Farbe/Leuchten. Neue Formen für Kriecher (Spinne), Wächterschütze (Steinwächter), Teiler (Gallert), Kultist. Ehrlich: Es sind nur 4 Skelett-Modelle, Unterschiede kommen aus Tönung/Waffen/Mischung; Sprengwesen und Schützen im Wald sind weiter einfache Primitiv-Figuren.
+- **Talentbaum**: 6 Hauptpfade (Klassen: Nahkampf, Schnelle Waffen, Fernkampf, Elementar, Dunkel, Beschwörung) mit langen Wegen; 5 Nebenpfade (Verteidigung, Heilung, Fallen, Beweglichkeit, Ressourcen) zweigen von einem Hauptpfad ab; Synergie-Knoten verbinden Haupt- und Nebenpfade. Die Boni selbst sind unverändert, nur Aufbau/Voraussetzungen.
+- **Inventar neu**: Charakteransicht mit Plätzen (Kopf/Brust/Hände/Beine/Füße links, Amulett/Ringe/Artefakt/Zweitwaffe rechts, Waffe unten), Gegenstände per Drag & Drop anlegen/ablegen, Doppelklick, Vergleichswerte. Tabs „Händler" und „Sammlung & Kosmetik" im selben Fenster.
+- **Gold & Händler**: Gold gibt es für Runs und Verkäufe (Standard-Startgold 60). Verkaufen per Button, Ziehen auf den Händler oder „alle gewöhnlichen verkaufen". Der Händler bietet 8 Gegenstände, die sich alle 20 Minuten (Echtzeit, auch wenn das Spiel zu war) erneuern; gekaufte Ware ist nicht handelbar.
+- **Handel**: Angebotsfläche und Inventar als Kachelraster mit Drag & Drop, Angebot des Partners als Kacheln + volle Werte. Ehrlich: Eine konkrete Fehlerursache im Handel habe ich nicht gefunden (Ablauf und Tests sind grün); die Oberfläche wurde neu aufgebaut. Echter Online-Handel ist ungetestet.

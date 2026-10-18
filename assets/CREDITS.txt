@@ -8,3 +8,4 @@ Quelle der Dateien: GitHub tilakpatell/tilakverse-assets (unveränderte Kopien d
   Quelle der Dateien: GitHub lavenderdotpet/CC0-Public-Domain-Sounds bzw. Calinou/kenney-interface-sounds.
 - Effekt-Texturen (assets/fx): selbst erzeugt per tools/gen_fx.py (CC0).
 - KayKit (Kay Lousberg): Adventurers Character Pack 1.0 – Helden (Ritter, Barbar, Magier, Waldläuferin, Kapuzenmantel), Waffenmodelle und 76 Animationen, CC0 (assets/kaykit). Quelle der Dateien: GitHub KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0.
+- KayKit (Kay Lousberg): Skeletons Character Pack 1.0 – Skelett-Gegner (Minion, Warrior, Rogue, Mage), Waffenmodelle, CC0 (assets/skeleton). Quelle: GitHub KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0.

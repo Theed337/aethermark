@@ -40,6 +40,11 @@ var _flash := 0.0
 var _anim_t := randf() * 10.0
 var _visual: Node3D
 var _mats: Array = []
+var _rig_anim: AnimationPlayer = null
+var _rig_mats: Array = []     # StandardMaterial3D der Skelett-Modelle (Treffer-Blitz per Emission)
+var _rig_clip := ""
+var _last_pos := Vector3.ZERO
+var _rig_attack_t := 0.0
 var _bar_fill: MeshInstance3D
 var _bar_root: Node3D
 var _knock := Vector3.ZERO
@@ -140,7 +145,113 @@ func _col(key: String) -> Color:
 	return c
 
 
+const SK_DIR := "res://assets/skeleton/"
+const SK_WEAPONS := {"blade": "Skeleton_Blade", "axe": "Skeleton_Axe", "staff": "Skeleton_Staff", "crossbow": "Skeleton_Crossbow",
+		"shield": "Skeleton_Shield_Small_A", "shield_big": "Skeleton_Shield_Large_A"}
+static var _sk_loops := false
+
+
+## Skelett-Gegner (KayKit Skeletons, CC0): Modell, Waffen und Farbton kommen aus den Gebiets-Skins (data/areas.json).
+func _build_rigged() -> bool:
+	var path := SK_DIR + str(data["model"]) + ".glb"
+	if not ResourceLoader.exists(path):
+		return false
+	var inst: Node3D = (load(path) as PackedScene).instantiate()
+	inst.scale = Vector3.ONE * 0.5
+	_visual.add_child(inst)
+	var sk: Skeleton3D = inst.find_child("Skeleton3D", true, false)
+	_rig_anim = inst.find_child("AnimationPlayer", true, false)
+	if _rig_anim != null and not _sk_loops:
+		_sk_loops = true
+		for n in ["Idle", "Idle_Combat", "Walking_A", "Walking_B", "Walking_C", "Walking_D_Skeletons", "Running_A", "Running_B", "Spellcasting", "2H_Melee_Idle", "Blocking", "1H_Ranged_Aiming"]:
+			if _rig_anim.has_animation(n):
+				_rig_anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
+	var tint := Color(str(data.get("tint", "#ffffff")))
+	var glow := str(data.get("glow", ""))
+	if elite_mod != "":
+		tint = tint.lerp(Color(GameData.elite_mods[elite_mod]["color"]), 0.3)
+	for mi in inst.find_children("*", "MeshInstance3D", true, false):
+		var src: Material = (mi as MeshInstance3D).get_active_material(0)
+		if src is StandardMaterial3D:
+			var m: StandardMaterial3D = src.duplicate()
+			m.albedo_color = tint
+			if glow != "":
+				m.emission_enabled = true
+				m.emission = Color(glow)
+				m.emission_energy_multiplier = 0.35
+			(mi as MeshInstance3D).material_override = m
+			_rig_mats.append(m)
+	if sk != null:
+		for slot in [["handslot.r", str(data.get("weapon", ""))], ["handslot.l", str(data.get("offhand", ""))]]:
+			if slot[1] == "" or not SK_WEAPONS.has(slot[1]):
+				continue
+			var wp := SK_DIR + "weapons/%s.gltf" % SK_WEAPONS[slot[1]]
+			if not ResourceLoader.exists(wp) or sk.find_bone(slot[0]) < 0:
+				continue
+			var ba := BoneAttachment3D.new()
+			ba.bone_name = slot[0]
+			sk.add_child(ba)
+			var w: Node3D = (load(wp) as PackedScene).instantiate()
+			ba.add_child(w)
+			w.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(0, 0.0333, 0))
+	_rig_play("Idle")
+	return true
+
+
+func _rig_play(clip: String) -> void:
+	if _rig_anim == null or clip == _rig_clip and _rig_anim.is_playing():
+		return
+	if _rig_anim.has_animation(clip):
+		_rig_clip = clip
+		_rig_anim.play(clip, 0.15)
+
+
+func _rig_update(delta: float) -> void:
+	if _rig_anim == null:
+		return
+	var spd := (global_position - _last_pos).length() / maxf(delta, 0.0001)
+	_last_pos = global_position
+	if dead:
+		return
+	if _rig_attack_t > 0.0:
+		_rig_attack_t -= delta
+		return
+	if state == "windup":
+		var atk := "2H_Melee_Attack_Chop"
+		match str(data.get("model", "")):
+			"Skeleton_Rogue": atk = "1H_Ranged_Shoot"
+			"Skeleton_Mage": atk = "Spellcast_Shoot"
+			"Skeleton_Minion": atk = "1H_Melee_Attack_Slice_Horizontal"
+			"Skeleton_Warrior": atk = "1H_Melee_Attack_Chop"
+		if _rig_anim.has_animation(atk):
+			_rig_clip = atk
+			_rig_anim.play(atk, 0.1)
+			_rig_attack_t = maxf(float(data.get("windup", 0.6)), 0.5)
+			return
+	_rig_play("Walking_C" if spd > 0.4 else "Idle")
+	_rig_anim.speed_scale = clampf(spd / 3.0, 0.7, 1.8) if spd > 0.4 else 1.0
+
+
+func _flash_all(f: float) -> void:
+	for m in _mats:
+		if m is ShaderMaterial:
+			m.set_shader_parameter("flash", f)
+	for m in _rig_mats:
+		m.emission_enabled = true
+		m.emission = Color(1, 1, 1)
+		m.emission_energy_multiplier = f * 1.4 if f > 0.0 else 0.0
+		if f <= 0.0:
+			var g := str(data.get("glow", ""))
+			if g != "":
+				m.emission = Color(g)
+				m.emission_energy_multiplier = 0.35
+			else:
+				m.emission_enabled = false
+
+
 func _build_visual() -> void:
+	if data.has("model") and _build_rigged():
+		return
 	var c := _col("color")
 	var ac := Color(data["accent"])
 	var v := _visual
@@ -186,6 +297,41 @@ func _build_visual() -> void:
 			for sx in [-1, 1]:
 				Toon.part(v, "sphere", Vector3(0.38, 0, 0), c.darkened(0.15), Vector3(0.75 * sx, 0.45, 0.1))   # Fäuste
 				Toon.part(v, "sphere", Vector3(0.06, 0, 0), Color("#ff6a3a"), Vector3(0.12 * sx, 1.42, 0.55), Vector3.ZERO, Toon.glow_mat(Color("#ff6a3a"), 2.0), false)
+		"crawler":
+			# Spinne: Körper, Kopf mit Augen, acht abgewinkelte Beine
+			var body := Toon.part(v, "sphere", Vector3(0.36, 0.26, 0), c, Vector3(0, 0.38, -0.08))
+			Toon.outline(body, 0.03)
+			Toon.part(v, "sphere", Vector3(0.2, 0, 0), c.lightened(0.1), Vector3(0, 0.4, 0.3))
+			for sx in [-1, 1]:
+				for ey in [0.0, 0.07]:
+					Toon.part(v, "sphere", Vector3(0.045, 0, 0), ac, Vector3(0.07 * sx, 0.46 + ey * 0.4, 0.46 - ey), Vector3.ZERO, Toon.glow_mat(ac, 2.0), false)
+				for i in 4:
+					var z := -0.25 + i * 0.17
+					Toon.part(v, "cyl", Vector3(0.03, 0.55, 0), c.darkened(0.3), Vector3(0.3 * sx, 0.25, z), Vector3(0, 0, -62 * sx))
+		"sentinel":
+			# steinerner Wächter: Sockel, Rumpf, Kopf mit Visier, schwebende Kristalle
+			var sb := Toon.part(v, "cyl", Vector3(0.38, 0.9, 0), c, Vector3(0, 0.45, 0))
+			Toon.outline(sb, 0.03)
+			Toon.part(v, "sphere", Vector3(0.3, 0, 0), c.lightened(0.1), Vector3(0, 1.15, 0))
+			Toon.part(v, "box", Vector3(0.34, 0.07, 0.1), ac, Vector3(0, 1.17, 0.26), Vector3.ZERO, Toon.glow_mat(ac, 2.5), false)
+			for i in 3:
+				var an := i * TAU / 3.0
+				Toon.part(v, "cone", Vector3(0.1, 0.3, 0), ac, Vector3(cos(an) * 0.6, 0.9 + sin(an * 2.0) * 0.1, sin(an) * 0.6), Vector3(0, 0, 180), Toon.glow_mat(ac, 2.0), false)
+		"splitter", "splitling":
+			# Gallertblob mit leuchtendem Kern
+			var jb := Toon.part(v, "sphere", Vector3(0.58, 0.7, 0), c, Vector3(0, 0.5, 0), Vector3.ZERO, Toon.make_mat(c, 0.25))
+			Toon.outline(jb, 0.03)
+			_mats.append(jb.material_override)
+			Toon.part(v, "sphere", Vector3(0.2, 0, 0), ac, Vector3(0, 0.55, 0.05), Vector3.ZERO, Toon.glow_mat(ac, 2.5), false)
+			for sx in [-1, 1]:
+				Toon.part(v, "sphere", Vector3(0.08, 0, 0), Color.WHITE, Vector3(0.18 * sx, 0.75, 0.46), Vector3.ZERO, null, false)
+				Toon.part(v, "sphere", Vector3(0.04, 0, 0), Color("#1b1b1b"), Vector3(0.18 * sx, 0.75, 0.53), Vector3.ZERO, null, false)
+		"cultist":
+			var cb := Toon.part(v, "cone", Vector3(0.45, 1.5, 0), c, Vector3(0, 0.75, 0))
+			Toon.outline(cb, 0.03)
+			Toon.part(v, "sphere", Vector3(0.22, 0, 0), c.darkened(0.3), Vector3(0, 1.5, 0))
+			Toon.part(v, "sphere", Vector3(0.12, 0, 0), ac, Vector3(0, 1.5, 0.12), Vector3.ZERO, Toon.glow_mat(ac, 2.0), false)
+			Toon.part(v, "torus", Vector3(0.28, 0.03, 0), ac, Vector3(0, 1.0, 0), Vector3(90, 0, 0), Toon.glow_mat(ac, 1.5), false)
 		_:
 			Toon.part(v, "sphere", Vector3(0.5, 0, 0), c, Vector3(0, 0.5, 0))
 	# Materialien für Treffer-Blitz einzeln halten
@@ -244,7 +390,9 @@ func _ghost_step(delta: float) -> void:
 	position = position.lerp(net_pos, clampf(delta * 14.0, 0.0, 1.0))
 	rotation.y = lerp_angle(rotation.y, net_yaw, clampf(delta * 12.0, 0.0, 1.0))
 	var moving := position.distance_to(net_pos) > 0.05
-	_visual.position.y = sin(_anim_t * (9.0 if moving else 3.0)) * 0.05
+	if _rig_anim == null:
+		_visual.position.y = sin(_anim_t * (9.0 if moving else 3.0)) * 0.05
+	_rig_update(delta)
 	_update_flash(delta)
 	_visual_tint_ghost()
 	_bar_root.visible = show_bar and hp < max_hp and not dead
@@ -267,9 +415,7 @@ func _visual_tint_ghost() -> void:
 ## Trefferdarstellung auf dem Client (Schadenszahl kommt separat als Effekt-Ereignis).
 func ghost_hit() -> void:
 	_flash = 1.0
-	for m in _mats:
-		if m is ShaderMaterial:
-			m.set_shader_parameter("flash", 1.0)
+	_flash_all(1.0)
 
 
 ## Statusflags aus dem Snapshot (Bits: 1 Schild, 2 gefroren, 4 verlangsamt, 8 verwundbar, 16 Vorbereitung).
@@ -320,7 +466,9 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	# Stilisierte Animation
 	var bob := sin(_anim_t * (9.0 if move_vec.length() > 0.1 else 3.0)) * 0.05
-	_visual.position.y = bob
+	if _rig_anim == null:
+		_visual.position.y = bob
+	_rig_update(delta)
 	if move_vec.length() > 0.1 and state == "move":
 		_face(move_vec, delta)
 	_update_flash(delta)
@@ -377,17 +525,13 @@ func _visual_tint() -> void:
 
 
 func _set_tint(_c: Color, amount: float) -> void:
-	for m in _mats:
-		if m is ShaderMaterial:
-			m.set_shader_parameter("flash", maxf(amount, _flash))
+	_flash_all(maxf(amount, _flash))
 
 
 func _update_flash(delta: float) -> void:
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta * 6.0, 0.0)
-		for m in _mats:
-			if m is ShaderMaterial:
-				m.set_shader_parameter("flash", _flash)
+		_flash_all(_flash)
 
 
 func _cancel_telegraph() -> void:
@@ -577,9 +721,7 @@ func take_damage(amount: float, crit: bool, from_pos: Vector3, knock: float = 0.
 		arena.net_enemy_hit(self)
 	if not silent:
 		_flash = 1.0
-		for m in _mats:
-			if m is ShaderMaterial:
-				m.set_shader_parameter("flash", 1.0)
+		_flash_all(1.0)
 		FX.float_text(arena, global_position, str(int(roundf(a))), Color("#ffe066") if crit else Color.WHITE, 40, crit)
 		FX.burst(arena, global_position + Vector3(0, 1.0 * model_scale, 0), Color("#fff2c0") if not crit else Color("#ffcf4a"), 5 if not crit else 10, 4.0, 0.08, 0.35)
 		if knock > 0.0 and not is_mini and not _is_boss():

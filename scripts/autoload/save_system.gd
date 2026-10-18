@@ -116,6 +116,10 @@ func _migrate(d: Dictionary) -> Dictionary:
 		c["stats"] = ds
 		if not c.has("title"):
 			c["title"] = "Wanderer"
+		if not c.has("gold"):
+			c["gold"] = 60
+		if not c.has("shop"):
+			c["shop"] = {}
 	return out
 
 
@@ -143,7 +147,7 @@ func new_character(char_name: String, appearance: Dictionary) -> Dictionary:
 		"name": char_name, "appearance": appearance, "meta_xp": 0, "meta_level": 1, "talent_points": 3,
 		"talents": [], "inventory": [w], "equipment": {"weapon": w["uid"]}, "stats": default_stats(),
 		"unlocked_areas": ["emerald_forest"], "cleared_areas": [], "bosses_defeated": [],
-		"cosmetics": [], "achievements": [], "title": "Wanderer", "created": Time.get_unix_time_from_system(),
+		"cosmetics": [], "achievements": [], "title": "Wanderer", "gold": 60, "shop": {}, "created": Time.get_unix_time_from_system(),
 	}
 	data["characters"].append(c)
 	data["active_character"] = c["id"]

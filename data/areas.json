@@ -83,12 +83,18 @@
     "grunt": {
      "name": "Tempelwächterling",
      "color": "#7a8a86",
-     "accent": "#c0f0e8"
+     "accent": "#c0f0e8",
+     "model": "Skeleton_Minion",
+     "tint": "#a8c4b8",
+     "weapon": "axe"
     },
     "archer": {
      "name": "Schlangenschütze",
      "color": "#4a8a6a",
-     "accent": "#d0f0c0"
+     "accent": "#d0f0c0",
+     "model": "Skeleton_Rogue",
+     "tint": "#9ec9a0",
+     "weapon": "crossbow"
     },
     "bomber": {
      "name": "Zündkrabbe",
@@ -98,12 +104,26 @@
     "shaman": {
      "name": "Ruinenpriester",
      "color": "#3a7a9a",
-     "accent": "#a0e0f0"
+     "accent": "#a0e0f0",
+     "model": "Skeleton_Mage",
+     "tint": "#8fc8d8",
+     "glow": "#3ad0e0",
+     "weapon": "staff"
     },
     "brute": {
      "name": "Steinkoloss",
      "color": "#6a7a70",
-     "accent": "#d0e0d0"
+     "accent": "#d0e0d0",
+     "model": "Skeleton_Warrior",
+     "tint": "#8a9a90",
+     "weapon": "blade",
+     "offhand": "shield_big"
+    },
+    "sentinel": {
+     "model": "Skeleton_Warrior",
+     "tint": "#6aa0a8",
+     "weapon": "blade",
+     "offhand": "shield"
     }
    },
    "tiers": [
@@ -315,12 +335,20 @@
     "grunt": {
      "name": "Aschling",
      "color": "#6a3a2a",
-     "accent": "#ffb060"
+     "accent": "#ffb060",
+     "model": "Skeleton_Minion",
+     "tint": "#6a3a2e",
+     "glow": "#ff5a1a",
+     "weapon": "axe"
     },
     "archer": {
      "name": "Glutschütze",
      "color": "#a8421e",
-     "accent": "#ffd080"
+     "accent": "#ffd080",
+     "model": "Skeleton_Rogue",
+     "tint": "#8a3a2a",
+     "glow": "#ff7a2a",
+     "weapon": "crossbow"
     },
     "bomber": {
      "name": "Magmabombe",
@@ -330,12 +358,21 @@
     "shaman": {
      "name": "Flammenseher",
      "color": "#8a2a3a",
-     "accent": "#ff9aa0"
+     "accent": "#ff9aa0",
+     "model": "Skeleton_Mage",
+     "tint": "#5a1a1a",
+     "glow": "#ff3a1a",
+     "weapon": "staff"
     },
     "brute": {
      "name": "Obsidiankoloss",
      "color": "#2a2a32",
-     "accent": "#ff6a2a"
+     "accent": "#ff6a2a",
+     "model": "Skeleton_Warrior",
+     "tint": "#2a2024",
+     "glow": "#ff6a1a",
+     "weapon": "axe",
+     "offhand": "shield_big"
     },
     "crawler": {
      "name": "Funkenkriecher",
@@ -558,12 +595,21 @@
     "grunt": {
      "name": "Frostling",
      "color": "#8ab8d8",
-     "accent": "#f0faff"
+     "accent": "#f0faff",
+     "model": "Skeleton_Warrior",
+     "tint": "#b0d8f0",
+     "glow": "#60b8ff",
+     "weapon": "blade",
+     "offhand": "shield"
     },
     "archer": {
      "name": "Eisschütze",
      "color": "#5a8ab0",
-     "accent": "#d0f0ff"
+     "accent": "#d0f0ff",
+     "model": "Skeleton_Rogue",
+     "tint": "#a0c8e8",
+     "glow": "#80d0ff",
+     "weapon": "crossbow"
     },
     "bomber": {
      "name": "Frostbombe",
@@ -573,12 +619,21 @@
     "shaman": {
      "name": "Schneehexer",
      "color": "#6a6ab0",
-     "accent": "#d0d0ff"
+     "accent": "#d0d0ff",
+     "model": "Skeleton_Mage",
+     "tint": "#c0d0ff",
+     "glow": "#80a0ff",
+     "weapon": "staff"
     },
     "brute": {
      "name": "Eisgolem",
      "color": "#a0c0d8",
-     "accent": "#e8f8ff"
+     "accent": "#e8f8ff",
+     "model": "Skeleton_Warrior",
+     "tint": "#90b8d8",
+     "glow": "#a0e0ff",
+     "weapon": "axe",
+     "offhand": "shield_big"
     },
     "crawler": {
      "name": "Eisspinne",
@@ -805,12 +860,20 @@
     "grunt": {
      "name": "Schattenling",
      "color": "#3a2a5a",
-     "accent": "#c0a0ff"
+     "accent": "#c0a0ff",
+     "model": "Skeleton_Rogue",
+     "tint": "#5a4a7a",
+     "glow": "#a060ff",
+     "weapon": "blade"
     },
     "archer": {
      "name": "Nachtschütze",
      "color": "#2a2a4a",
-     "accent": "#a0c0ff"
+     "accent": "#a0c0ff",
+     "model": "Skeleton_Rogue",
+     "tint": "#403060",
+     "glow": "#8040ff",
+     "weapon": "crossbow"
     },
     "bomber": {
      "name": "Giftspore",
@@ -820,12 +883,20 @@
     "shaman": {
      "name": "Irrlichtseher",
      "color": "#4a3a8a",
-     "accent": "#e0c0ff"
+     "accent": "#e0c0ff",
+     "model": "Skeleton_Mage",
+     "tint": "#4a2a6a",
+     "glow": "#ff5ad0",
+     "weapon": "staff"
     },
     "brute": {
      "name": "Fluchbär",
      "color": "#2a2030",
-     "accent": "#ff7ad0"
+     "accent": "#ff7ad0",
+     "model": "Skeleton_Minion",
+     "tint": "#2a1a38",
+     "glow": "#ff4ac0",
+     "weapon": "axe"
     },
     "crawler": {
      "name": "Schleicher",
@@ -1053,12 +1124,21 @@
     "grunt": {
      "name": "Himmelssoldat",
      "color": "#b0a070",
-     "accent": "#fff0a0"
+     "accent": "#fff0a0",
+     "model": "Skeleton_Warrior",
+     "tint": "#e8d890",
+     "glow": "#ffe070",
+     "weapon": "blade",
+     "offhand": "shield"
     },
     "archer": {
      "name": "Windschütze",
      "color": "#6a9ad0",
-     "accent": "#e0f0ff"
+     "accent": "#e0f0ff",
+     "model": "Skeleton_Rogue",
+     "tint": "#e0e8ff",
+     "glow": "#ffffff",
+     "weapon": "crossbow"
     },
     "bomber": {
      "name": "Blitzbombe",
@@ -1068,12 +1148,21 @@
     "shaman": {
      "name": "Himmelspriester",
      "color": "#d0c0e0",
-     "accent": "#fff0c0"
+     "accent": "#fff0c0",
+     "model": "Skeleton_Mage",
+     "tint": "#fff0c0",
+     "glow": "#ffd860",
+     "weapon": "staff"
     },
     "brute": {
      "name": "Festungswächter",
      "color": "#a0a0b0",
-     "accent": "#ffe070"
+     "accent": "#ffe070",
+     "model": "Skeleton_Warrior",
+     "tint": "#c8c0a0",
+     "glow": "#ffe070",
+     "weapon": "axe",
+     "offhand": "shield_big"
     },
     "crawler": {
      "name": "Sturmläufer",

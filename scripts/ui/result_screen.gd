@@ -56,6 +56,7 @@ func show_result(result: Dictionary, summary: Dictionary) -> void:
 	cols.add_child(right)
 	right.add_child(UI.label("Dauerhafter Fortschritt", 20, UI.TEAL, true))
 	right.add_child(_row("Talentpunkte", "+%d" % summary.get("points", 0), UI.GOLD))
+	right.add_child(_row("Gold", "+%d" % summary.get("gold", 0), UI.GOLD))
 	if summary.get("meta_levels", 0) > 0:
 		right.add_child(_row("Charakterstufe", "+%d (jeweils +1 Talentpunkt)" % summary["meta_levels"], UI.GOLD))
 	if summary.get("achievement_points", 0) > 0:

@@ -112,11 +112,11 @@ func _build_top_left() -> void:
 
 func _build_top_right() -> void:
 	minimap = Minimap.new()
-	_anchor(minimap, 1.0, 0.0, -264, 22, 240, 240)
+	_anchor(minimap, 1.0, 0.0, -290, 20, 266, 266)
 	minimap.bind(arena, player)
 	add_child(minimap)
 	var v := VBoxContainer.new()
-	_anchor(v, 1.0, 0.0, -264, 268, 240, 60)
+	_anchor(v, 1.0, 0.0, -290, 290, 266, 60)
 	v.add_theme_constant_override("separation", 0)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(v)

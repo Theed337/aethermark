@@ -11,7 +11,7 @@ var current := ""
 func _ready() -> void:
 	SaveSystem.save_path = "user://test_save.json"
 	_cleanup()
-	for t in [test_data, test_stats, test_level_up, test_talents, test_loot, test_save, test_progression, test_scaling, test_name_validation, test_equipment]:
+	for t in [test_data, test_stats, test_level_up, test_talents, test_loot, test_save, test_progression, test_scaling, test_name_validation, test_equipment, test_shop]:
 		current = str(t.get_method())
 		t.call()
 	_cleanup()
@@ -299,3 +299,35 @@ func test_equipment() -> void:
 	SaveSystem.equip(c, crown["uid"])
 	var after := Stats.compute(c)
 	check(after["max_hp"] < before["max_hp"] and after["cat_mult"]["elem"] > before["cat_mult"]["elem"], "Artefakt: Bonus UND Nachteil wirken")
+
+
+func test_shop() -> void:
+	SaveSystem.data = SaveSystem.default_data()
+	var c := SaveSystem.new_character("Händler", SaveSystem.default_appearance())
+	var rot := 12345
+	var a: Array = Shop.stock(c, rot)
+	var b: Array = Shop.stock(c, rot)
+	check(a.size() == Shop.STOCK_SIZE, "Händler hat %d Waren" % Shop.STOCK_SIZE)
+	check(a[0]["item"]["name"] == b[0]["item"]["name"] and a[3]["item"]["rarity"] == b[3]["item"]["rarity"], "Angebot einer Rotation ist stabil")
+	var other: Array = Shop.stock(c, rot + 1)
+	var diff := false
+	for i in a.size():
+		if a[i]["item"]["name"] != other[i]["item"]["name"]:
+			diff = true
+	check(diff, "Angebot wechselt mit der Rotation")
+	check(Shop.seconds_left() > 0 and Shop.seconds_left() <= Shop.ROTATION_SECONDS, "Restzeit im Bereich")
+	c["gold"] = 0
+	check(Shop.buy(c, 0, rot) == "Nicht genug Gold.", "Kauf ohne Gold abgelehnt")
+	c["gold"] = 100000
+	var inv: int = c["inventory"].size()
+	check(Shop.buy(c, 0, rot) == "", "Kauf klappt")
+	check(c["inventory"].size() == inv + 1 and int(c["gold"]) < 100000, "Gegenstand erhalten, Gold abgezogen")
+	check(Shop.buy(c, 0, rot) == "Schon verkauft.", "Doppelkauf verhindert")
+	var bought: Dictionary = c["inventory"][c["inventory"].size() - 1]
+	var g: int = int(c["gold"])
+	check(Shop.sell(c, bought["uid"]) > 0 and int(c["gold"]) > g, "Verkauf bringt Gold")
+	check(Shop.sell(c, c["equipment"]["weapon"]) < 0, "Angelegtes nicht verkaufbar")
+	var locked := Loot.roll_item(RandomNumberGenerator.new(), 3)
+	locked["locked"] = true
+	SaveSystem.add_item(c, locked)
+	check(Shop.sell(c, locked["uid"]) < 0, "Gesperrtes nicht verkaufbar")

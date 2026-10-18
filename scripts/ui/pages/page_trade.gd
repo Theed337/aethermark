@@ -219,38 +219,69 @@ func _build_open(cur: Dictionary) -> void:
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 16)
 	_trade_box.add_child(cols)
-	# Eigenes Angebot (Auswahl aus dem Inventar)
+	# Eigenes Angebot: Gegenstände aus dem Inventar in die Angebotsfläche ziehen (oder anklicken)
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(left)
 	left.add_child(UI.label("Dein Angebot (%d/%d)" % [mine["offer"].size(), TradeLedger.MAX_ITEMS], 17, UI.GOLD, true))
 	var c := character()
+	var offer_zone := DropZone.new()
+	offer_zone.add_theme_stylebox_override("panel", UI.box(Color("#14261f"), 10, Color("#3a6a50"), 2, 8))
+	offer_zone.custom_minimum_size = Vector2(0, 110)
+	offer_zone.drop_check = func(d: Dictionary) -> bool: return d.get("from", "") == "inv" and not _selected.has(str(d["uid"]))
+	offer_zone.drop_do = func(d: Dictionary):
+		_selected[str(d["uid"])] = true
+		_send_offer()
+	left.add_child(offer_zone)
+	var og := GridContainer.new()
+	og.columns = 4
+	og.add_theme_constant_override("h_separation", 6)
+	og.add_theme_constant_override("v_separation", 6)
+	offer_zone.add_child(og)
+	var offered := 0
+	for it in c["inventory"]:
+		if _selected.has(it["uid"]) and ItemText.tradable_now(c, it):
+			offered += 1
+			var uid: String = it["uid"]
+			var t := ItemTile.make(it, "", Vector2(120, 70), false, false)
+			t.payload = {"uid": uid, "from": "offer"}
+			t.pressed.connect(func():
+				_selected.erase(uid)
+				_send_offer())
+			og.add_child(t)
+	if offered == 0:
+		og.add_child(UI.label("Ziehe Gegenstände hierher (oder klicke sie unten an).", 14, UI.DIM))
+	left.add_child(UI.label("Dein Inventar (handelbare Gegenstände)", 17, UI.GOLD, true))
+	var inv_zone := DropZone.new()
+	inv_zone.add_theme_stylebox_override("panel", UI.box(Color("#142033"), 10, Color("#2a3a55"), 2, 8))
+	inv_zone.custom_minimum_size = Vector2(0, 160)
+	inv_zone.drop_check = func(d: Dictionary) -> bool: return d.get("from", "") == "offer"
+	inv_zone.drop_do = func(d: Dictionary):
+		_selected.erase(str(d["uid"]))
+		_send_offer()
+	left.add_child(inv_zone)
+	var ig := GridContainer.new()
+	ig.columns = 4
+	ig.add_theme_constant_override("h_separation", 6)
+	ig.add_theme_constant_override("v_separation", 6)
+	inv_zone.add_child(ig)
 	var shown := 0
 	for it in c["inventory"]:
-		if not ItemText.tradable_now(c, it):
+		if not ItemText.tradable_now(c, it) or _selected.has(it["uid"]):
 			continue
 		shown += 1
-		var uid: String = it["uid"]
-		var b := Button.new()
-		b.toggle_mode = true
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.clip_text = true
-		b.custom_minimum_size = Vector2(0, 36)
-		b.text = "%s  [Stufe %d]" % [it["name"], int(it["level"])]
-		b.add_theme_color_override("font_color", DataColors.rarity(it["rarity"]))
-		b.tooltip_text = "\n".join(ItemText.lines(it))
-		b.set_pressed_no_signal(_selected.has(uid))
-		b.toggled.connect(func(on: bool):
-			if on:
-				_selected[uid] = true
-			else:
-				_selected.erase(uid)
-			_send_offer())
-		left.add_child(b)
-	if shown == 0:
+		var uid2: String = it["uid"]
+		var t2 := ItemTile.make(it, "", Vector2(120, 70), false, false)
+		t2.payload = {"uid": uid2, "from": "inv"}
+		t2.pressed.connect(func():
+			if _selected.size() < TradeLedger.MAX_ITEMS:
+				_selected[uid2] = true
+				_send_offer())
+		ig.add_child(t2)
+	if shown == 0 and offered == 0:
 		var nl := UI.label("Keine handelbaren Gegenstände (angelegte, gesperrte und gebundene bleiben bei dir).", 14, UI.DIM)
 		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		left.add_child(nl)
+		ig.add_child(nl)
 	# Angebot des Partners mit allen Werten
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -258,6 +289,15 @@ func _build_open(cur: Dictionary) -> void:
 	right.add_child(UI.label("Angebot von %s" % theirs["name"], 17, UI.GOLD, true))
 	if theirs["offer"].is_empty():
 		right.add_child(UI.label("Noch nichts angeboten.", 14, UI.DIM))
+	var pg := GridContainer.new()
+	pg.columns = 4
+	pg.add_theme_constant_override("h_separation", 6)
+	pg.add_theme_constant_override("v_separation", 6)
+	right.add_child(pg)
+	for it in theirs["offer"]:
+		var pt := ItemTile.make(it, "", Vector2(120, 70), false, false)
+		pt.drag_enabled = false
+		pg.add_child(pt)
 	for it in theirs["offer"]:
 		var card := UI.panel()
 		right.add_child(card)

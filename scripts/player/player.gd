@@ -156,8 +156,25 @@ func setup(arena_node: Node, c: Dictionary) -> void:
 		var it := SaveSystem.find_item(c, eq["weapon"])
 		weapon_type = it.get("weapon_type", "sword")
 	recalc(true)
+	if net_role == "none" or net_role == "remote_sim":
+		_grant_start_skills()
 	hp = stats["max_hp"]
 	mana = stats["mana_max"]
+
+
+## Startfähigkeiten hängen von der Waffe in der Hand ab (eine aktive + eine passive Stufe 1).
+const START_SKILLS := {
+	"sword": ["chain_lightning", "vampiric"], "axe": ["frost_nova", "wide_strikes"], "hammer": ["earthquake", "iron_will"],
+	"dagger": ["spirit_wisps", "crit_mastery"], "bow": ["fireball", "swift"], "staff": ["fireball", "arcane_focus"],
+}
+
+
+func _grant_start_skills() -> void:
+	if not levels.is_empty():
+		return
+	for id in START_SKILLS.get(weapon_type, START_SKILLS["sword"]):
+		if GameData.skills.has(id):
+			add_skill_level(id)
 
 
 func _ready() -> void:
@@ -282,6 +299,7 @@ func gather_input() -> Dictionary:
 		"skills": [Input.is_action_just_pressed("skill_1"), Input.is_action_just_pressed("skill_2"),
 				Input.is_action_just_pressed("skill_3"), Input.is_action_just_pressed("skill_4")],
 		"interact": Input.is_action_just_pressed("interact"),
+		"interact_held": Input.is_action_pressed("interact"),
 		"lock": Input.is_action_just_pressed("lock_on"),
 	}
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:

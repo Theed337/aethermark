@@ -11,7 +11,7 @@ const PAGE_DEFS := [
 	["character", "Charakter", "res://scripts/ui/pages/page_character.gd"],
 	["talents", "Talentbaum", "res://scripts/ui/pages/page_talents.gd"],
 	["inventory", "Ausrüstung & Inventar", "res://scripts/ui/pages/page_inventory.gd"],
-	["collection", "Sammlung & Kosmetik", "res://scripts/ui/pages/page_collection.gd"],
+	["collection", "Sammlung & Kosmetik", "res://scripts/ui/pages/page_inventory.gd"],
 	["world", "Weltkarte", "res://scripts/ui/pages/page_world.gd"],
 	["achievements", "Erfolge & Statistiken", "res://scripts/ui/pages/page_achievements.gd"],
 	["settings", "Einstellungen", "res://scripts/ui/pages/page_settings.gd"],
@@ -411,6 +411,8 @@ func go(id: String, keep_new: bool = false) -> void:
 	var script: GDScript = load(def[2])
 	var p: MenuPage = script.new()
 	p.menu = self
+	if id == "collection" and p is PageInventory:
+		p.tab = "collection"
 	content_holder.add_child(p)
 	page = p
 	p.build()
@@ -445,7 +447,7 @@ func refresh_header() -> void:
 		header_sub.text = "Erstelle deinen Helden"
 	else:
 		header_label.text = c["name"]
-		header_sub.text = "%s · Stufe %d · %d Talentpunkte" % [c.get("title", "Wanderer"), c["meta_level"], c["talent_points"]]
+		header_sub.text = "%s · Stufe %d · %d TP · %d Gold" % [c.get("title", "Wanderer"), c["meta_level"], c["talent_points"], int(c.get("gold", 0))]
 	var n := get_node_or_null("/root/Net")
 	if n != null and n.in_lobby():
 		status_label.text = "Gruppe: %d/5 Spieler" % n.players.size()

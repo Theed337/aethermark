@@ -3,7 +3,7 @@ extends Control
 ## Rundes Radar: zeigt Gegner, Mitspieler, Truhen, Schreine, Bossarena und Teich relativ zum Spieler.
 ## Die Karte dreht sich mit der Kamera (oben = Blickrichtung).
 
-const VIEW_RANGE := 42.0     # Weltmeter vom Mittelpunkt bis zum Rand
+const VIEW_RANGE := 55.0     # Weltmeter vom Mittelpunkt bis zum Rand
 
 var arena: Node
 var player: Player
@@ -31,7 +31,7 @@ func _to_map(world: Vector3, origin: Vector3, yaw: float, rad: float) -> Vector2
 func _draw() -> void:
 	var rad := minf(size.x, size.y) * 0.5 - 6.0
 	var c := size * 0.5
-	draw_circle(c, rad, Color(0.04, 0.05, 0.06, 0.72))
+	draw_circle(c, rad, Color(0.07, 0.1, 0.09, 0.94))
 	if player == null or not is_instance_valid(player):
 		return
 	var origin := player.global_position

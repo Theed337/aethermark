@@ -38,6 +38,8 @@ func _ready() -> void:
 		await get_tree().process_frame
 		m.go(arg)
 		m.spin_speed = 0.0
+		if OS.get_environment("SHOT_TAB") != "" and m.page.has_method("_set_tab"):
+			m.page._set_tab(OS.get_environment("SHOT_TAB"))
 		if args.size() > 4:
 			m.camera_view(args[4])
 		await get_tree().process_frame
