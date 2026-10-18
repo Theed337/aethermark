@@ -74,7 +74,7 @@ func build() -> void:
 	_start_btn.add_theme_font_size_override("font_size", 24)
 	_start_btn.pressed.connect(start)
 	v.add_child(_start_btn)
-	v.add_child(UI.label("Regel: Gefundene Ausrüstung bleibt immer erhalten. Bei einer Niederlage gibt es nur halbe Talentpunkte und keine Gebietsfreischaltung.", 13, UI.DIM))
+	v.add_child(UI.label("Regel: Gefundene Ausrüstung bleibt immer erhalten. Talentpunkte gibt es nur durch Charakterstufen (Erfahrung aus Runs). Bei einer Niederlage gibt es keine Gebietsfreischaltung.", 13, UI.DIM))
 	_refresh_area()
 	_refresh_diff()
 

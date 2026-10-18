@@ -120,7 +120,26 @@ func _migrate(d: Dictionary) -> Dictionary:
 			c["gold"] = 60
 		if not c.has("shop"):
 			c["shop"] = {}
+		if int(c.get("tp_rule", 0)) < 2:
+			_apply_tp_rule(c)
 	return out
+
+
+## Neue Talentpunkte-Regel (v0.9.9): insgesamt höchstens 1 + (Stufe - 1) Punkte. Überzählige freie Punkte entfallen;
+## reicht das nicht, wird der Talentbaum zurückgesetzt und der Rest neu verteilt.
+func _apply_tp_rule(c: Dictionary) -> void:
+	c["tp_rule"] = 2
+	c["meta_level"] = clampi(int(c.get("meta_level", 1)), 1, Progression.MAX_META_LEVEL)
+	var allowed := Progression.total_points_for_level(int(c["meta_level"]))
+	var talents: Array = c.get("talents", [])
+	var spent := TalentTree.spent_points(talents)
+	var free := int(c.get("talent_points", 0))
+	if spent + free <= allowed:
+		return
+	if spent > allowed:
+		c["talents"] = []
+		spent = 0
+	c["talent_points"] = maxi(allowed - spent, 0)
 
 
 # ---------------------------------------------------------------- Charaktere
@@ -144,7 +163,7 @@ func new_character(char_name: String, appearance: Dictionary) -> Dictionary:
 	var w := starter_weapon()
 	var c := {
 		"id": "c%d_%d" % [Time.get_unix_time_from_system(), randi() % 100000],
-		"name": char_name, "appearance": appearance, "meta_xp": 0, "meta_level": 1, "talent_points": 3,
+		"name": char_name, "appearance": appearance, "meta_xp": 0, "meta_level": 1, "talent_points": Progression.START_TALENT_POINTS, "tp_rule": 2,
 		"talents": [], "inventory": [w], "equipment": {"weapon": w["uid"]}, "stats": default_stats(),
 		"unlocked_areas": ["emerald_forest"], "cleared_areas": [], "bosses_defeated": [],
 		"cosmetics": [], "achievements": [], "title": "Wanderer", "gold": 60, "shop": {}, "created": Time.get_unix_time_from_system(),

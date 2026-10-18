@@ -105,7 +105,7 @@ func _report() -> void:
 	check(rs["items"].size() > 0, "Beute gesammelt: %d Gegenstände" % rs["items"].size())
 	var c := SaveSystem.active_character()
 	check(c["stats"]["runs"] == 1, "Run im Spielstand gespeichert")
-	check(c["talent_points"] > 3, "Talentpunkte erhalten (%d)" % c["talent_points"])
+	check(c["talent_points"] >= Progression.START_TALENT_POINTS, "Talentpunkte nur aus Haupt-Level-Ups (%d)" % c["talent_points"])
 	check(RunState.area_id in c["cleared_areas"] or not rs["boss_defeated"], "Gebiet als abgeschlossen vermerkt")
 	check(RunState.area_id != "emerald_forest" or "sunken_ruins" in c["unlocked_areas"] or not rs["boss_defeated"], "Nächstes Gebiet freigeschaltet")
 	var reloaded := SaveSystem.load_game()

@@ -105,6 +105,6 @@ static func validate_talents(allocated: Array) -> String:
 	return ""
 
 
-## Mehr Talentpunkte, als ein Charakter dieser Stufe haben kann, sind unplausibel (großzügige Obergrenze).
+## Mehr Talentpunkte, als ein Charakter dieser Stufe haben kann (1 Startpunkt + 1 je Stufe), sind unmöglich.
 static func max_talent_points(meta_level: int) -> int:
-	return 3 + meta_level + 40 + GameData.achievements.size() * 4 + meta_level * 6
+	return Progression.total_points_for_level(meta_level)

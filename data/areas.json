@@ -9,7 +9,59 @@
    },
    "desc": "Farbenfroher Fantasy-Wald mit Ruinen, Pilzen und einem uralten Wächter.",
    "boss": "rootwarden",
-   "difficulty": 1
+   "difficulty": 1,
+   "skins": {
+    "grunt": {
+     "name": "Moosling",
+     "mesh": "Goleling",
+     "mh": 1.5
+    },
+    "archer": {
+     "name": "Dornschütze",
+     "mesh": "Tribal",
+     "mh": 1.6
+    },
+    "bomber": {
+     "name": "Sporenbombe",
+     "mesh": "MushnubEvolved",
+     "mh": 1.3
+    },
+    "shaman": {
+     "name": "Wurzelhexer",
+     "mesh": "Wizard",
+     "mh": 1.7
+    },
+    "brute": {
+     "name": "Waldork",
+     "mesh": "Orc",
+     "mh": 2.0
+    },
+    "crawler": {
+     "name": "Webspinne",
+     "mesh": "E_Spider",
+     "mh": 1.2
+    },
+    "sentinel": {
+     "name": "Dornenwächter",
+     "mesh": "GreenSpikyBlob",
+     "mh": 1.6
+    },
+    "splitter": {
+     "name": "Grünschleim",
+     "mesh": "GreenBlob",
+     "mh": 1.5
+    },
+    "splitling": {
+     "name": "Schleimling",
+     "mesh": "A_Slime",
+     "mh": 1.0
+    },
+    "cultist": {
+     "name": "Affenkultist",
+     "mesh": "Monkroose",
+     "mh": 1.6
+    }
+   }
   },
   {
    "id": "sunken_ruins",
@@ -48,7 +100,7 @@
      "#6a5a4a",
      "#4a3e32"
     ],
-    "trees": 60,
+    "trees": 36,
     "grass_hue": [
      0.38,
      0.5
@@ -81,49 +133,65 @@
    },
    "skins": {
     "grunt": {
-     "name": "Tempelwächterling",
+     "name": "Ruinenfrosch",
      "color": "#7a8a86",
      "accent": "#c0f0e8",
-     "model": "Skeleton_Minion",
-     "tint": "#a8c4b8",
-     "weapon": "axe"
+     "mesh": "E_Frog",
+     "mh": 1.3
     },
     "archer": {
      "name": "Schlangenschütze",
      "color": "#4a8a6a",
      "accent": "#d0f0c0",
-     "model": "Skeleton_Rogue",
-     "tint": "#9ec9a0",
-     "weapon": "crossbow"
+     "mesh": "Squidle",
+     "mh": 1.6
     },
     "bomber": {
-     "name": "Zündkrabbe",
+     "name": "Zündfisch",
      "color": "#c86a3a",
-     "accent": "#ffe0a0"
+     "accent": "#ffe0a0",
+     "mesh": "Fish",
+     "mh": 1.4
     },
     "shaman": {
      "name": "Ruinenpriester",
      "color": "#3a7a9a",
      "accent": "#a0e0f0",
-     "model": "Skeleton_Mage",
-     "tint": "#8fc8d8",
-     "glow": "#3ad0e0",
-     "weapon": "staff"
+     "mesh": "GhostSkull",
+     "mh": 1.7
     },
     "brute": {
-     "name": "Steinkoloss",
+     "name": "Steinsaurier",
      "color": "#6a7a70",
      "accent": "#d0e0d0",
-     "model": "Skeleton_Warrior",
-     "tint": "#8a9a90",
-     "weapon": "blade",
-     "offhand": "shield_big"
+     "mesh": "Dino",
+     "mh": 2.0
     },
     "sentinel": {
-     "model": "Skeleton_Warrior",
-     "tint": "#6aa0a8",
-     "weapon": "blade",
-     "offhand": "shield"
+     "name": "Kaktuswächter",
+     "mesh": "Cactoro",
+     "mh": 1.6,
+     "tint": "#9a9a8a"
+    },
+    "crawler": {
+     "name": "Sandviper",
+     "mesh": "E_Snake",
+     "mh": 1.4
+    },
+    "splitter": {
+     "name": "Rosaschleim",
+     "mesh": "PinkBlob",
+     "mh": 1.5
+    },
+    "splitling": {
+     "name": "Ruinenratte",
+     "mesh": "E_Rat",
+     "mh": 0.9
+    },
+    "cultist": {
+     "name": "Schattenläufer",
+     "mesh": "Ninja",
+     "mh": 1.6
     }
    },
    "tiers": [
@@ -296,7 +364,7 @@
      "#1a1414"
     ],
     "tree_style": "dead",
-    "trees": 45,
+    "trees": 24,
     "grass_hue": [
      0.02,
      0.08
@@ -336,53 +404,74 @@
      "name": "Aschling",
      "color": "#6a3a2a",
      "accent": "#ffb060",
-     "model": "Skeleton_Minion",
-     "tint": "#6a3a2e",
-     "glow": "#ff5a1a",
-     "weapon": "axe"
+     "mesh": "Demon",
+     "mh": 1.6
     },
     "archer": {
-     "name": "Glutschütze",
+     "name": "Glutwespe",
      "color": "#a8421e",
      "accent": "#ffd080",
-     "model": "Skeleton_Rogue",
-     "tint": "#8a3a2a",
-     "glow": "#ff7a2a",
-     "weapon": "crossbow"
+     "mesh": "E_Wasp",
+     "mh": 1.4,
+     "tint": "#ff9a70"
     },
     "bomber": {
      "name": "Magmabombe",
      "color": "#e0521a",
-     "accent": "#fff080"
+     "accent": "#fff080",
+     "mesh": "Armabee",
+     "mh": 1.2,
+     "tint": "#ff7040"
     },
     "shaman": {
      "name": "Flammenseher",
      "color": "#8a2a3a",
      "accent": "#ff9aa0",
-     "model": "Skeleton_Mage",
-     "tint": "#5a1a1a",
-     "glow": "#ff3a1a",
-     "weapon": "staff"
+     "mesh": "Wizard",
+     "mh": 1.7,
+     "tint": "#ff7a5a"
     },
     "brute": {
      "name": "Obsidiankoloss",
      "color": "#2a2a32",
      "accent": "#ff6a2a",
-     "model": "Skeleton_Warrior",
-     "tint": "#2a2024",
-     "glow": "#ff6a1a",
-     "weapon": "axe",
-     "offhand": "shield_big"
+     "mesh": "BlueDemon",
+     "mh": 2.0,
+     "tint": "#ff5a30"
     },
     "crawler": {
-     "name": "Funkenkriecher",
+     "name": "Lavaspinne",
      "color": "#b0501e",
-     "accent": "#ffe080"
+     "accent": "#ffe080",
+     "mesh": "E_Spider",
+     "mh": 1.2,
+     "tint": "#ff6a40"
     },
     "splitter": {
-     "name": "Schlackebrocken",
+     "name": "Magmaschleim",
      "color": "#5a3a2a",
-     "accent": "#ff8a40"
+     "accent": "#ff8a40",
+     "mesh": "GreenBlob",
+     "mh": 1.5,
+     "tint": "#ff6a2a"
+    },
+    "sentinel": {
+     "name": "Glutkaktus",
+     "mesh": "Cactoro",
+     "mh": 1.6,
+     "tint": "#ff8a50"
+    },
+    "splitling": {
+     "name": "Funke",
+     "mesh": "A_Slime",
+     "mh": 1.0,
+     "tint": "#ff8a30"
+    },
+    "cultist": {
+     "name": "Aschekultist",
+     "mesh": "OrcSkull",
+     "mh": 1.6,
+     "tint": "#c06040"
     }
    },
    "tiers": [
@@ -556,7 +645,7 @@
      "#3a3028"
     ],
     "tree_style": "pine",
-    "trees": 70,
+    "trees": 40,
     "grass_hue": [
      0.5,
      0.58
@@ -596,59 +685,76 @@
      "name": "Frostling",
      "color": "#8ab8d8",
      "accent": "#f0faff",
-     "model": "Skeleton_Warrior",
-     "tint": "#b0d8f0",
-     "glow": "#60b8ff",
-     "weapon": "blade",
-     "offhand": "shield"
+     "mesh": "Alpaking",
+     "mh": 1.5,
+     "tint": "#cfe8ff"
     },
     "archer": {
      "name": "Eisschütze",
      "color": "#5a8ab0",
      "accent": "#d0f0ff",
-     "model": "Skeleton_Rogue",
-     "tint": "#a0c8e8",
-     "glow": "#80d0ff",
-     "weapon": "crossbow"
+     "mesh": "Birb",
+     "mh": 1.5,
+     "tint": "#bfe0ff"
     },
     "bomber": {
      "name": "Frostbombe",
      "color": "#7ad0f0",
-     "accent": "#ffffff"
+     "accent": "#ffffff",
+     "mesh": "Armabee",
+     "mh": 1.2,
+     "tint": "#a0d8ff"
     },
     "shaman": {
      "name": "Schneehexer",
      "color": "#6a6ab0",
      "accent": "#d0d0ff",
-     "model": "Skeleton_Mage",
-     "tint": "#c0d0ff",
-     "glow": "#80a0ff",
-     "weapon": "staff"
+     "mesh": "Wizard",
+     "mh": 1.7,
+     "tint": "#a0c8ff"
     },
     "brute": {
-     "name": "Eisgolem",
+     "name": "Eisyeti",
      "color": "#a0c0d8",
      "accent": "#e8f8ff",
-     "model": "Skeleton_Warrior",
-     "tint": "#90b8d8",
-     "glow": "#a0e0ff",
-     "weapon": "axe",
-     "offhand": "shield_big"
+     "mesh": "Yeti",
+     "mh": 2.1
     },
     "crawler": {
      "name": "Eisspinne",
      "color": "#6a9ab8",
-     "accent": "#e0f4ff"
+     "accent": "#e0f4ff",
+     "mesh": "E_Spider",
+     "mh": 1.2,
+     "tint": "#a8d8ff"
     },
     "splitter": {
-     "name": "Eisbrocken",
+     "name": "Eisschleim",
      "color": "#9ac0d8",
-     "accent": "#ffffff"
+     "accent": "#ffffff",
+     "mesh": "GreenBlob",
+     "mh": 1.5,
+     "tint": "#80c8ff"
     },
     "sentinel": {
-     "name": "Gletscherwacht",
+     "name": "Frostwächter",
      "color": "#7a9ab8",
-     "accent": "#d0f0ff"
+     "accent": "#d0f0ff",
+     "mesh": "GhostSkull",
+     "mh": 1.7,
+     "tint": "#9ac8ff"
+    },
+    "splitling": {
+     "name": "Eissplitter",
+     "mesh": "A_Slime",
+     "mh": 1.0,
+     "tint": "#a0e0ff"
+    },
+    "cultist": {
+     "name": "Frostkultist",
+     "mesh": "Ninja",
+     "mh": 1.6,
+     "tint": "#90b0ff"
     }
    },
    "tiers": [
@@ -821,7 +927,7 @@
      "#2a2030",
      "#1a1424"
     ],
-    "trees": 110,
+    "trees": 70,
     "grass_hue": [
      0.72,
      0.8
@@ -858,60 +964,76 @@
    },
    "skins": {
     "grunt": {
-     "name": "Schattenling",
+     "name": "Schemen",
      "color": "#3a2a5a",
      "accent": "#c0a0ff",
-     "model": "Skeleton_Rogue",
-     "tint": "#5a4a7a",
-     "glow": "#a060ff",
-     "weapon": "blade"
+     "mesh": "Ghost",
+     "mh": 1.6
     },
     "archer": {
      "name": "Nachtschütze",
      "color": "#2a2a4a",
      "accent": "#a0c0ff",
-     "model": "Skeleton_Rogue",
-     "tint": "#403060",
-     "glow": "#8040ff",
-     "weapon": "crossbow"
+     "mesh": "A_Bat",
+     "mh": 1.3
     },
     "bomber": {
-     "name": "Giftspore",
+     "name": "Dunkelbombe",
      "color": "#5a8a2a",
-     "accent": "#d0ff70"
+     "accent": "#d0ff70",
+     "mesh": "Glub",
+     "mh": 1.3
     },
     "shaman": {
-     "name": "Irrlichtseher",
+     "name": "Schattenhexer",
      "color": "#4a3a8a",
      "accent": "#e0c0ff",
-     "model": "Skeleton_Mage",
-     "tint": "#4a2a6a",
-     "glow": "#ff5ad0",
-     "weapon": "staff"
+     "mesh": "Wizard",
+     "mh": 1.7,
+     "tint": "#b090ff"
     },
     "brute": {
-     "name": "Fluchbär",
+     "name": "Knochenkoloss",
      "color": "#2a2030",
      "accent": "#ff7ad0",
-     "model": "Skeleton_Minion",
-     "tint": "#2a1a38",
-     "glow": "#ff4ac0",
-     "weapon": "axe"
+     "mesh": "A_Skeleton",
+     "mh": 2.1,
+     "tint": "#9a8aa8"
     },
     "crawler": {
-     "name": "Schleicher",
+     "name": "Nachtspinne",
      "color": "#4a2a5a",
-     "accent": "#ff9ae0"
+     "accent": "#ff9ae0",
+     "mesh": "E_Spider",
+     "mh": 1.2,
+     "tint": "#a070ff"
     },
     "splitter": {
-     "name": "Trugbild",
+     "name": "Dunkelschleim",
      "color": "#5a3a7a",
-     "accent": "#e0c0ff"
+     "accent": "#e0c0ff",
+     "mesh": "PinkBlob",
+     "mh": 1.5,
+     "tint": "#a070d0"
     },
     "cultist": {
      "name": "Mondkultist",
      "color": "#3a2a5a",
-     "accent": "#ffc0ff"
+     "accent": "#ffc0ff",
+     "mesh": "Ninja",
+     "mh": 1.6,
+     "tint": "#8060b0"
+    },
+    "sentinel": {
+     "name": "Irrlichtwächter",
+     "mesh": "Hywirl",
+     "mh": 1.6
+    },
+    "splitling": {
+     "name": "Düsterling",
+     "mesh": "A_Slime",
+     "mh": 1.0,
+     "tint": "#9060c0"
     }
    },
    "tiers": [
@@ -1085,7 +1207,7 @@
      "#6a5a48"
     ],
     "tree_style": "crystal",
-    "trees": 55,
+    "trees": 26,
     "grass_hue": [
      0.1,
      0.14
@@ -1122,67 +1244,75 @@
    },
    "skins": {
     "grunt": {
-     "name": "Himmelssoldat",
+     "name": "Sturmvogel",
      "color": "#b0a070",
      "accent": "#fff0a0",
-     "model": "Skeleton_Warrior",
-     "tint": "#e8d890",
-     "glow": "#ffe070",
-     "weapon": "blade",
-     "offhand": "shield"
+     "mesh": "Birb",
+     "mh": 1.5
     },
     "archer": {
      "name": "Windschütze",
      "color": "#6a9ad0",
      "accent": "#e0f0ff",
-     "model": "Skeleton_Rogue",
-     "tint": "#e0e8ff",
-     "glow": "#ffffff",
-     "weapon": "crossbow"
+     "mesh": "Pigeon",
+     "mh": 1.5
     },
     "bomber": {
-     "name": "Blitzbombe",
+     "name": "Blitzbiene",
      "color": "#e0b030",
-     "accent": "#ffffff"
+     "accent": "#ffffff",
+     "mesh": "ArmabeeEvolved",
+     "mh": 1.3
     },
     "shaman": {
-     "name": "Himmelspriester",
+     "name": "Himmelsmagier",
      "color": "#d0c0e0",
      "accent": "#fff0c0",
-     "model": "Skeleton_Mage",
-     "tint": "#fff0c0",
-     "glow": "#ffd860",
-     "weapon": "staff"
+     "mesh": "Wizard",
+     "mh": 1.7,
+     "tint": "#ffe08a"
     },
     "brute": {
-     "name": "Festungswächter",
+     "name": "Festungsdrache",
      "color": "#a0a0b0",
      "accent": "#ffe070",
-     "model": "Skeleton_Warrior",
-     "tint": "#c8c0a0",
-     "glow": "#ffe070",
-     "weapon": "axe",
-     "offhand": "shield_big"
+     "mesh": "Dragon",
+     "mh": 2.1
     },
     "crawler": {
-     "name": "Sturmläufer",
+     "name": "Sturmwespe",
      "color": "#80a0d0",
-     "accent": "#ffffff"
+     "accent": "#ffffff",
+     "mesh": "E_Wasp",
+     "mh": 1.3
     },
     "splitter": {
-     "name": "Splittergolem",
+     "name": "Wolkenschleim",
      "color": "#c0b090",
-     "accent": "#ffe0a0"
+     "accent": "#ffe0a0",
+     "mesh": "PinkBlob",
+     "mh": 1.5,
+     "tint": "#d0e8ff"
     },
     "sentinel": {
-     "name": "Himmelswache",
+     "name": "Himmelswächter",
      "color": "#b8b0a0",
-     "accent": "#ffe070"
+     "accent": "#ffe070",
+     "mesh": "Alien",
+     "mh": 1.7
     },
     "cultist": {
-     "name": "Äthermagier",
+     "name": "Himmelskultist",
      "color": "#8a90d0",
-     "accent": "#fff0c0"
+     "accent": "#fff0c0",
+     "mesh": "Tribal",
+     "mh": 1.6
+    },
+    "splitling": {
+     "name": "Wölkchen",
+     "mesh": "A_Slime",
+     "mh": 1.0,
+     "tint": "#d0f0ff"
     }
    },
    "tiers": [

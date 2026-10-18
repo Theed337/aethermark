@@ -212,8 +212,8 @@ func test_progression() -> void:
 			"level": 12, "duration": 400.0, "downs": 0, "items": [it], "damage_dealt": 9000.0}
 	var tp_before: int = c["talent_points"]
 	var sum := Progression.apply_results(c, win)
-	check(sum["points"] == Progression.compute_points(win) and sum["points"] > 0, "Punkte vergeben")
-	check(c["talent_points"] >= tp_before + sum["points"], "Talentpunkte gutgeschrieben")
+	check(sum["points"] == sum["meta_levels"], "Talentpunkte nur durch Stufenaufstieg")
+	check(c["talent_points"] == tp_before + sum["meta_levels"], "Talentpunkte gutgeschrieben (1 je Stufe)")
 	check("rootwarden" in c["bosses_defeated"], "Boss gespeichert")
 	check("sunken_ruins" in c["unlocked_areas"], "Nächstes Gebiet freigeschaltet")
 	check(c["stats"]["kills"] == 120 and c["stats"]["wins"] == 1, "Statistik aktualisiert")
@@ -223,10 +223,30 @@ func test_progression() -> void:
 	check(c["inventory"].size() == invn, "Kein Duplikat desselben Items")
 	check(again["dropped_items"].size() == 1, "Duplikat wird gemeldet")
 	var lose := {"victory": false, "kills": 40, "level": 5, "duration": 100.0, "items": [], "downs": 1}
-	var half := Progression.compute_points(lose)
-	var full := Progression.compute_points({"victory": true, "kills": 40, "level": 5})
-	check(half < full, "Niederlage gibt weniger Punkte")
-	check(Progression.compute_points(lose) >= 1, "Mindestens 1 Punkt")
+	var c2 := _fresh_char()
+	var tp2: int = c2["talent_points"]
+	var lsum := Progression.apply_results(c2, lose)
+	check(c2["talent_points"] == tp2 + lsum["meta_levels"], "Niederlage: Punkte nur durch Stufen")
+	check(c2["meta_xp"] > 0 or lsum["meta_levels"] > 0, "Niederlage gibt Erfahrung")
+	# Punkte-Obergrenze: 1 Startpunkt + 1 je Stufe bis Stufe 60
+	check(Progression.total_points_for_level(1) == 1, "Stufe 1: 1 Punkt")
+	check(Progression.total_points_for_level(60) == 60 and Progression.total_points_for_level(500) == 60, "Obergrenze 60 Punkte")
+	check(ItemValidator.max_talent_points(10) == 10, "Validator: Stufe 10 -> 10 Punkte")
+	var c3 := _fresh_char()
+	c3["meta_xp"] = 0
+	c3["meta_level"] = 59
+	Progression.apply_results(c3, {"victory": true, "boss_defeated": true, "kills": 99999, "level": 99, "items": [], "downs": 0})
+	check(c3["meta_level"] == 60 and c3["meta_xp"] == 0, "Stufe 60 ist die Obergrenze")
+	var tot3 := int(c3["talent_points"]) + TalentTree.spent_points(c3["talents"])
+	check(tot3 <= 60 + 3, "Punktesumme bleibt unter der Obergrenze")
+	check(Progression.meta_xp_for_level(10) > Progression.meta_xp_for_level(5) * 1.8, "Stufen werden zunehmend teurer")
+	# Migration alter Spielstände mit zu vielen Punkten
+	var old := _fresh_char()
+	old.erase("tp_rule")
+	old["meta_level"] = 3
+	old["talent_points"] = 80
+	var mig := SaveSystem._migrate({"characters": [old]})
+	check(int(mig["characters"][0]["talent_points"]) + TalentTree.spent_points(mig["characters"][0]["talents"]) <= 3, "Migration kappt überzählige Punkte")
 
 
 func test_scaling() -> void:

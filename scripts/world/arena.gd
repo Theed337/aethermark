@@ -300,6 +300,13 @@ func _update_spawner(delta: float) -> void:
 	_spawn_timer -= delta
 	if _spawn_timer > 0.0:
 		return
+	# Roguelite-Kurve (wie Vampire Survivors / Risk of Rain): Gegner werden mit der Laufzeit stärker.
+	if not scaling.has("base_hp"):
+		scaling["base_hp"] = float(scaling["hp_mult"])
+		scaling["base_dmg"] = float(scaling["dmg_mult"])
+	var mins := run_time / 60.0
+	scaling["hp_mult"] = float(scaling["base_hp"]) * (1.0 + 0.045 * mins)
+	scaling["dmg_mult"] = float(scaling["base_dmg"]) * (1.0 + 0.025 * mins)
 	var tier := _current_tier()
 	_spawn_timer = float(tier["interval"]) * (0.6 if RunState.quick_mode else 1.0) * event_spawn_mult
 	var cap: int = scaling["spawn_cap"]

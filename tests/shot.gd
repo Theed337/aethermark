@@ -60,6 +60,16 @@ func _ready() -> void:
 			a_ref.player.add_skill_level(id)
 	if OS.get_environment("SHOT_K") != "":
 		Input.action_press("skills_overview")
+	if kind == "arena" and OS.get_environment("SHOT_TOP") != "":
+		var tc := Camera3D.new()
+		a_ref.add_child(tc)
+		var pv := OS.get_environment("SHOT_TOP").split(",")
+		tc.far = 600.0
+		tc.fov = 60
+		tc.position = Vector3(float(pv[0]), float(pv[1]), float(pv[2]))
+		tc.look_at_from_position(tc.position, Vector3(float(pv[3]), 0, float(pv[4])))
+		tc.current = true
+		a_ref.hud.visible = false
 	for i in frames:
 		await get_tree().process_frame
 	if kind == "arena":

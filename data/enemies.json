@@ -287,7 +287,9 @@
    "color": "#4a6b2f",
    "accent": "#d8ff6a",
    "form": "tree",
-   "kit": {}
+   "kit": {},
+   "mesh": "MushroomKing",
+   "mh": 1.9
   },
   "clockwork_guardian": {
    "id": "clockwork_guardian",
@@ -309,7 +311,10 @@
     "rain_text": "Funkenregen!",
     "line": true,
     "line_text": "Zahnradansturm!"
-   }
+   },
+   "mesh": "OrcSkull",
+   "mh": 1.9,
+   "tint": "#aab8c8"
   },
   "lava_titan": {
    "id": "lava_titan",
@@ -331,7 +336,10 @@
     "rain_text": "Aschemeteore!",
     "line": true,
     "line_text": "Lavawalze!"
-   }
+   },
+   "mesh": "DragonEvolved",
+   "mh": 1.9,
+   "tint": "#ff6a40"
   },
   "frost_wyrm": {
    "id": "frost_wyrm",
@@ -353,7 +361,10 @@
     "rain_text": "Eissplitterhagel!",
     "line": true,
     "line_text": "Frostatem-Schneise!"
-   }
+   },
+   "mesh": "A_Dragon",
+   "mh": 1.9,
+   "tint": "#9ad0ff"
   },
   "mirror_witch": {
    "id": "mirror_witch",
@@ -375,7 +386,10 @@
     "rain_text": "Splitterspiegel!",
     "line": true,
     "line_text": "Schattensprung!"
-   }
+   },
+   "mesh": "Wizard",
+   "mh": 1.9,
+   "tint": "#e0b0ff"
   },
   "sky_sovereign": {
    "id": "sky_sovereign",
@@ -397,7 +411,10 @@
     "rain_text": "Sturm der Klingen!",
     "line": true,
     "line_text": "Sturzflug!"
-   }
+   },
+   "mesh": "Dragon",
+   "mh": 1.9,
+   "tint": "#ffd870"
   }
  }
 }

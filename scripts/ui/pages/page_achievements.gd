@@ -7,7 +7,7 @@ func build() -> void:
 	var c := character()
 	var v := VBoxContainer.new()
 	add_child(v)
-	v.add_child(title("Erfolge & Statistiken", "Erfolge geben Talentpunkte – ohne dir eine Klasse aufzuzwingen."))
+	v.add_child(title("Erfolge & Statistiken", "Erfolge geben Gold. Talentpunkte gibt es nur durch Charakterstufen im Hauptmenü."))
 	var sc := ScrollContainer.new()
 	sc.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -28,7 +28,7 @@ func build() -> void:
 		box.add_child(p)
 		var row := VBoxContainer.new()
 		p.add_child(row)
-		row.add_child(UI.label(("✓ " if got else "") + a["name"] + "   (+%d Talentpunkte)" % a["reward_points"], 17, UI.GOLD if got else UI.TEXT, true))
+		row.add_child(UI.label(("✓ " if got else "") + a["name"] + "   (+%d Gold)" % (int(a["reward_points"]) * 60), 17, UI.GOLD if got else UI.TEXT, true))
 		row.add_child(UI.label(a["desc"], 14, UI.DIM))
 		var bar := UI.bar(UI.GOLD if got else UI.TEAL, Vector2(0, 12))
 		bar.max_value = a["target"]

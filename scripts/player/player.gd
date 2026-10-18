@@ -102,6 +102,7 @@ var interact_held := false
 var bleed_t := 0.0
 var revive_progress := 0.0
 var permadown := false
+var _shield_idle := 0.0
 var aura_dmg_mult := 1.0          # Bonus durch "Heilende Aura" eines Verbündeten (Stufe 4)
 var level_pending := 0            # Host: noch nicht vergebene Levelaufstiege
 var net_offers: Array = []        # Host: aktuell angebotene Verbesserungen
@@ -410,6 +411,11 @@ func _tick_timers(delta: float) -> void:
 	if net_role == "local_client":
 		return   # Leben und Mana kommen vom Host
 	mana = minf(mana + stats["mana_regen"] * delta, stats["mana_max"])
+	var asl := skill_lv("arcane_shield")
+	if asl > 0 and state != "down":
+		_shield_idle += delta
+		if _shield_idle > 4.0 and shield < stats["max_hp"] * 0.1 * asl:
+			shield = minf(shield + stats["max_hp"] * 0.03 * delta * asl, stats["max_hp"] * 0.1 * asl)
 	_regen_acc += stats["hp_regen"] * delta * stats["heal_power"]
 	if _regen_acc >= 1.0 and hp < stats["max_hp"]:
 		hp = minf(hp + _regen_acc, stats["max_hp"])
@@ -682,6 +688,9 @@ func deal_damage(e: Node, base: float, category: String, tags: Array, from_pos: 
 		amount *= 1.6
 		FX.burst(arena, e.global_position + Vector3(0, 1, 0), Color("#e0f0ff"), 8, 3.0, 0.2, 0.6)
 	var force := RunMods.executioner_forces_crit(levels, hp_ratio)
+	var bz := skill_lv("berserker")
+	if bz > 0:
+		amount *= 1.0 + (1.0 - clampf(hp / maxf(stats["max_hp"], 1.0), 0.0, 1.0)) * 0.3 * bz
 	var r := Stats.roll_damage(amount, stats["crit_chance"], stats["crit_mult"], rng, force)
 	e.last_hit_by = self
 	var dealt: float = e.take_damage(r["amount"], r["crit"], from_pos, knock)
@@ -758,6 +767,13 @@ func take_damage(amount: float, from_pos: Vector3) -> void:
 		a -= absorbed
 	hp -= a
 	run_stats["damage_taken"] += a
+	_shield_idle = 0.0
+	var th := skill_lv("thorns")
+	if th > 0:
+		FX.ring(arena, global_position, 3.2, Color("#c8a0ff"), 0.25)
+		for e in get_tree().get_nodes_in_group("enemies"):
+			if is_instance_valid(e) and not e.dead and e.global_position.distance_to(global_position) <= 3.2 + 0.4 * e.model_scale:
+				deal_damage(e, a * (0.6 + 0.4 * th) + stats["damage"] * 0.5, "elem", ["thorns", "area"], global_position, 3.0)
 	shake = maxf(shake, 0.6)
 	FX.float_text(arena, global_position, str(int(roundf(a))), Color("#ff6a6a"), 44)
 	Sfx.play("hurt", 1.0, -3.0)
@@ -835,6 +851,13 @@ func _cast_once(id: String, dmg_mult: float) -> void:
 		"chain_lightning": _cast_chain(lv, dmg_mult)
 		"earthquake": _cast_earthquake(lv, dmg_mult)
 		"spirit_wisps": _refresh_wisps(true)
+		"blade_storm": _cast_blade_storm(lv, dmg_mult)
+		"poison_cloud": _cast_poison_cloud(lv, fwd, tgt, dmg_mult)
+		"ice_lance": _cast_ice_lance(lv, fwd, tgt, dmg_mult)
+		"thunder_strike": _cast_thunder(lv, dmg_mult)
+		"meteor_rain": _cast_meteor_rain(lv, fwd, tgt, dmg_mult)
+		"void_singularity": _cast_void(lv, fwd, tgt, dmg_mult)
+		"holy_nova": _cast_holy_nova(lv, dmg_mult)
 
 
 func _cast_fireball(lv: int, fwd: Vector3, tgt: Node3D, mult: float) -> void:
@@ -989,6 +1012,213 @@ func _quake(center: Vector3, r: float, d: float, stun: bool) -> void:
 				e.apply_stun(2.0)
 
 
+# ------------------------------------------------------------------ Neue Fähigkeiten
+
+func _poison_zone_at(pos: Vector3) -> bool:
+	for z in get_tree().get_nodes_in_group("poison_zones"):
+		if is_instance_valid(z) and z.global_position.distance_to(pos) < 4.0:
+			return true
+	return false
+
+
+func _cast_blade_storm(lv: int, mult: float) -> void:
+	var r: float = (3.6 + 0.3 * lv) * stats["area"]
+	var ticks := 6 + lv
+	var dur := 0.14
+	var d := _skill_base() * (0.45 + 0.06 * lv) * mult
+	for i in ticks:
+		get_tree().create_timer(dur * i, false).timeout.connect(func():
+			if state == "down" or not is_inside_tree():
+				return
+			var a := i * 1.9
+			FX.ring(arena, global_position, r, Color("#d8e4f0"), 0.22, 0.1)
+			FX.beam(arena, global_position + Vector3(0, 1.0, 0), global_position + Vector3(cos(a), 1.0, sin(a)) * r, Color("#eef4ff"), 0.14, 0.09)
+			FX.beam(arena, global_position + Vector3(0, 1.0, 0), global_position - Vector3(cos(a), -1.0, sin(a)) * r, Color("#eef4ff"), 0.14, 0.09)
+			Sfx.play("swing", 1.1 + i * 0.03, -9.0)
+			_area_hit(global_position, r, d, "melee", ["melee", "area"], 3.0))
+
+
+func _cast_poison_cloud(lv: int, fwd: Vector3, tgt: Node3D, mult: float) -> void:
+	var spot := global_position + fwd * 6.0
+	if tgt != null:
+		spot = tgt.global_position
+	var r: float = (3.2 + 0.3 * lv) * stats["area"]
+	var life := 5.0 + lv
+	var dps: float = stats["damage"] * (0.9 + 0.2 * lv) * mult
+	var zone := FX.zone(arena, spot, r, Color("#6bd84a"), life)
+	if zone != null:
+		zone.add_to_group("poison_zones")
+	var n := int(life / 0.5)
+	for i in n:
+		get_tree().create_timer(0.5 * (i + 1), false).timeout.connect(func():
+			if not is_instance_valid(zone) or not is_inside_tree():
+				return
+			FX.dust(arena, spot, r * 0.7, Color("#8aff6a"))
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e) and not e.dead and e.global_position.distance_to(spot) <= r + 0.4 * e.model_scale:
+					deal_damage(e, dps * 0.5, "elem", ["poison", "dot"], spot)
+					e.apply_poison(3.0, dps * (0.6 if lv < 4 else 0.9))
+					if lv >= 3:
+						e.apply_slow(1.0, 0.75))
+
+
+func _cast_ice_lance(lv: int, fwd: Vector3, tgt: Node3D, mult: float) -> void:
+	var count := 1 if lv < 3 else (2 if lv < 5 else 3)
+	var spread := 0.0 if count == 1 else 0.14
+	var from := global_position + Vector3(0, 1.3, 0)
+	for i in count:
+		var ang := (i - (count - 1) * 0.5) * spread
+		var dir := fwd.rotated(Vector3.UP, ang)
+		var pr := Projectile.new()
+		pr.owner_player = self
+		pr.damage = _skill_base() * (1.15 + 0.12 * lv) * mult
+		pr.category = "elem"
+		pr.tags = ["frost", "projectile"]
+		pr.pierce = 2 + (1 if lv >= 4 else 0)
+		pr.life = 1.4
+		pr.radius = 0.4
+		pr.setup(arena, from + dir * 0.8, dir * 32.0, Color("#bfeaff"), 0.22)
+		pr.homing_to = tgt if count == 1 else null
+		pr.on_impact = func(pos: Vector3):
+			FX.burst(arena, pos + Vector3(0, 0.6, 0), Color("#d8f4ff"), 8, 4.0, 0.1, 0.4)
+			FX.shards(arena, pos, 1.6, Color("#bfe8ff"), 6, 0.8)
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e) and not e.dead and e.global_position.distance_to(pos) <= 1.6:
+					e.apply_slow(2.5, 0.55)
+
+
+func _cast_thunder(lv: int, mult: float) -> void:
+	var strikes := 2 + lv
+	var r := 2.3 * float(stats["area"])
+	var d := _skill_base() * (1.5 + 0.2 * lv) * mult
+	var targets: Array = []
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and not e.dead and e.global_position.distance_to(global_position) < 22.0:
+			targets.append(e)
+	targets.sort_custom(func(a, b): return a.global_position.distance_to(global_position) < b.global_position.distance_to(global_position))
+	for i in strikes:
+		var spot: Vector3
+		if i < targets.size():
+			spot = targets[i].global_position
+		else:
+			var a := randf() * TAU
+			spot = global_position + Vector3(cos(a), 0, sin(a)) * randf_range(4.0, 9.0)
+		var tele := FX.telegraph(arena, spot, r, 0.55, Color("#bcd0ff"))
+		get_tree().create_timer(0.55 + 0.12 * i, false).timeout.connect(func():
+			if is_instance_valid(tele):
+				tele.queue_free()
+			if not is_inside_tree():
+				return
+			FX.pillar(arena, spot, Color("#d8e4ff"), 14.0, 0.8, 0.35)
+			FX.ring(arena, spot, r, Color("#a8c8ff"), 0.35, 0.15)
+			FX.burst(arena, spot + Vector3(0, 0.5, 0), Color("#e8f0ff"), 16, 7.0, 0.12, 0.5)
+			FX.scorch(arena, spot, r * 0.8, Color("#334466"), 2.5)
+			Sfx.play("boom", 1.3, -4.0)
+			shake = maxf(shake, 0.4)
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e) and not e.dead and e.global_position.distance_to(spot) <= r + 0.5 * e.model_scale:
+					var boost := 1.0
+					var stun := 0.8 if lv < 4 else 1.4
+					if "storm_front" in active_evolutions and e.slow_t > 0.0:
+						boost = 1.5
+						stun += 0.8
+					deal_damage(e, d * boost, "elem", ["lightning", "area"], spot, 4.0)
+					e.apply_stun(stun))
+
+
+func _cast_meteor_rain(lv: int, fwd: Vector3, tgt: Node3D, mult: float) -> void:
+	var center := global_position + fwd * 7.0
+	if tgt != null:
+		center = tgt.global_position
+	var count := 4 + lv
+	var r := 2.4 * float(stats["area"])
+	var d := _skill_base() * (1.8 + 0.25 * lv) * mult
+	for i in count:
+		var spot := center + Vector3(randf_range(-5.0, 5.0), 0, randf_range(-5.0, 5.0))
+		var delay := 0.5 + 0.28 * i
+		var tele := FX.telegraph(arena, spot, r, delay, Color("#ff7a2a"))
+		get_tree().create_timer(delay, false).timeout.connect(func():
+			if is_instance_valid(tele):
+				tele.queue_free()
+			if not is_inside_tree():
+				return
+			FX.pillar(arena, spot, Color("#ff9a3a"), 12.0, 0.9, 0.3)
+			FX.ring(arena, spot, r, Color("#ff7a2a"), 0.45, 0.2)
+			FX.burst(arena, spot + Vector3(0, 0.5, 0), Color("#ffb040"), 24, 8.0, 0.2, 0.7)
+			FX.cracks(arena, spot, r * 1.1, Color("#ff6a1a"), 7, 1.2)
+			FX.scorch(arena, spot, r * 0.8, Color("#2a1a12"), 3.0)
+			Sfx.play("boom", 0.8, -3.0)
+			shake = maxf(shake, 0.5)
+			var boost := 1.0
+			if "toxic_inferno" in active_evolutions and _poison_zone_at(spot):
+				boost = 1.5
+				FX.ring(arena, spot, r * 1.6, Color("#9aff4a"), 0.6, 0.2)
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e) and not e.dead and e.global_position.distance_to(spot) <= r + 0.5 * e.model_scale:
+					deal_damage(e, d * boost, "elem", ["fire", "area"], spot, 6.0)
+					e.apply_burn(3.0, stats["damage"] * 0.4))
+
+
+func _cast_void(lv: int, fwd: Vector3, tgt: Node3D, mult: float) -> void:
+	var spot := global_position + fwd * 6.0
+	if tgt != null:
+		spot = tgt.global_position
+	var r: float = (6.0 + 0.5 * lv) * stats["area"]
+	var life := 2.6 + 0.3 * lv
+	var tick_d := _skill_base() * (0.25 + 0.04 * lv) * mult
+	var zone := FX.zone(arena, spot, r * 0.5, Color("#9a4aff"), life)
+	FX.pillar(arena, spot, Color("#7a2aff"), 8.0, 0.6, life)
+	var n := int(life / 0.25)
+	for i in n:
+		get_tree().create_timer(0.25 * i, false).timeout.connect(func():
+			if not is_inside_tree():
+				return
+			FX.burst(arena, spot + Vector3(0, 0.6, 0), Color("#b07aff"), 3, 3.0, 0.1, 0.4)
+			for e in get_tree().get_nodes_in_group("enemies"):
+				if is_instance_valid(e) and not e.dead:
+					var dv: Vector3 = spot - e.global_position
+					dv.y = 0.0
+					if dv.length() <= r and not e.is_mini and not e._is_boss():
+						e._knock += dv.normalized() * minf(dv.length(), 2.5) * 1.6
+					if dv.length() <= r * 0.5:
+						deal_damage(e, tick_d, "elem", ["void", "area", "dot"], spot))
+	get_tree().create_timer(life, false).timeout.connect(func():
+		if not is_inside_tree():
+			return
+		FX.ring(arena, spot, r, Color("#c09aff"), 0.5, 0.2)
+		FX.burst(arena, spot + Vector3(0, 0.6, 0), Color("#d8baff"), 30, 10.0, 0.2, 0.8)
+		Sfx.play("boom", 0.5, -1.0)
+		shake = maxf(shake, 0.7)
+		for e in get_tree().get_nodes_in_group("enemies"):
+			if is_instance_valid(e) and not e.dead and e.global_position.distance_to(spot) <= r:
+				deal_damage(e, _skill_base() * (2.2 + 0.4 * lv) * mult, "elem", ["void", "area"], spot, 5.0))
+	if zone == null:
+		return
+
+
+func _cast_holy_nova(lv: int, mult: float) -> void:
+	var r: float = (6.0 + 0.5 * lv) * stats["area"]
+	FX.ring(arena, global_position, r, Color("#fff0a0"), 0.55, 0.2)
+	FX.ring(arena, global_position, r * 0.55, Color("#ffffff"), 0.4, 0.2)
+	FX.pillar(arena, global_position, Color("#fff2b0"), 9.0, 1.0, 0.4)
+	FX.burst(arena, global_position + Vector3(0, 0.6, 0), Color("#fff2b0"), 26, 7.0, 0.15, 0.7)
+	Sfx.play("crit", 0.9, -4.0)
+	var hit := 0
+	for e in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(e) and not e.dead and e.global_position.distance_to(global_position) <= r + 0.5 * e.model_scale:
+			deal_damage(e, _skill_base() * (0.7 + 0.1 * lv) * mult, "elem", ["holy", "area"], global_position, 4.0)
+			hit += 1
+	var amount: float = stats["max_hp"] * (0.10 + 0.03 * lv) * mult + float(mini(hit, 6)) * 2.0
+	for grp in ["player", "puppets"]:
+		for a in get_tree().get_nodes_in_group(grp):
+			if is_instance_valid(a) and not a.is_down() and a.global_position.distance_to(global_position) <= r + 2.0:
+				if a == self:
+					heal(amount)
+				else:
+					if a.has_method("heal"):
+						a.call("heal", amount)
+
+
 # ------------------------------------------------------------------ Geisterlichter
 
 func _wisp_count() -> int:
@@ -1023,6 +1253,12 @@ func _refresh_wisps(recast: bool = false) -> void:
 # ------------------------------------------------------------------ Tod von Gegnern
 
 func on_enemy_killed(e: Enemy) -> void:
+	var sh := skill_lv("soul_harvest")
+	if sh > 0:
+		mana = minf(mana + 2.0 + 1.5 * sh, stats["mana_max"])
+		if sh >= 3 and rng.randf() < 0.25:
+			_heal(stats["max_hp"] * 0.02 * sh)
+		FX.burst(arena, e.global_position + Vector3(0, 1, 0), Color("#9affd0"), 4, 3.0, 0.08, 0.5)
 	var vc := skill_lv("volatile_corpses")
 	if vc > 0:
 		var r := 2.8 if vc < 2 else 4.0

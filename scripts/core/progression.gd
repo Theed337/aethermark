@@ -3,24 +3,23 @@ extends RefCounted
 ## Dauerhafter Fortschritt nach einem Run (rein datenbasiert, testbar).
 ##
 ## Regel (im Spiel erklärt): Gefundene Ausrüstung bleibt IMMER erhalten ("sichere Extraktion").
-## Bei einer Niederlage gibt es nur die Hälfte der Talentpunkte und keine Gebietsfreischaltung.
+## Talentpunkte gibt es ausschließlich durch Charakterstufen-Aufstiege im Hauptmenü (Erfahrung aus Runs).
+## Bei einer Niederlage gibt es keine Gebietsfreischaltung.
 ## Rundenfähigkeiten und Rundenstufe gehen nach jedem Run verloren.
 
 
+const MAX_META_LEVEL := 60          # Charakterstufen-Obergrenze
+const START_TALENT_POINTS := 1
+
+
+## Erfahrung für den nächsten Aufstieg im Hauptmenü. Talentpunkte gibt es NUR durch diese Aufstiege (1 pro Stufe).
 static func meta_xp_for_level(level: int) -> int:
-	return 170 * level
+	return 300 + 140 * level + 14 * level * level
 
 
-static func compute_points(result: Dictionary) -> int:
-	var pts := int(result.get("kills", 0)) / 45 + int(result.get("level", 1)) / 4
-	pts += int(result.get("elites", 0))
-	if result.get("boss_defeated", false):
-		pts += 4
-	if result.get("victory", false):
-		pts += 2
-	if not result.get("victory", false):
-		pts = pts / 2
-	return maxi(pts, 1)
+## Alle Talentpunkte, die ein Charakter dieser Stufe insgesamt haben kann (Ausgegebene + freie).
+static func total_points_for_level(level: int) -> int:
+	return START_TALENT_POINTS + clampi(level, 1, MAX_META_LEVEL) - 1
 
 
 static func apply_results(character: Dictionary, result: Dictionary) -> Dictionary:
@@ -50,18 +49,20 @@ static func apply_results(character: Dictionary, result: Dictionary) -> Dictiona
 		gold = gold / 2
 	character["gold"] = int(character.get("gold", 0)) + gold
 	summary["gold"] = gold
-	var pts := compute_points(result)
-	summary["points"] = pts
-	character["talent_points"] = int(character["talent_points"]) + pts
-
-	# Meta-Erfahrung -> Charakterstufe (jede Stufe = +1 Talentpunkt)
+	# Meta-Erfahrung -> Charakterstufe. Einzige Quelle für Talentpunkte: jede Stufe = +1 Punkt.
 	var mx := int(result.get("kills", 0)) * 2 + int(result.get("level", 1)) * 15 + (120 if result.get("boss_defeated", false) else 0)
+	if victory:
+		mx += 60
+	summary["xp"] = mx
 	character["meta_xp"] = int(character["meta_xp"]) + mx
-	while int(character["meta_xp"]) >= meta_xp_for_level(int(character["meta_level"])):
+	while int(character["meta_level"]) < MAX_META_LEVEL and int(character["meta_xp"]) >= meta_xp_for_level(int(character["meta_level"])):
 		character["meta_xp"] = int(character["meta_xp"]) - meta_xp_for_level(int(character["meta_level"]))
 		character["meta_level"] = int(character["meta_level"]) + 1
 		character["talent_points"] = int(character["talent_points"]) + 1
 		summary["meta_levels"] += 1
+	if int(character["meta_level"]) >= MAX_META_LEVEL:
+		character["meta_xp"] = 0
+	summary["points"] = summary["meta_levels"]
 
 	# Items
 	for it in result.get("items", []):
@@ -98,8 +99,9 @@ static func apply_results(character: Dictionary, result: Dictionary) -> Dictiona
 			continue
 		if int(st.get(ach["stat"], 0)) >= int(ach["target"]):
 			character["achievements"].append(ach["id"])
-			character["talent_points"] = int(character["talent_points"]) + int(ach["reward_points"])
-			summary["achievement_points"] += int(ach["reward_points"])
+			var bonus_gold := int(ach["reward_points"]) * 60   # Erfolge geben Gold, keine Talentpunkte mehr
+			character["gold"] = int(character.get("gold", 0)) + bonus_gold
+			summary["achievement_points"] += bonus_gold
 			summary["new_achievements"].append(ach["name"])
 	return summary
 

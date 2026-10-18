@@ -22,6 +22,7 @@ var _leader_note: Label
 
 
 func build() -> void:
+	centered = true
 	_root = VBoxContainer.new()
 	add_child(_root)
 	Net.roster_changed.connect(_on_roster)

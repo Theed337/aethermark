@@ -63,7 +63,10 @@ static func build(root: Node3D, seed_value: int, area_id: String = "") -> Dictio
 	_trees(root, rng)
 	_undergrowth(root, rng)
 	_nature_scatter(root, rng)
-	_ruins(root, rng)
+	var aid := area_id if area_id != "" else RunState.area_id
+	if aid == "emerald_forest":
+		_ruins(root, rng)
+	AreaDecor.build(root, rng, aid)
 	_boss_arena(root)
 	_boundary(root, rng)
 	_fireflies(root)

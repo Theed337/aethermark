@@ -36,7 +36,7 @@ func build() -> void:
 		else:
 			reset_all())
 	top.add_child(_reset_btn)
-	var help := UI.label("Linksklick: erlernen · Rechtsklick: zurücknehmen · Ziehen: verschieben · Mausrad: zoomen. Sechs Hauptpfade = Klassen – spezialisiere dich auf einen; die Nebenpfade zweigen davon ab. Punkte gibt es für Charakterstufen, Runs und Erfolge.", 14, UI.DIM)
+	var help := UI.label("Linksklick: erlernen · Rechtsklick: zurücknehmen · Ziehen: verschieben · Mausrad: zoomen. Sechs Hauptpfade = Klassen – spezialisiere dich auf einen; die Nebenpfade zweigen davon ab. Talentpunkte gibt es nur für Charakterstufen im Hauptmenü (1 Punkt pro Stufe, max. Stufe 60) – der ganze Baum ist nicht erreichbar, wähle weise.", 14, UI.DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(help)
 	var h := HBoxContainer.new()
@@ -70,7 +70,7 @@ func reset_all() -> int:
 
 func refresh() -> void:
 	var c := character()
-	_points_label.text = "Freie Punkte: %d   ·   Ausgegeben: %d" % [c["talent_points"], TalentTree.spent_points(c["talents"])]
+	_points_label.text = "Freie Punkte: %d   ·   Ausgegeben: %d   ·   Maximal möglich: %d" % [c["talent_points"], TalentTree.spent_points(c["talents"]), Progression.total_points_for_level(Progression.MAX_META_LEVEL)]
 	_reset_btn.disabled = c["talents"].is_empty()
 	UI.clear(_stats_box)
 	_stats_box.add_child(UI.label("Aktuelle Werte", 19, UI.GOLD, true))

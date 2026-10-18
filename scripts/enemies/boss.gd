@@ -56,6 +56,8 @@ func display_name() -> String:
 
 
 func _build_visual() -> void:
+	if GameData.boss.has("mesh") and _build_mesh_monster(GameData.boss):
+		return
 	var bark := Color(data["color"])
 	var leaf := bark.lightened(0.25)
 	var ac := Color(data["accent"])

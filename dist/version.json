@@ -1,9 +1,9 @@
 {
- "version": "0.9.8",
+ "version": "0.9.9",
  "url": "https://github.com/Theed337/aethermark/tree/main/dist",
  "parts": [
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part00",
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part01"
  ],
- "notes": "0.9.8: Wiederbeleben repariert, Skelett-Gegner pro Gebiet, Inventar mit Charakteransicht + Händler, Startfähigkeiten je Waffe, neuer Talentbaum (Haupt-/Nebenpfade), 25 s Beute-Zeit nach dem Endboss."
+ "notes": "0.9.9: neue Monster-Modelle, neues Hauptmenü, einzigartige Arenen, Multiplayer-Menü zentriert, 13 neue Fähigkeiten + neue Effekte, Talentpunkte nur durch Hauptmenü-Level-Ups (langsamer, max. 60), Balancing."
 }

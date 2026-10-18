@@ -24,7 +24,7 @@ func show_result(result: Dictionary, summary: Dictionary) -> void:
 	var t := UI.label("SIEG!" if win else "Niederlage", 44, UI.GOLD if win else UI.RED, true)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
-	var sub := UI.label("%s ist besiegt." % GameData.boss.get("name", "Der Boss") if win else "Dein Fortschritt bleibt erhalten – Ausrüstung und Talentpunkte gehören dir.", 17, UI.DIM)
+	var sub := UI.label("%s ist besiegt." % GameData.boss.get("name", "Der Boss") if win else "Dein Fortschritt bleibt erhalten – Ausrüstung und Erfahrung gehören dir.", 17, UI.DIM)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(sub)
 	var cols := HBoxContainer.new()
@@ -55,12 +55,12 @@ func show_result(result: Dictionary, summary: Dictionary) -> void:
 	right.custom_minimum_size = Vector2(420, 0)
 	cols.add_child(right)
 	right.add_child(UI.label("Dauerhafter Fortschritt", 20, UI.TEAL, true))
-	right.add_child(_row("Talentpunkte", "+%d" % summary.get("points", 0), UI.GOLD))
+	right.add_child(_row("Erfahrung", "+%d" % summary.get("xp", 0), UI.GOLD))
 	right.add_child(_row("Gold", "+%d" % summary.get("gold", 0), UI.GOLD))
 	if summary.get("meta_levels", 0) > 0:
-		right.add_child(_row("Charakterstufe", "+%d (jeweils +1 Talentpunkt)" % summary["meta_levels"], UI.GOLD))
+		right.add_child(_row("Charakterstufe", "+%d  →  +%d Talentpunkt(e)" % [summary["meta_levels"], summary["meta_levels"]], UI.GOLD))
 	if summary.get("achievement_points", 0) > 0:
-		right.add_child(_row("Erfolgs-Punkte", "+%d" % summary["achievement_points"], UI.GOLD))
+		right.add_child(_row("Erfolgs-Gold", "+%d" % summary["achievement_points"], UI.GOLD))
 	for a in summary.get("new_areas", []):
 		right.add_child(UI.label("★ Neues Gebiet freigeschaltet: %s" % a, 17, UI.GOLD, true))
 	for a in summary.get("new_achievements", []):

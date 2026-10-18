@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.8)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.9)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -94,3 +94,15 @@
 - **Inventar neu**: Charakteransicht mit Plätzen (Kopf/Brust/Hände/Beine/Füße links, Amulett/Ringe/Artefakt/Zweitwaffe rechts, Waffe unten), Gegenstände per Drag & Drop anlegen/ablegen, Doppelklick, Vergleichswerte. Tabs „Händler" und „Sammlung & Kosmetik" im selben Fenster.
 - **Gold & Händler**: Gold gibt es für Runs und Verkäufe (Standard-Startgold 60). Verkaufen per Button, Ziehen auf den Händler oder „alle gewöhnlichen verkaufen". Der Händler bietet 8 Gegenstände, die sich alle 20 Minuten (Echtzeit, auch wenn das Spiel zu war) erneuern; gekaufte Ware ist nicht handelbar.
 - **Handel**: Angebotsfläche und Inventar als Kachelraster mit Drag & Drop, Angebot des Partners als Kacheln + volle Werte. Ehrlich: Eine konkrete Fehlerursache im Handel habe ich nicht gefunden (Ablauf und Tests sind grün); die Oberfläche wurde neu aufgebaut. Echter Online-Handel ist ungetestet.
+
+
+## Änderungen 0.9.9 (Feedback-Runde 6)
+- Monster: 51 neue Monster-/Boss-Modelle (Quaternius, CC0) statt Primitiv-Figuren; Hüpf-/Schwebe-/Angriffsanimation per Code (die Modelle haben keine Skelettanimationen).
+- Hauptmenü: neue Szene (Ruinenlager im Abendlicht mit Fackeln), Held bleibt; Multiplayer-Menü jetzt mittig.
+- Arenen: jedes der 6 Gebiete hat eigene Kulisse (Wald-Bogen/Pilzringe, versunkene Tempel mit Wasser, Lavarisse/Obsidian, Eiskristalle/Schnee, Friedhöfe/Spiegelsplitter, Festung mit Inseln im Wolkenmeer).
+- Talentpunkte gibt es nur noch durch Level-Ups im Hauptmenü (60 Stufen, wachsende XP-Kurve, max. 60 Punkte); alte Spielstände werden begrenzt (Migration).
+- Neue Fähigkeiten (31 statt 18): Klingensturm, Giftwolke, Eislanze, Donnerschlag, Meteorregen, Leere-Singularität, Heilige Nova; Passive Schwung, Dornen, Überladung, Seelenernte, Berserker, Arkanschild; Evolutionen Sturmfront und Giftbrand. Neue Effekte (Lichtsäulen, Bodenrisse, Brandflecken).
+- Balancing: Gegner werden mit der Laufzeit stärker (+4,5 % Leben, +2,5 % Schaden pro Minute), Gift als eigener Schadensüberzeit.
+- Tests: 65 000+ Prüfungen bestanden; neuer Fähigkeiten-Test wirft alle aktiven Fähigkeiten ohne Fehler.
+## Ehrlich: nicht verifiziert (0.9.9)
+- Aussehen/Performance auf echter Grafikkarte (hier nur Software-Renderer), Balance der neuen Fähigkeiten und der Zeitkurve (kein Mensch hat gespielt), Netzwerk-Sync der neuen Effekte nur per Netztest, Launcher-Download von echtem GitHub.

@@ -3,6 +3,7 @@ extends MarginContainer
 ## Basisklasse aller Hauptmenü-Seiten. Seiten bauen ihre UI in build() und aktualisieren sich in refresh().
 
 var menu: Node = null          # MainMenu
+var centered := false          # true = Seite sitzt mittig auf dem Bildschirm (Charakter ausgeblendet)
 var wide := false              # true = Seite braucht die volle Breite (z. B. Talentbaum)
 
 

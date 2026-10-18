@@ -25,6 +25,9 @@ static func apply_event(parent: Node, kind: String, a: Array) -> void:
 		"zone": zone(parent, a[0], a[1], a[2], a[3])
 		"shards": shards(parent, a[0], a[1], a[2], a[3], a[4])
 		"dust": dust(parent, a[0], a[1], a[2])
+		"pillar": pillar(parent, a[0], a[1], a[2], a[3], a[4])
+		"cracks": cracks(parent, a[0], a[1], a[2], a[3], a[4])
+		"scorch": scorch(parent, a[0], a[1], a[2], a[3])
 		"tele":
 			var t := telegraph(parent, a[0], a[1], a[2], a[3])
 			parent.get_tree().create_timer(float(a[2]) + 0.05).timeout.connect(func(): if is_instance_valid(t): t.queue_free())
@@ -497,3 +500,77 @@ static func dust(parent: Node, pos: Vector3, radius: float, color: Color) -> voi
 
 static func _free_later(n: Node, t: float) -> void:
 	n.get_tree().create_timer(t).timeout.connect(func(): if is_instance_valid(n): n.queue_free())
+
+
+## Senkrechte Lichtsäule (Blitzeinschlag, Heiliges Licht, Meteoreinschlag).
+static func pillar(parent: Node, pos: Vector3, color: Color, height: float = 14.0, radius: float = 0.8, duration: float = 0.35) -> void:
+	_emit("pillar", [pos, color, height, radius, duration])
+	var mi := MeshInstance3D.new()
+	var m := CylinderMesh.new()
+	m.top_radius = radius * 0.45
+	m.bottom_radius = radius
+	m.height = height
+	m.radial_segments = 10
+	mi.mesh = m
+	var mat := Toon.glow_mat(color.lightened(0.25), 3.5, 0.9)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.top_level = true
+	mi.position = pos + Vector3(0, height * 0.5, 0)
+	parent.add_child(mi)
+	var tw := mi.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(mi, "scale", Vector3(0.15, 1.0, 0.15), duration).set_ease(Tween.EASE_IN)
+	tw.tween_method(func(v: float): mat.set_shader_parameter("alpha", v), 0.9, 0.0, duration)
+	tw.chain().tween_callback(mi.queue_free)
+	flash(parent, pos + Vector3(0, 0.5, 0), color, radius * 5.0, duration)
+	if fx_tex("ring") != null:
+		ring(parent, pos, radius * 3.0, color, duration * 1.2)
+
+
+## Leuchtende Risse im Boden, die vom Zentrum nach außen laufen (Erdbeben, Meteoreinschlag).
+static func cracks(parent: Node, center: Vector3, radius: float, color: Color, count: int = 9, duration: float = 1.3) -> void:
+	_emit("cracks", [center, radius, color, count, duration])
+	var n := maxi(int(count * _limit()), 4)
+	for i in n:
+		var ang := TAU * float(i) / n + randf() * 0.35
+		var len := radius * randf_range(0.55, 1.0)
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(len, 0.03, randf_range(0.1, 0.2))
+		mi.mesh = bm
+		var mat := Toon.glow_mat(color, 3.0, 0.95)
+		mi.material_override = mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.top_level = true
+		mi.position = center + Vector3(cos(ang), 0.0, sin(ang)) * len * 0.5 + Vector3(0, 0.07, 0)
+		mi.rotation.y = -ang
+		mi.scale = Vector3(0.05, 1, 1)
+		parent.add_child(mi)
+		var tw := mi.create_tween()
+		tw.tween_property(mi, "scale:x", 1.0, 0.18).set_ease(Tween.EASE_OUT)
+		tw.tween_interval(duration * 0.35)
+		tw.tween_method(func(v: float): mat.set_shader_parameter("alpha", v), 0.95, 0.0, duration * 0.65)
+		tw.tween_callback(mi.queue_free)
+
+
+## Dunkler, glimmender Brandfleck, der langsam verblasst.
+static func scorch(parent: Node, pos: Vector3, radius: float, color: Color, duration: float = 3.0) -> void:
+	_emit("scorch", [pos, radius, color, duration])
+	var mi := MeshInstance3D.new()
+	var m := CylinderMesh.new()
+	m.top_radius = radius
+	m.bottom_radius = radius
+	m.height = 0.02
+	m.radial_segments = 24
+	mi.mesh = m
+	var mat := Toon.glow_mat(color.darkened(0.6), 0.4, 0.6)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.top_level = true
+	mi.position = Vector3(pos.x, 0.045, pos.z)
+	parent.add_child(mi)
+	var tw := mi.create_tween()
+	tw.tween_interval(duration * 0.3)
+	tw.tween_method(func(v: float): mat.set_shader_parameter("alpha", v), 0.6, 0.0, duration * 0.7)
+	tw.tween_callback(mi.queue_free)

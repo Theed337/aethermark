@@ -15,7 +15,7 @@ var rarity_color := Color("#c8c8c8")
 var show_pips := true
 
 const COLORS := {
-	"fire": Color("#ff7a3a"), "frost": Color("#6fd6ff"), "lightning": Color("#ffe84a"), "earth": Color("#b8905a"),
+	"fire": Color("#ff7a3a"), "poison": Color("#7ddc4a"), "frost": Color("#6fd6ff"), "lightning": Color("#ffe84a"), "earth": Color("#b8905a"),
 	"summon": Color("#7affd0"), "crit": Color("#ff5a6e"), "sustain": Color("#e8505a"), "mobility": Color("#7be08a"),
 	"defense": Color("#7aa8e8"), "cooldown": Color("#b48aff"), "area": Color("#ffa24a"), "support": Color("#8aef9a"),
 	"spell": Color("#c58aff"), "risk": Color("#ff4aa8"), "melee": Color("#d8d8e8"), "_light": Color("#e8e8f0"), "_heavy": Color("#ffb060"),
@@ -40,7 +40,7 @@ func tint() -> Color:
 	if skill_id == "_light" or skill_id == "_heavy":
 		return COLORS[skill_id]
 	if GameData.skills.has(skill_id):
-		for t in ["fire", "frost", "lightning", "earth", "summon", "crit", "sustain", "defense", "cooldown", "mobility", "spell", "risk", "support", "area", "melee"]:
+		for t in ["poison", "fire", "frost", "lightning", "earth", "summon", "crit", "sustain", "defense", "cooldown", "mobility", "spell", "risk", "support", "area", "melee"]:
 			if t in GameData.skills[skill_id].get("tags", []):
 				return COLORS[t]
 	return Color("#c8c8c8")
@@ -189,6 +189,57 @@ func _glyph(c: Vector2, r: float, col: Color) -> void:
 			var dm := PackedVector2Array([c + Vector2(0, -r), c + Vector2(r * 0.7, 0), c + Vector2(0, r), c + Vector2(-r * 0.7, 0)])
 			_poly(dm, col)
 			draw_polyline(PackedVector2Array([c + Vector2(r * 0.1, -r * 0.8), c + Vector2(-r * 0.15, -r * 0.1), c + Vector2(r * 0.15, r * 0.2), c + Vector2(-r * 0.05, r * 0.8)]), Color.WHITE, 2.0)
+		"blade_storm", "momentum":
+			for i in 4:
+				var a := i * TAU / 4.0 + 0.4
+				var d := Vector2(cos(a), sin(a))
+				var side := Vector2(-d.y, d.x)
+				_poly(PackedVector2Array([c + d * r, c + d * r * 0.25 + side * r * 0.3, c + d * r * 0.25 - side * r * 0.1]), lt)
+			draw_arc(c, r * 0.5, 0, TAU, 20, col, 2.0)
+		"poison_cloud", "toxic_inferno":
+			for o in [Vector2(-0.45, 0.2), Vector2(0.4, 0.15), Vector2(0, -0.3)]:
+				draw_circle(c + o * r, r * 0.5, Color(col, 0.9))
+			draw_circle(c + Vector2(-0.15, 0.1) * r, r * 0.12, Color("#1a3a10"))
+			draw_circle(c + Vector2(0.2, -0.1) * r, r * 0.1, Color("#1a3a10"))
+		"ice_lance":
+			_poly(PackedVector2Array([c + Vector2(r * 0.9, -r * 0.9), c + Vector2(-r * 0.15, -r * 0.1), c + Vector2(-r * 0.7, r * 0.7), c + Vector2(r * 0.1, r * 0.15)]), lt)
+			draw_line(c + Vector2(-r * 0.7, r * 0.7), c + Vector2(r * 0.9, -r * 0.9), Color.WHITE, 2.0)
+		"thunder_strike", "storm_front":
+			_poly(PackedVector2Array([c + Vector2(-r * 0.25, -r), c + Vector2(r * 0.35, -r), c + Vector2(r * 0.05, -r * 0.1), c + Vector2(r * 0.4, -r * 0.1), c + Vector2(-r * 0.2, r)]), col)
+			draw_arc(c + Vector2(0, r * 0.9), r * 0.6, PI, TAU, 14, lt, 2.5)
+		"meteor_rain":
+			for o in [Vector2(0.3, -0.2), Vector2(-0.5, -0.55), Vector2(0.7, 0.3)]:
+				draw_circle(c + o * r, r * 0.3, col)
+				draw_line(c + o * r, c + (o + Vector2(-0.5, -0.5)) * r, Color("#ffd27a"), 3.0)
+		"void_singularity":
+			draw_circle(c, r * 0.9, col.darkened(0.5))
+			draw_arc(c, r * 0.9, 0, TAU, 28, lt, 2.5)
+			draw_arc(c, r * 0.55, 0.5, TAU - 0.5, 20, col, 2.5)
+			draw_circle(c, r * 0.22, Color.BLACK)
+		"holy_nova":
+			draw_arc(c, r * 0.95, 0, TAU, 28, col, 2.5)
+			_poly(_star(c, r * 0.8, r * 0.2, 4), Color("#fff6c0"))
+		"thorns":
+			for i in 6:
+				var a := i * TAU / 6.0
+				var d := Vector2(cos(a), sin(a))
+				draw_line(c + d * r * 0.3, c + d * r, lt, 3.0)
+			draw_circle(c, r * 0.35, col)
+		"overcharge":
+			draw_arc(c, r * 0.9, 0, TAU, 28, lt, 3.0)
+			_poly(PackedVector2Array([c + Vector2(r * 0.1, -r * 0.6), c + Vector2(-r * 0.35, r * 0.1), c + Vector2(0, r * 0.1), c + Vector2(-r * 0.1, r * 0.6), c + Vector2(r * 0.35, -r * 0.1), c + Vector2(0, -r * 0.1)]), col)
+		"soul_harvest":
+			draw_circle(c + Vector2(0, -r * 0.2), r * 0.55, Color(lt, 0.9))
+			draw_circle(c + Vector2(-r * 0.2, -r * 0.3), r * 0.12, Color.BLACK)
+			draw_circle(c + Vector2(r * 0.2, -r * 0.3), r * 0.12, Color.BLACK)
+			draw_line(c + Vector2(-r * 0.3, r * 0.45), c + Vector2(r * 0.3, r * 0.45), col, 4.0)
+		"berserker":
+			_poly(PackedVector2Array([c + Vector2(0, -r), c + Vector2(r * 0.8, r * 0.7), c + Vector2(0, r * 0.25), c + Vector2(-r * 0.8, r * 0.7)]), col)
+			draw_circle(c + Vector2(0, r * 0.05), r * 0.14, Color.WHITE)
+		"arcane_shield":
+			var shp := PackedVector2Array([c + Vector2(-r * 0.8, -r * 0.8), c + Vector2(r * 0.8, -r * 0.8), c + Vector2(r * 0.8, 0), c + Vector2(0, r), c + Vector2(-r * 0.8, 0)])
+			_poly(shp, col)
+			_poly(_star(c + Vector2(0, -r * 0.1), r * 0.5, r * 0.15, 4), Color.WHITE)
 		"_heavy":
 			draw_rect(Rect2(c + Vector2(-r * 0.7, -r * 0.8), Vector2(r * 1.4, r * 0.7)), lt)
 			draw_rect(Rect2(c + Vector2(-r * 0.12, -r * 0.1), Vector2(r * 0.24, r * 1.0)), col.darkened(0.2))

@@ -43,6 +43,7 @@ var preview_gear: Dictionary = {}
 var _ui: CanvasLayer
 var _root_ui: Control
 var _fireflies: Array = []
+var _torch_lights: Array = []
 var _mirrors: Array = []   # {cam, center, normal, right, up, size}
 
 
@@ -72,23 +73,23 @@ func _ready() -> void:
 func _build_scene() -> void:
 	var env := Environment.new()
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color("#0e1f3a")
-	sky_mat.sky_horizon_color = Color("#3d6f78")
-	sky_mat.ground_horizon_color = Color("#3d6f78")
-	sky_mat.ground_bottom_color = Color("#0c1a1c")
+	sky_mat.sky_top_color = Color("#141c46")
+	sky_mat.sky_horizon_color = Color("#d9805a")
+	sky_mat.ground_horizon_color = Color("#b06a58")
+	sky_mat.ground_bottom_color = Color("#2a2030")
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("#6f9fb0")
+	env.ambient_light_color = Color("#8f90b8")
 	env.ambient_light_energy = 0.7
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.9
 	env.fog_enabled = true
-	env.fog_light_color = Color("#2d5a60")
-	env.fog_density = 0.02
+	env.fog_light_color = Color("#8a5a6a")
+	env.fog_density = 0.016
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.15
 	var we := WorldEnvironment.new()
@@ -96,8 +97,8 @@ func _build_scene() -> void:
 	add_child(we)
 	var key := DirectionalLight3D.new()
 	key.rotation_degrees = Vector3(-35, 35, 0)
-	key.light_color = Color("#ffe2b8")
-	key.light_energy = 1.4
+	key.light_color = Color("#ffc890")
+	key.light_energy = 1.5
 	key.shadow_enabled = OS.get_environment("SHOT_NOSHADOW") == ""
 	add_child(key)
 	var rim := OmniLight3D.new()
@@ -106,8 +107,8 @@ func _build_scene() -> void:
 	rim.light_energy = 2.2
 	rim.omni_range = 9.0
 	add_child(rim)
-	# Boden, Sockel und Ruinenbögen
-	Toon.part(self, "disc", Vector3(30, 0.4, 0), Color("#2f6b45"), Vector3(0, -0.4, 0))
+	# Abendliches Ruinenlager: Steinbögen, Fackeln, Kristalle, Bäume im Dunst
+	Toon.part(self, "disc", Vector3(40, 0.4, 0), Color("#34503a"), Vector3(0, -0.4, 0))
 	pedestal = Node3D.new()
 	add_child(pedestal)
 	var base := Toon.part(self, "disc", Vector3(1.05, 0.25, 0), Color("#8d9aa5"), Vector3(0, 0.0, 0))
@@ -115,26 +116,54 @@ func _build_scene() -> void:
 	Toon.part(self, "disc", Vector3(0.85, 0.08, 0), Color("#4ecdc4"), Vector3(0, 0.15, 0), Vector3.ZERO, Toon.glow_mat(Color("#4ecdc4"), 1.4), false)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
-	for i in 26:
+	var stone := Color("#b4bcb0")
+	# Steinplatten rund um den Sockel
+	for i in 18:
+		var ang := i * TAU / 18.0
+		AreaDecor.prop(self, "R_FloorStandard", Vector3(cos(ang), 0, sin(ang)) * 2.7 + Vector3(0, 0.0, 0), 1.1, -rad_to_deg(ang), {"tint": stone, "sink": 0.28})
+	# Großer Torbogen hinter dem Helden, Säulen und Mauerreste
+	AreaDecor.prop(self, "R_WallArchGothic", Vector3(0, 0, -12.0), 4.4, 0, {"tint": stone})
+	AreaDecor.prop(self, "R_WallBroken", Vector3(-10.0, 0, -11.8), 4.4, 0, {"tint": stone})
+	AreaDecor.prop(self, "R_WallBroken", Vector3(10.0, 0, -11.8), 4.4, 180, {"tint": stone})
+	AreaDecor.prop(self, "R_FlagWall2", Vector3(0, 7.6, -11.6), 4.4, 0, {"tint": Color("#d85a4a")})
+	for sx in [-1, 1]:
+		AreaDecor.prop(self, "R_ColumnRound", Vector3(sx * 6.0, 0, -8.0), 2.6, 0, {"tint": stone})
+		AreaDecor.prop(self, "R_ColumnRoundShort", Vector3(sx * 3.4, 0, -1.2), 1.3, 0, {"tint": stone})
+		AreaDecor.prop(self, "R_StatueStag" if sx < 0 else "R_StatueFox", Vector3(sx * 8.5, 0, -6.0), 1.9, -sx * 40.0, {"tint": stone})
+		# Fackel mit flackerndem Licht
+		AreaDecor.prop(self, "R_Torch", Vector3(sx * 3.4, 0.45, -3.0), 1.7, 0, {"emit": Color("#ff8a30"), "emit_e": 0.6})
+		var tl := OmniLight3D.new()
+		tl.position = Vector3(sx * 3.4, 2.4, -2.7)
+		tl.light_color = Color("#ff9a50")
+		tl.light_energy = 2.4
+		tl.omni_range = 7.0
+		add_child(tl)
+		_torch_lights.append(tl)
+		# Leuchtkristalle
+		AreaDecor.prop(self, "C_CrystalBig", Vector3(sx * 2.6, 0, 0.2), 0.8, sx * 30.0, {"tint": Color("#a8f4f0"), "emit": Color("#4ecdc4"), "emit_e": 0.9})
+		AreaDecor.prop(self, "C_CrystalSmall", Vector3(sx * 3.2, 0, 0.9), 1.0, 10.0, {"tint": Color("#a8f4f0"), "emit": Color("#4ecdc4"), "emit_e": 0.9})
+	# Gefallene Steine und Felsen
+	for i in 12:
 		var ang := rng.randf() * TAU
-		var dist := rng.randf_range(5.0, 17.0)
-		var pos := Vector3(cos(ang) * dist, 0, sin(ang) * dist - 2.0)
-		var h := rng.randf_range(2.5, 6.5)
-		var trunk := Toon.part(self, "cyl", Vector3(0.28, h, 0.36), Color("#5a3b26"), pos + Vector3(0, h * 0.5, 0))
-		Toon.outline(trunk, 0.03)
-		for k in 3:
-			var crown := Toon.part(self, "cone", Vector3(1.5 - k * 0.3, 2.0, 0), Color("#2f8f55").lightened(rng.randf() * 0.15), pos + Vector3(0, h + k * 0.9 - 0.3, 0))
-			Toon.outline(crown, 0.03)
-	for i in 7:
-		var ang := i * TAU / 7.0 + 0.3
-		var p := Vector3(cos(ang) * 4.6, 0, sin(ang) * 4.6 - 0.5)
-		if false:
-			pass
-		else:
-			var pillar := Toon.part(self, "box", Vector3(0.6, rng.randf_range(1.6, 3.0), 0.6), Color("#9aa7ad"), p + Vector3(0, 0.9, 0), Vector3(0, rad_to_deg(-ang), 0))
-			Toon.outline(pillar, 0.025)
-	_make_mirror(Vector3(-2.2, 0, -2.4))
-	_make_mirror(Vector3(2.2, 0, -2.4))
+		var dist := rng.randf_range(9.0, 18.0)
+		var rp := Vector3(cos(ang) * dist, 0, sin(ang) * dist - 2.0)
+		if rp.z > 0.0 and absf(rp.x) < 7.0:
+			rp.z = -rp.z - 2.0
+		AreaDecor.prop(self, "N_Rock_%d" % (1 + i % 4), rp, rng.randf_range(2.0, 3.6), rng.randf() * 360.0, {"tint": Color("#9aa89e")})
+	for i in 10:
+		AreaDecor.prop(self, "R_Bricks", Vector3(rng.randf_range(-6, 6), 0, rng.randf_range(-5, -0.5)), rng.randf_range(0.8, 1.3), rng.randf() * 360.0, {"tint": stone})
+	# Bäume im Dunst
+	for i in 34:
+		var ang := rng.randf_range(-0.25, 1.25) * PI + PI
+		var dist := rng.randf_range(10.0, 26.0)
+		var pos := Vector3(cos(ang) * dist, 0, sin(ang) * dist - 4.0)
+		if pos.z > 2.0 and absf(pos.x) < 9.0:
+			continue
+		var nm: String = ["N_CommonTree_1", "N_CommonTree_2", "N_PineTree_1", "N_PineTree_2", "N_BirchTree_1"][i % 5]
+		AreaDecor.prop(self, nm, pos, rng.randf_range(3.2, 5.0), rng.randf() * 360.0)
+	for i in 8:
+		var ang := rng.randf() * TAU
+		AreaDecor.prop(self, "N_Bush_1", Vector3(cos(ang) * rng.randf_range(5.0, 11.0), 0, -absf(sin(ang)) * rng.randf_range(5.0, 9.0) - 2.5), rng.randf_range(1.4, 2.4), rng.randf() * 360.0)
 	# Glühwürmchen
 	for i in 40:
 		var f := Toon.part(self, "sphere", Vector3(0.035, 0, 0), Color("#f8ff9a"), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(Color("#f8ff9a"), 3.0), false)
@@ -194,7 +223,7 @@ func _make_mirror(p: Vector3) -> void:
 
 
 func _update_mirrors() -> void:
-	var hidden := page != null and page.wide
+	var hidden := page != null and (page.wide or page.centered)
 	for m in _mirrors:
 		var c: Camera3D = m["cam"]
 		(c.get_parent() as SubViewport).render_target_update_mode = SubViewport.UPDATE_DISABLED if hidden else SubViewport.UPDATE_ALWAYS
@@ -277,10 +306,12 @@ func _process(delta: float) -> void:
 	cam.position = cam.position.lerp(_cam_target, clampf(delta * 4.0, 0, 1))
 	cam.look_at(_cam_look)
 	_update_mirrors()
+	for i in _torch_lights.size():
+		(_torch_lights[i] as OmniLight3D).light_energy = 2.4 + sin(_t * 9.0 + i * 2.0) * 0.35 + sin(_t * 23.0 + i) * 0.2
 	# Charakter in die Mitte des freien Bereichs zwischen Navigation und Seitenpanel schieben
-	var shift := -0.4 if (page != null and not page.wide) else 0.0
+	var shift := -0.4 if (page != null and not page.wide and not page.centered) else 0.0
 	pedestal.position.x = lerpf(pedestal.position.x, shift, clampf(delta * 5.0, 0, 1))
-	pedestal.visible = page == null or not page.wide
+	pedestal.visible = page == null or not (page.wide or page.centered)
 	for f in _fireflies:
 		var s: float = f.get_meta("seed")
 		var h: Vector3 = f.get_meta("home")
@@ -289,7 +320,7 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Charakter per Maus drehen (links ziehen im freien 3D-Bereich)
-	if model.is_empty() or (page != null and page.wide):
+	if model.is_empty() or (page != null and (page.wide or page.centered)):
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_rot_drag = event.pressed
@@ -422,7 +453,14 @@ func go(id: String, keep_new: bool = false) -> void:
 		show_active_character()
 		camera_view("front")
 	# Schmale Seiten (z. B. Charaktereditor) sitzen rechts, der Charakter bleibt in der Mitte frei sichtbar
-	if p.wide:
+	content_holder.anchor_right = 1.0
+	content_holder.offset_right = -16
+	if p.centered:
+		content_holder.anchor_left = 0.5
+		content_holder.anchor_right = 0.5
+		content_holder.offset_left = -430
+		content_holder.offset_right = 430
+	elif p.wide:
 		content_holder.anchor_left = 0.0
 		content_holder.offset_left = 292
 	else:

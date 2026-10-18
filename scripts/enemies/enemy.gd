@@ -25,6 +25,9 @@ var slow_mult := 1.0
 var freeze_t := 0.0
 var stun_t := 0.0
 var burn_t := 0.0
+var poison_t := 0.0
+var poison_dps := 0.0
+var _poison_tick := 0.0
 var burn_dps := 0.0
 var mark_t := 0.0
 var dmg_taken_mult := 1.0
@@ -249,7 +252,95 @@ func _flash_all(f: float) -> void:
 				m.emission_enabled = false
 
 
+const MON_DIR := "res://assets/monsters/"
+const MON_FLY := ["Bat", "A_Bat", "Ghost", "GhostSkull", "Glub", "GlubEvolved", "Hywirl", "Squidle", "Birb", "Pigeon", "Armabee",
+		"ArmabeeEvolved", "Dragon", "DragonEvolved", "A_Dragon", "E_Wasp", "Alien"]
+var _mesh_pivot: Node3D = null
+var _mesh_fly := 0.0
+var _mesh_base := 0.0
+var _mesh_lean := 0.0
+var _mesh_last := Vector3.ZERO
+
+
+## Statische Low-Poly-Monster (Quaternius, CC0) mit prozeduraler Animation (Hüpfen, Schwanken, Vorbeugen beim Angriff).
+func _build_mesh_monster(src: Dictionary) -> bool:
+	var nm := str(src.get("mesh", ""))
+	var path := MON_DIR + nm + ".glb"
+	if nm == "" or not ResourceLoader.exists(path):
+		return false
+	var inst: Node3D = (load(path) as PackedScene).instantiate()
+	var box := AABB()
+	var first := true
+	for mi in inst.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = (mi as MeshInstance3D).get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	var target := float(src.get("mh", 1.6)) * 0.85
+	var norm: float = maxf(box.size.y, 0.42 * maxf(box.size.x, box.size.z))
+	var sc: float = target / maxf(norm, 0.01)
+	inst.scale = Vector3.ONE * sc
+	_mesh_fly = 0.55 if MON_FLY.has(nm) else 0.0
+	_mesh_base = -box.position.y * sc + _mesh_fly
+	inst.position = Vector3(0, 0, 0)
+	inst.rotation.y = PI
+	_mesh_pivot = Node3D.new()
+	_mesh_pivot.position.y = _mesh_base
+	_visual.add_child(_mesh_pivot)
+	_mesh_pivot.add_child(inst)
+	var tint := Color(str(src.get("tint", "#ffffff")))
+	if elite_mod != "":
+		tint = tint.lerp(Color(GameData.elite_mods[elite_mod]["color"]), 0.3)
+	for mi in inst.find_children("*", "MeshInstance3D", true, false):
+		var mesh: Mesh = (mi as MeshInstance3D).mesh
+		for i in mesh.get_surface_count():
+			var m0: Material = (mi as MeshInstance3D).get_active_material(i)
+			if m0 is StandardMaterial3D:
+				var m: StandardMaterial3D = m0.duplicate()
+				m.albedo_color = (m.albedo_color * tint)
+				m.roughness = 0.8
+				m.metallic = 0.0
+				m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+				(mi as MeshInstance3D).set_surface_override_material(i, m)
+				_rig_mats.append(m)
+	_mesh_last = global_position if is_inside_tree() else Vector3.ZERO
+	return true
+
+
+func _mesh_update(delta: float) -> void:
+	if _mesh_pivot == null or dead:
+		return
+	var spd := (global_position - _mesh_last).length() / maxf(delta, 0.0001)
+	_mesh_last = global_position
+	var t := _anim_t
+	var moving := spd > 0.5
+	var y := _mesh_base
+	var rz := 0.0
+	var sy := 1.0
+	if moving:
+		var w := t * clampf(spd * 2.4, 6.0, 15.0)
+		y += absf(sin(w)) * (0.05 if _mesh_fly > 0.0 else 0.11)
+		rz = sin(w) * 0.09
+		sy = 1.0 + sin(w * 2.0) * 0.03
+	else:
+		sy = 1.0 + sin(t * 2.6) * 0.025
+		rz = sin(t * 1.3) * 0.02
+	if _mesh_fly > 0.0:
+		y += sin(t * 3.2) * 0.12
+	var lean := 0.0
+	if state == "windup":
+		var wt := maxf(float(data.get("windup", 0.6)), 0.2)
+		var prog := 1.0 - clampf(state_t / wt, 0.0, 1.0)
+		lean = -0.45 * prog
+		sy *= 1.0 + 0.08 * prog
+	_mesh_lean = lerpf(_mesh_lean, lean, clampf(delta * 14.0, 0.0, 1.0))
+	_mesh_pivot.position.y = y
+	_mesh_pivot.rotation = Vector3(_mesh_lean, 0.0, rz)
+	_mesh_pivot.scale = Vector3(1.0 / sqrt(sy), sy, 1.0 / sqrt(sy))
+
+
 func _build_visual() -> void:
+	if data.has("mesh") and _build_mesh_monster(data):
+		return
 	if data.has("model") and _build_rigged():
 		return
 	var c := _col("color")
@@ -390,9 +481,10 @@ func _ghost_step(delta: float) -> void:
 	position = position.lerp(net_pos, clampf(delta * 14.0, 0.0, 1.0))
 	rotation.y = lerp_angle(rotation.y, net_yaw, clampf(delta * 12.0, 0.0, 1.0))
 	var moving := position.distance_to(net_pos) > 0.05
-	if _rig_anim == null:
+	if _rig_anim == null and _mesh_pivot == null:
 		_visual.position.y = sin(_anim_t * (9.0 if moving else 3.0)) * 0.05
 	_rig_update(delta)
+	_mesh_update(delta)
 	_update_flash(delta)
 	_visual_tint_ghost()
 	_bar_root.visible = show_bar and hp < max_hp and not dead
@@ -466,9 +558,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	# Stilisierte Animation
 	var bob := sin(_anim_t * (9.0 if move_vec.length() > 0.1 else 3.0)) * 0.05
-	if _rig_anim == null:
+	if _rig_anim == null and _mesh_pivot == null:
 		_visual.position.y = bob
 	_rig_update(delta)
+	_mesh_update(delta)
 	if move_vec.length() > 0.1 and state == "move":
 		_face(move_vec, delta)
 	_update_flash(delta)
@@ -512,6 +605,13 @@ func _update_status(delta: float) -> void:
 			_burn_tick = 0.5
 			take_damage(burn_dps * 0.5, false, global_position, 0.0, true)
 			FX.burst(arena, global_position + Vector3(0, 1, 0), Color("#ff7a2a"), 3, 1.5, 0.07, 0.3)
+	if poison_t > 0.0:
+		poison_t -= delta
+		_poison_tick -= delta
+		if _poison_tick <= 0.0:
+			_poison_tick = 0.5
+			take_damage(poison_dps * 0.5, false, global_position, 0.0, true)
+			FX.burst(arena, global_position + Vector3(0, 1, 0), Color("#7dff5a"), 3, 1.2, 0.07, 0.35)
 	_visual_tint()
 
 
@@ -751,6 +851,11 @@ func apply_freeze(duration: float) -> void:
 func apply_stun(duration: float) -> void:
 	if not _is_boss():
 		stun_t = maxf(stun_t, duration)
+
+
+func apply_poison(duration: float, dps: float) -> void:
+	poison_t = maxf(poison_t, duration)
+	poison_dps = maxf(poison_dps, dps)
 
 
 func apply_burn(duration: float, dps: float) -> void:

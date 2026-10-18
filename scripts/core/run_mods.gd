@@ -45,6 +45,13 @@ static func build(levels: Dictionary) -> Dictionary:
 	if _lv(levels, "glass_cannon") > 0:
 		m["damage_pct"] = float(m.get("damage_pct", 0.0)) + 0.45
 		m["max_hp_pct"] = -0.25
+	l = _lv(levels, "momentum")
+	if l > 0:
+		m["move_speed_pct"] = float(m.get("move_speed_pct", 0.0)) + 0.04 * l
+		m["damage_pct"] = float(m.get("damage_pct", 0.0)) + 0.03 * l
+	l = _lv(levels, "overcharge")
+	if l > 0:
+		m["cooldown_reduction"] = float(m.get("cooldown_reduction", 0.0)) + 0.05 * l
 	return m
 
 

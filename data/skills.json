@@ -1,76 +1,608 @@
 {
- "level_curve": {"base": 75, "per_level": 32, "quad": 4.6},
- "rarity_weights": {"common": 60, "uncommon": 26, "rare": 11, "epic": 3},
- "rarity_colors": {"common": "#c8c8c8", "uncommon": "#5cd65c", "rare": "#4aa3ff", "epic": "#c46bff"},
+ "level_curve": {
+  "base": 75,
+  "per_level": 32,
+  "quad": 4.6
+ },
+ "rarity_weights": {
+  "common": 60,
+  "uncommon": 26,
+  "rare": 11,
+  "epic": 3
+ },
+ "rarity_colors": {
+  "common": "#c8c8c8",
+  "uncommon": "#5cd65c",
+  "rare": "#4aa3ff",
+  "epic": "#c46bff"
+ },
  "rerolls_per_run": 2,
- "skip_reward": {"heal_pct": 0.25, "mana_pct": 0.5},
+ "skip_reward": {
+  "heal_pct": 0.25,
+  "mana_pct": 0.5
+ },
  "skills": [
-  {"id": "fireball", "name": "Feuerball", "kind": "active", "rarity": "common", "max_level": 5, "tags": ["fire", "projectile"],
-   "cooldown": 1.6, "mana": 12,
-   "levels": ["Schaltet den Feuerball frei: ein Geschoss, das beim Einschlag explodiert.",
-              "Größeres Geschoss mit größerer Explosion.",
-              "Das Geschoss durchdringt bis zu 2 Gegner.",
-              "Hinterlässt am Einschlagort eine brennende Feuerfläche.",
-              "Zersplittert beim Einschlag in 3 kleinere Feuerbälle."]},
-  {"id": "frost_nova", "name": "Frostnova", "kind": "active", "rarity": "common", "max_level": 5, "tags": ["frost", "area"],
-   "cooldown": 6.0, "mana": 20,
-   "levels": ["Schaltet die Frostnova frei: Flächenschaden, der Gegner stark verlangsamt.",
-              "Größerer Radius.",
-              "Verlangsamte Gegner nehmen 20% mehr Schaden.",
-              "Gegner im Zentrum werden kurz eingefroren.",
-              "Kürzere Abklingzeit und stärkere Verlangsamung."]},
-  {"id": "chain_lightning", "name": "Kettenblitz", "kind": "active", "rarity": "uncommon", "max_level": 5, "tags": ["lightning", "chain"],
-   "cooldown": 3.0, "mana": 16,
-   "levels": ["Schaltet den Kettenblitz frei: springt zwischen 3 Gegnern.",
-              "Springt zu 2 weiteren Gegnern.",
-              "Mehr Schaden pro Sprung und größere Sprungweite.",
-              "Getroffene Gegner werden 'markiert' und nehmen 15% mehr Schaden.",
-              "Der Blitz kann denselben Gegner zweimal treffen."]},
-  {"id": "earthquake", "name": "Erdbeben", "kind": "active", "rarity": "uncommon", "max_level": 4, "tags": ["earth", "area", "heavy"],
-   "cooldown": 14.0, "mana": 30,
-   "levels": ["Schaltet das Erdbeben frei: mächtiger Flächenangriff mit hoher Abklingzeit.",
-              "Größerer Radius, mehr Schaden.",
-              "Betäubt getroffene Gegner kurz.",
-              "Löst ein Nachbeben aus."]},
-  {"id": "spirit_wisps", "name": "Geisterlichter", "kind": "active", "rarity": "uncommon", "max_level": 5, "tags": ["summon"],
-   "cooldown": 18.0, "mana": 25,
-   "levels": ["Beschwört 2 Geisterlichter, die für 15 Sekunden Gegner angreifen.",
-              "Ein zusätzliches Geisterlicht.",
-              "Geisterlichter halten länger und schlagen härter zu.",
-              "Geisterlichter heilen dich bei Treffern leicht.",
-              "Ein weiteres Geisterlicht und explodierender Abgang."]},
-
-  {"id": "crit_mastery", "name": "Tödliche Präzision", "kind": "passive", "rarity": "common", "max_level": 4, "tags": ["crit"],
-   "levels": ["+25% kritischer Schaden.", "+25% kritischer Schaden.", "+25% kritischer Schaden und +5% Kritchance.", "+30% kritischer Schaden."]},
-  {"id": "vampiric", "name": "Lebensraub", "kind": "passive", "rarity": "common", "max_level": 4, "tags": ["melee", "sustain"],
-   "levels": ["Nahkampftreffer heilen 3% des Schadens.", "Nahkampftreffer heilen 3% mehr.", "Nahkampftreffer heilen 3% mehr.", "Überheilung wird zu einem kleinen Schild."]},
-  {"id": "swift", "name": "Windläufer", "kind": "passive", "rarity": "common", "max_level": 4, "tags": ["mobility"],
-   "levels": ["+8% Bewegungstempo.", "+8% Bewegungstempo.", "Rollen kostet keine Ausdauer-Pause mehr (-20% Rollabklingzeit).", "+10% Bewegungstempo."]},
-  {"id": "vitality", "name": "Lebenskraft", "kind": "passive", "rarity": "common", "max_level": 5, "tags": ["defense"],
-   "levels": ["+25 maximale Lebenspunkte und sofortige Heilung.", "+25 maximale Lebenspunkte.", "+25 maximale Lebenspunkte.", "+30 maximale Lebenspunkte.", "+40 maximale Lebenspunkte."]},
-  {"id": "arcane_focus", "name": "Arkaner Fokus", "kind": "passive", "rarity": "uncommon", "max_level": 4, "tags": ["cooldown"],
-   "levels": ["-8% Abklingzeiten.", "-8% Abklingzeiten.", "+30% Manaregeneration.", "-8% Abklingzeiten."]},
-  {"id": "wide_strikes", "name": "Weite Hiebe", "kind": "passive", "rarity": "common", "max_level": 4, "tags": ["area", "melee"],
-   "levels": ["+15% Reichweite und Wirkungsbereich.", "+15% Reichweite und Wirkungsbereich.", "+15% Reichweite und Wirkungsbereich.", "Nahkampfangriffe treffen in einem größeren Winkel."]},
-  {"id": "volatile_corpses", "name": "Explosive Leichen", "kind": "passive", "rarity": "rare", "max_level": 3, "tags": ["area", "fire"],
-   "levels": ["Besiegte Gegner explodieren und verursachen Flächenschaden.", "Größere, stärkere Explosionen.", "Explosionen setzen Gegner in Brand."]},
-  {"id": "frost_dodge", "name": "Frostschleier", "kind": "passive", "rarity": "uncommon", "max_level": 3, "tags": ["frost", "mobility"],
-   "levels": ["Ausweichen erzeugt eine Frostwelle, die Gegner verlangsamt.", "Die Frostwelle richtet Schaden an.", "Du erhältst nach dem Ausweichen kurz einen Schild."]},
-  {"id": "heal_aura", "name": "Heilende Aura", "kind": "passive", "rarity": "uncommon", "max_level": 4, "tags": ["support", "sustain"],
-   "levels": ["Regeneriert 1,5 LP/s für dich und Verbündete in der Nähe.", "Mehr Heilung und größerer Radius.", "Mehr Heilung und größerer Radius.", "Verbündete in der Aura verursachen 10% mehr Schaden."]},
-  {"id": "executioner", "name": "Henker", "kind": "passive", "rarity": "rare", "max_level": 3, "tags": ["melee", "crit"],
-   "levels": ["+25% Schaden gegen Gegner unter 30% Leben.", "+25% Schaden gegen Gegner unter 30% Leben.", "Treffer gegen schwache Gegner sind garantiert kritisch."]},
-  {"id": "twin_cast", "name": "Zwillingszauber", "kind": "passive", "rarity": "epic", "max_level": 2, "tags": ["spell"],
-   "levels": ["Aktive Fähigkeiten werden mit 35% Schaden ein zweites Mal ausgelöst.", "Der zweite Zauber verursacht 60% Schaden."]},
-  {"id": "iron_will", "name": "Eiserner Wille", "kind": "passive", "rarity": "rare", "max_level": 3, "tags": ["defense"],
-   "levels": ["+6 Verteidigung.", "+6 Verteidigung und Parierfenster +50%.", "Erfolgreiches Parieren heilt dich und löst eine Druckwelle aus."]},
-  {"id": "glass_cannon", "name": "Glaskanone", "kind": "passive", "rarity": "epic", "max_level": 1, "tags": ["risk"],
-   "levels": ["+45% Schaden, aber -25% maximale Lebenspunkte."]}
+  {
+   "id": "fireball",
+   "name": "Feuerball",
+   "kind": "active",
+   "rarity": "common",
+   "max_level": 5,
+   "tags": [
+    "fire",
+    "projectile"
+   ],
+   "cooldown": 1.6,
+   "mana": 12,
+   "levels": [
+    "Schaltet den Feuerball frei: ein Geschoss, das beim Einschlag explodiert.",
+    "Größeres Geschoss mit größerer Explosion.",
+    "Das Geschoss durchdringt bis zu 2 Gegner.",
+    "Hinterlässt am Einschlagort eine brennende Feuerfläche.",
+    "Zersplittert beim Einschlag in 3 kleinere Feuerbälle."
+   ]
+  },
+  {
+   "id": "frost_nova",
+   "name": "Frostnova",
+   "kind": "active",
+   "rarity": "common",
+   "max_level": 5,
+   "tags": [
+    "frost",
+    "area"
+   ],
+   "cooldown": 6.0,
+   "mana": 20,
+   "levels": [
+    "Schaltet die Frostnova frei: Flächenschaden, der Gegner stark verlangsamt.",
+    "Größerer Radius.",
+    "Verlangsamte Gegner nehmen 20% mehr Schaden.",
+    "Gegner im Zentrum werden kurz eingefroren.",
+    "Kürzere Abklingzeit und stärkere Verlangsamung."
+   ]
+  },
+  {
+   "id": "chain_lightning",
+   "name": "Kettenblitz",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 5,
+   "tags": [
+    "lightning",
+    "chain"
+   ],
+   "cooldown": 3.0,
+   "mana": 16,
+   "levels": [
+    "Schaltet den Kettenblitz frei: springt zwischen 3 Gegnern.",
+    "Springt zu 2 weiteren Gegnern.",
+    "Mehr Schaden pro Sprung und größere Sprungweite.",
+    "Getroffene Gegner werden 'markiert' und nehmen 15% mehr Schaden.",
+    "Der Blitz kann denselben Gegner zweimal treffen."
+   ]
+  },
+  {
+   "id": "earthquake",
+   "name": "Erdbeben",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 4,
+   "tags": [
+    "earth",
+    "area",
+    "heavy"
+   ],
+   "cooldown": 14.0,
+   "mana": 30,
+   "levels": [
+    "Schaltet das Erdbeben frei: mächtiger Flächenangriff mit hoher Abklingzeit.",
+    "Größerer Radius, mehr Schaden.",
+    "Betäubt getroffene Gegner kurz.",
+    "Löst ein Nachbeben aus."
+   ]
+  },
+  {
+   "id": "spirit_wisps",
+   "name": "Geisterlichter",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 5,
+   "tags": [
+    "summon"
+   ],
+   "cooldown": 18.0,
+   "mana": 25,
+   "levels": [
+    "Beschwört 2 Geisterlichter, die für 15 Sekunden Gegner angreifen.",
+    "Ein zusätzliches Geisterlicht.",
+    "Geisterlichter halten länger und schlagen härter zu.",
+    "Geisterlichter heilen dich bei Treffern leicht.",
+    "Ein weiteres Geisterlicht und explodierender Abgang."
+   ]
+  },
+  {
+   "id": "crit_mastery",
+   "name": "Tödliche Präzision",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "crit"
+   ],
+   "levels": [
+    "+25% kritischer Schaden.",
+    "+25% kritischer Schaden.",
+    "+25% kritischer Schaden und +5% Kritchance.",
+    "+30% kritischer Schaden."
+   ]
+  },
+  {
+   "id": "vampiric",
+   "name": "Lebensraub",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "melee",
+    "sustain"
+   ],
+   "levels": [
+    "Nahkampftreffer heilen 3% des Schadens.",
+    "Nahkampftreffer heilen 3% mehr.",
+    "Nahkampftreffer heilen 3% mehr.",
+    "Überheilung wird zu einem kleinen Schild."
+   ]
+  },
+  {
+   "id": "swift",
+   "name": "Windläufer",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "mobility"
+   ],
+   "levels": [
+    "+8% Bewegungstempo.",
+    "+8% Bewegungstempo.",
+    "Rollen kostet keine Ausdauer-Pause mehr (-20% Rollabklingzeit).",
+    "+10% Bewegungstempo."
+   ]
+  },
+  {
+   "id": "vitality",
+   "name": "Lebenskraft",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 5,
+   "tags": [
+    "defense"
+   ],
+   "levels": [
+    "+25 maximale Lebenspunkte und sofortige Heilung.",
+    "+25 maximale Lebenspunkte.",
+    "+25 maximale Lebenspunkte.",
+    "+30 maximale Lebenspunkte.",
+    "+40 maximale Lebenspunkte."
+   ]
+  },
+  {
+   "id": "arcane_focus",
+   "name": "Arkaner Fokus",
+   "kind": "passive",
+   "rarity": "uncommon",
+   "max_level": 4,
+   "tags": [
+    "cooldown"
+   ],
+   "levels": [
+    "-8% Abklingzeiten.",
+    "-8% Abklingzeiten.",
+    "+30% Manaregeneration.",
+    "-8% Abklingzeiten."
+   ]
+  },
+  {
+   "id": "wide_strikes",
+   "name": "Weite Hiebe",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "area",
+    "melee"
+   ],
+   "levels": [
+    "+15% Reichweite und Wirkungsbereich.",
+    "+15% Reichweite und Wirkungsbereich.",
+    "+15% Reichweite und Wirkungsbereich.",
+    "Nahkampfangriffe treffen in einem größeren Winkel."
+   ]
+  },
+  {
+   "id": "volatile_corpses",
+   "name": "Explosive Leichen",
+   "kind": "passive",
+   "rarity": "rare",
+   "max_level": 3,
+   "tags": [
+    "area",
+    "fire"
+   ],
+   "levels": [
+    "Besiegte Gegner explodieren und verursachen Flächenschaden.",
+    "Größere, stärkere Explosionen.",
+    "Explosionen setzen Gegner in Brand."
+   ]
+  },
+  {
+   "id": "frost_dodge",
+   "name": "Frostschleier",
+   "kind": "passive",
+   "rarity": "uncommon",
+   "max_level": 3,
+   "tags": [
+    "frost",
+    "mobility"
+   ],
+   "levels": [
+    "Ausweichen erzeugt eine Frostwelle, die Gegner verlangsamt.",
+    "Die Frostwelle richtet Schaden an.",
+    "Du erhältst nach dem Ausweichen kurz einen Schild."
+   ]
+  },
+  {
+   "id": "heal_aura",
+   "name": "Heilende Aura",
+   "kind": "passive",
+   "rarity": "uncommon",
+   "max_level": 4,
+   "tags": [
+    "support",
+    "sustain"
+   ],
+   "levels": [
+    "Regeneriert 1,5 LP/s für dich und Verbündete in der Nähe.",
+    "Mehr Heilung und größerer Radius.",
+    "Mehr Heilung und größerer Radius.",
+    "Verbündete in der Aura verursachen 10% mehr Schaden."
+   ]
+  },
+  {
+   "id": "executioner",
+   "name": "Henker",
+   "kind": "passive",
+   "rarity": "rare",
+   "max_level": 3,
+   "tags": [
+    "melee",
+    "crit"
+   ],
+   "levels": [
+    "+25% Schaden gegen Gegner unter 30% Leben.",
+    "+25% Schaden gegen Gegner unter 30% Leben.",
+    "Treffer gegen schwache Gegner sind garantiert kritisch."
+   ]
+  },
+  {
+   "id": "twin_cast",
+   "name": "Zwillingszauber",
+   "kind": "passive",
+   "rarity": "epic",
+   "max_level": 2,
+   "tags": [
+    "spell"
+   ],
+   "levels": [
+    "Aktive Fähigkeiten werden mit 35% Schaden ein zweites Mal ausgelöst.",
+    "Der zweite Zauber verursacht 60% Schaden."
+   ]
+  },
+  {
+   "id": "iron_will",
+   "name": "Eiserner Wille",
+   "kind": "passive",
+   "rarity": "rare",
+   "max_level": 3,
+   "tags": [
+    "defense"
+   ],
+   "levels": [
+    "+6 Verteidigung.",
+    "+6 Verteidigung und Parierfenster +50%.",
+    "Erfolgreiches Parieren heilt dich und löst eine Druckwelle aus."
+   ]
+  },
+  {
+   "id": "glass_cannon",
+   "name": "Glaskanone",
+   "kind": "passive",
+   "rarity": "epic",
+   "max_level": 1,
+   "tags": [
+    "risk"
+   ],
+   "levels": [
+    "+45% Schaden, aber -25% maximale Lebenspunkte."
+   ]
+  },
+  {
+   "id": "blade_storm",
+   "name": "Klingenwirbel",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 5,
+   "tags": [
+    "melee",
+    "area"
+   ],
+   "cooldown": 11.0,
+   "mana": 22,
+   "levels": [
+    "Rotierende Klingen umkreisen dich 5 Sekunden lang und zerschneiden alle Gegner in der Nähe.",
+    "Mehr Schaden pro Treffer und längere Dauer.",
+    "Größerer Radius, die Klingen verlangsamen Gegner.",
+    "Die Klingen stoßen Gegner zurück und halten länger.",
+    "Zum Ende explodiert der Wirbel in einer gewaltigen Klingenwelle."
+   ]
+  },
+  {
+   "id": "poison_cloud",
+   "name": "Giftwolke",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 5,
+   "tags": [
+    "poison",
+    "area"
+   ],
+   "cooldown": 9.0,
+   "mana": 20,
+   "levels": [
+    "Erzeugt eine Giftwolke, die Gegner darin verlangsamt und stetig schädigt.",
+    "Größere Wolke, mehr Schaden.",
+    "Gegner in der Wolke werden vergiftet und nehmen auch danach Schaden.",
+    "Die Wolke hält deutlich länger.",
+    "Gegner, die in der Wolke sterben, hinterlassen eine neue kleinere Wolke."
+   ]
+  },
+  {
+   "id": "ice_lance",
+   "name": "Eislanze",
+   "kind": "active",
+   "rarity": "common",
+   "max_level": 5,
+   "tags": [
+    "frost",
+    "projectile"
+   ],
+   "cooldown": 3.5,
+   "mana": 14,
+   "levels": [
+    "Schleudert eine Eislanze, die alle Gegner in einer Linie durchbohrt und verlangsamt.",
+    "Mehr Schaden und größere Reichweite.",
+    "Wirft zwei Lanzen im Fächer.",
+    "Getroffene Gegner werden kurz eingefroren.",
+    "Drei Lanzen; Lanzen verursachen +50% Schaden gegen eingefrorene Gegner."
+   ]
+  },
+  {
+   "id": "thunder_strike",
+   "name": "Donnerschlag",
+   "kind": "active",
+   "rarity": "rare",
+   "max_level": 5,
+   "tags": [
+    "lightning",
+    "area"
+   ],
+   "cooldown": 8.0,
+   "mana": 22,
+   "levels": [
+    "Ein Blitz schlägt nach kurzer Warnung in den nächsten Gegner ein und betäubt ihn.",
+    "Zwei Blitze auf verschiedene Gegner.",
+    "Drei Blitze, größerer Einschlagsradius.",
+    "Längere Betäubung und mehr Schaden.",
+    "Fünf Blitze; jeder Einschlag springt zusätzlich als Kettenblitz weiter."
+   ]
+  },
+  {
+   "id": "meteor_rain",
+   "name": "Meteorschauer",
+   "kind": "active",
+   "rarity": "rare",
+   "max_level": 5,
+   "tags": [
+    "fire",
+    "area"
+   ],
+   "cooldown": 16.0,
+   "mana": 32,
+   "levels": [
+    "Lässt Meteore auf das Zielgebiet regnen. Jeder Einschlag wird kurz vorher markiert.",
+    "Mehr Meteore.",
+    "Größere Einschlagskrater und mehr Schaden.",
+    "Meteore setzen Gegner in Brand.",
+    "Noch mehr Meteore, die brennende Flächen hinterlassen."
+   ]
+  },
+  {
+   "id": "void_singularity",
+   "name": "Schwarzes Loch",
+   "kind": "active",
+   "rarity": "epic",
+   "max_level": 5,
+   "tags": [
+    "spell",
+    "area"
+   ],
+   "cooldown": 20.0,
+   "mana": 38,
+   "levels": [
+    "Erzeugt eine Singularität, die Gegner heranzieht und am Ende explodiert.",
+    "Größerer Sog und mehr Schaden.",
+    "Gegner im Sog werden verlangsamt.",
+    "Die Explosion betäubt alle Gegner.",
+    "Zwei Singularitäten gleichzeitig."
+   ]
+  },
+  {
+   "id": "holy_nova",
+   "name": "Heilige Nova",
+   "kind": "active",
+   "rarity": "uncommon",
+   "max_level": 5,
+   "tags": [
+    "support",
+    "spell"
+   ],
+   "cooldown": 10.0,
+   "mana": 24,
+   "levels": [
+    "Eine Lichtwelle verletzt Gegner und heilt dich und Verbündete in der Nähe um 12% der Maximalleben.",
+    "Mehr Heilung und Schaden.",
+    "Überheilung wird zu einem Schild.",
+    "Größerer Radius, Gegner werden zurückgestoßen.",
+    "Alle Getroffenen Verbündeten erhalten 6 Sekunden lang +20% Schaden."
+   ]
+  },
+  {
+   "id": "momentum",
+   "name": "Schwung",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "mobility",
+    "melee"
+   ],
+   "levels": [
+    "Besiegte Gegner geben dir 4 Sekunden lang einen Stapel: +3% Tempo und +3% Angriffstempo je Stapel (max. 5).",
+    "Bis zu 8 Stapel.",
+    "+5% Tempo je Stapel.",
+    "Bis zu 12 Stapel und die Stapel halten 6 Sekunden."
+   ]
+  },
+  {
+   "id": "thorns",
+   "name": "Dornenpanzer",
+   "kind": "passive",
+   "rarity": "uncommon",
+   "max_level": 3,
+   "tags": [
+    "defense",
+    "area"
+   ],
+   "levels": [
+    "Wenn du getroffen wirst, verletzt eine Dornenwelle Gegner in deiner Nähe.",
+    "Stärkere Welle und größerer Radius.",
+    "Die Welle verlangsamt Gegner und heilt dich um 3% des erlittenen Schadens."
+   ]
+  },
+  {
+   "id": "overcharge",
+   "name": "Überladung",
+   "kind": "passive",
+   "rarity": "rare",
+   "max_level": 3,
+   "tags": [
+    "spell",
+    "cooldown"
+   ],
+   "levels": [
+    "Jede 4. aktive Fähigkeit kostet kein Mana und verursacht +60% Schaden.",
+    "Jede 3. Fähigkeit ist überladen.",
+    "Überladene Fähigkeiten haben außerdem nur halbe Abklingzeit."
+   ]
+  },
+  {
+   "id": "soul_harvest",
+   "name": "Seelenernte",
+   "kind": "passive",
+   "rarity": "common",
+   "max_level": 4,
+   "tags": [
+    "sustain",
+    "spell"
+   ],
+   "levels": [
+    "Besiegte Gegner geben 4 Mana zurück.",
+    "6 Mana pro besiegtem Gegner.",
+    "Zusätzlich heilt jeder besiegte Gegner 1% der Maximalleben.",
+    "8 Mana und 2% Heilung pro besiegtem Gegner."
+   ]
+  },
+  {
+   "id": "berserker",
+   "name": "Berserker",
+   "kind": "passive",
+   "rarity": "rare",
+   "max_level": 3,
+   "tags": [
+    "risk",
+    "melee"
+   ],
+   "levels": [
+    "Je weniger Leben du hast, desto mehr Schaden verursachst du (bis +25%).",
+    "Bis zu +45% Schaden bei niedrigem Leben.",
+    "Bis zu +70% Schaden und +10% Lebensraub unter 40% Leben."
+   ]
+  },
+  {
+   "id": "arcane_shield",
+   "name": "Arkanschild",
+   "kind": "passive",
+   "rarity": "uncommon",
+   "max_level": 4,
+   "tags": [
+    "defense",
+    "spell"
+   ],
+   "levels": [
+    "Wenn du 4 Sekunden keinen Schaden nimmst, baut sich ein Schild von 15% der Maximalleben auf.",
+    "Schild bis 30% der Maximalleben.",
+    "Das Schild baut sich schneller auf.",
+    "Schild bis 45%; zerbrechendes Schild löst eine Druckwelle aus."
+   ]
+  }
  ],
  "evolutions": [
-  {"id": "steam_burst", "name": "Dampfexplosion", "requires": {"fireball": 3, "frost_nova": 2},
-   "desc": "Feuerbälle, die verlangsamte Gegner treffen, explodieren als Dampfwolke mit +60% Schaden."},
-  {"id": "storm_aegis", "name": "Sturmaegis", "requires": {"chain_lightning": 3, "frost_dodge": 1},
-   "desc": "Ausweichen löst einen Kettenblitz auf nahe Gegner aus."}
+  {
+   "id": "steam_burst",
+   "name": "Dampfexplosion",
+   "requires": {
+    "fireball": 3,
+    "frost_nova": 2
+   },
+   "desc": "Feuerbälle, die verlangsamte Gegner treffen, explodieren als Dampfwolke mit +60% Schaden."
+  },
+  {
+   "id": "storm_aegis",
+   "name": "Sturmaegis",
+   "requires": {
+    "chain_lightning": 3,
+    "frost_dodge": 1
+   },
+   "desc": "Ausweichen löst einen Kettenblitz auf nahe Gegner aus."
+  },
+  {
+   "id": "storm_front",
+   "name": "Sturmfront",
+   "requires": {
+    "thunder_strike": 3,
+    "frost_nova": 2
+   },
+   "desc": "Donnerschläge auf verlangsamte Gegner verursachen +50% Schaden und betäuben länger."
+  },
+  {
+   "id": "toxic_inferno",
+   "name": "Giftbrand",
+   "requires": {
+    "poison_cloud": 3,
+    "meteor_rain": 2
+   },
+   "desc": "Meteore, die in einer Giftwolke einschlagen, explodieren zu einem Flammenmeer mit +50% Schaden."
+  }
  ]
 }
