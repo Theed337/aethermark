@@ -49,6 +49,7 @@ func bind(a: Node, p: Player) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_hurt_vignette()
+	_build_crosshair()
 	_build_top_left()
 	_build_top_right()
 	_build_top_center()
@@ -57,6 +58,29 @@ func bind(a: Node, p: Player) -> void:
 
 
 # ------------------------------------------------------------------ Aufbau
+
+class Crosshair extends Control:
+	func _process(_d: float) -> void:
+		visible = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+		queue_redraw()
+
+	func _draw() -> void:
+		var c := size * 0.5
+		var col := Color(1, 1, 1, 0.9)
+		var sh := Color(0, 0, 0, 0.7)
+		for d in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+			draw_line(c + d * 7.0 + Vector2(1, 1), c + d * 17.0 + Vector2(1, 1), sh, 3.0)
+			draw_line(c + d * 7.0, c + d * 17.0, col, 2.0)
+		draw_circle(c + Vector2(1, 1), 2.2, sh)
+		draw_circle(c, 2.0, Color(1, 0.85, 0.4, 1))
+
+
+func _build_crosshair() -> void:
+	var ch := Crosshair.new()
+	ch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(ch)
+
 
 func _build_hurt_vignette() -> void:
 	_hurt = TextureRect.new()

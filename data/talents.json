@@ -68,8 +68,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    600,
-    325
+    635,
+    540
    ],
    "color": "#d9694a",
    "requires": [],
@@ -85,8 +85,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    600,
-    247
+    661,
+    626
    ],
    "color": "#d9694a",
    "requires": [
@@ -105,8 +105,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    600,
-    169
+    686,
+    713
    ],
    "color": "#d9694a",
    "requires": [
@@ -125,8 +125,8 @@
    "type": "transform",
    "cost": 3,
    "pos": [
-    600,
-    91
+    711,
+    799
    ],
    "color": "#d9694a",
    "requires": [
@@ -147,8 +147,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    669,
-    340
+    714,
+    368
    ],
    "color": "#e8c547",
    "requires": [],
@@ -164,8 +164,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    726,
-    274
+    796,
+    331
    ],
    "color": "#e8c547",
    "requires": [
@@ -183,8 +183,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    783,
-    209
+    877,
+    293
    ],
    "color": "#e8c547",
    "requires": [
@@ -203,8 +203,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    840,
-    143
+    959,
+    256
    ],
    "color": "#e8c547",
    "requires": [
@@ -223,8 +223,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    717,
-    381
+    694,
+    502
    ],
    "color": "#7fc46b",
    "requires": [],
@@ -240,8 +240,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    812,
-    348
+    762,
+    561
    ],
    "color": "#7fc46b",
    "requires": [
@@ -260,8 +260,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    908,
-    316
+    831,
+    620
    ],
    "color": "#7fc46b",
    "requires": [
@@ -280,8 +280,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    1004,
-    283
+    899,
+    679
    ],
    "color": "#7fc46b",
    "requires": [
@@ -300,8 +300,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    727,
-    434
+    668,
+    315
    ],
    "color": "#ff8a3d",
    "requires": [],
@@ -317,8 +317,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    831,
-    445
+    716,
+    239
    ],
    "color": "#ff8a3d",
    "requires": [
@@ -337,8 +337,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    935,
-    456
+    765,
+    163
    ],
    "color": "#ff8a3d",
    "requires": [
@@ -357,8 +357,8 @@
    "type": "transform",
    "cost": 3,
    "pos": [
-    1040,
-    467
+    814,
+    88
    ],
    "color": "#ff8a3d",
    "requires": [
@@ -379,8 +379,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    697,
-    482
+    532,
+    315
    ],
    "color": "#9b5de5",
    "requires": [],
@@ -396,8 +396,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    777,
-    533
+    484,
+    239
    ],
    "color": "#9b5de5",
    "requires": [
@@ -415,8 +415,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    856,
-    584
+    435,
+    163
    ],
    "color": "#9b5de5",
    "requires": [
@@ -435,8 +435,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    936,
-    635
+    386,
+    88
    ],
    "color": "#9b5de5",
    "requires": [
@@ -455,8 +455,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    636,
-    511
+    486,
+    368
    ],
    "color": "#4ecdc4",
    "requires": [],
@@ -472,8 +472,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    666,
-    586
+    404,
+    331
    ],
    "color": "#4ecdc4",
    "requires": [
@@ -492,8 +492,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    695,
-    661
+    323,
+    293
    ],
    "color": "#4ecdc4",
    "requires": [
@@ -512,8 +512,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    725,
-    736
+    241,
+    256
    ],
    "color": "#4ecdc4",
    "requires": [
@@ -532,8 +532,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    564,
-    511
+    565,
+    540
    ],
    "color": "#5aa9e6",
    "requires": [],
@@ -549,8 +549,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    534,
-    586
+    539,
+    626
    ],
    "color": "#5aa9e6",
    "requires": [
@@ -568,8 +568,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    505,
-    661
+    514,
+    713
    ],
    "color": "#5aa9e6",
    "requires": [
@@ -588,8 +588,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    475,
-    736
+    489,
+    799
    ],
    "color": "#5aa9e6",
    "requires": [
@@ -608,8 +608,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    503,
-    482
+    476,
+    438
    ],
    "color": "#f4a6c0",
    "requires": [],
@@ -625,8 +625,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    423,
-    533
+    387,
+    451
    ],
    "color": "#f4a6c0",
    "requires": [
@@ -644,8 +644,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    344,
-    584
+    298,
+    463
    ],
    "color": "#f4a6c0",
    "requires": [
@@ -664,8 +664,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    264,
-    635
+    209,
+    476
    ],
    "color": "#f4a6c0",
    "requires": [
@@ -684,8 +684,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    473,
-    434
+    506,
+    502
    ],
    "color": "#c9a227",
    "requires": [],
@@ -701,8 +701,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    369,
-    445
+    438,
+    561
    ],
    "color": "#c9a227",
    "requires": [
@@ -720,8 +720,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    265,
-    456
+    369,
+    620
    ],
    "color": "#c9a227",
    "requires": [
@@ -740,8 +740,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    160,
-    467
+    301,
+    679
    ],
    "color": "#c9a227",
    "requires": [
@@ -760,8 +760,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    483,
-    381
+    724,
+    438
    ],
    "color": "#6ee7b7",
    "requires": [],
@@ -777,8 +777,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    388,
-    348
+    813,
+    451
    ],
    "color": "#6ee7b7",
    "requires": [
@@ -796,8 +796,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    292,
-    316
+    902,
+    463
    ],
    "color": "#6ee7b7",
    "requires": [
@@ -816,8 +816,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    196,
-    283
+    991,
+    476
    ],
    "color": "#6ee7b7",
    "requires": [
@@ -836,8 +836,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    531,
-    340
+    600,
+    295
    ],
    "color": "#8ecae6",
    "requires": [],
@@ -853,8 +853,8 @@
    "type": "small",
    "cost": 1,
    "pos": [
-    474,
-    274
+    600,
+    205
    ],
    "color": "#8ecae6",
    "requires": [
@@ -872,8 +872,8 @@
    "type": "large",
    "cost": 2,
    "pos": [
-    417,
-    209
+    600,
+    115
    ],
    "color": "#8ecae6",
    "requires": [
@@ -892,8 +892,8 @@
    "type": "specialization",
    "cost": 3,
    "pos": [
-    360,
-    143
+    600,
+    25
    ],
    "color": "#8ecae6",
    "requires": [
@@ -912,8 +912,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    886,
-    323
+    861,
+    194
    ],
    "color": "#ffffff",
    "requires": [
@@ -933,8 +933,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    794,
-    644
+    339,
+    194
    ],
    "color": "#ffffff",
    "requires": [
@@ -954,8 +954,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    524,
-    412
+    600,
+    765
    ],
    "color": "#ffffff",
    "requires": [
@@ -975,8 +975,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    509,
-    649
+    259,
+    371
    ],
    "color": "#ffffff",
    "requires": [
@@ -996,8 +996,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    527,
-    236
+    941,
+    371
    ],
    "color": "#ffffff",
    "requires": [
@@ -1017,8 +1017,8 @@
    "type": "synergy",
    "cost": 2,
    "pos": [
-    694,
-    311
+    697,
+    89
    ],
    "color": "#ffffff",
    "requires": [

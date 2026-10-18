@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.6)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.7)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -70,3 +70,14 @@
 - Fähigkeiten-Effekte: Geschosse mit Glow-Kern, Lichthof und Partikelschweif; Frost-Nova mit Eissplittern und Nebel; Kettenblitz als zackiger Blitz mit Einschlagfunken; Erdbeben mit Steinsplittern und Staubwolke; Geisterlichter mit Glow und Schweif.
 - Leistung: Schatten nur bis 55 m, ferne Bäume/Pflanzen ab 95 m ausgeblendet, im Menü nur noch 2 Spiegel (pausieren bei breiten Seiten). Ob die Ruckler damit weg sind, kann ich ohne deine Hardware nicht messen.
 - Ungeprüft: Gegner/Bosse haben weiter die alten Figuren (passen stilistisch nicht zu den neuen Helden). Optik nur im Compatibility-Renderer gesehen.
+
+## Änderungen 0.9.7 (Feedback-Runde 4)
+- Menü-Figur dreht sich nicht mehr von selbst (nur noch per Maus ziehen).
+- Talentbaum neu angeordnet: 11 Zweige gleichmäßig im Kreis, kurze Verbindungen, Synergie-Knoten zwischen Nachbarzweigen, Zweigname am Zweigende.
+- Charaktereditor: Auswahl „Geschlecht". Weiblich = Kopf der Waldläuferin (einzige weibliche KayKit-Figur) – ehrlich: nur ein weiblicher Kopf/Frisur, kein eigener weiblicher Körper.
+- Ausrüstung ändert das Aussehen: Kopf-, Brust-, Beinteil, Schild und Waffe wechseln das Modell (Teile verschiedener KayKit-Figuren werden auf dasselbe Skelett gesetzt). Aktualisiert sich sofort im Inventar-Vorschaubild und im Spiel. Welches Aussehen ein Teil bekommt, hängt von seiner ID ab (Zufall, aber stabil) – keine Rüstungsstufen-Logik.
+- Fadenkreuz im Spiel (nur bei erfasster Maus).
+- Koop: Beim Erscheinen der Fähigkeiten-Auswahl pausiert die Welt 4 s (Gegner/Geschosse stehen), damit alle reagieren können.
+- Balance: Monster in der Gruppe deutlich schwächer skaliert (LP +30 % statt +55 % je Mitspieler, Schaden +4 % statt +10 %, kleinere Spawn-Obergrenze, Boss-LP +50 %), weniger Beute (Elite 30 %, normale Gegner 1,2 %, Truhen seltener 2. Gegenstand), Fähigkeiten-Stufen brauchen ~40 % mehr EP, Talentpunkte pro Run ca. halbiert (Charakterstufe 170·Stufe EP).
+- Launcher/Update: lädt version.json aus dem Repo-Ordner dist/ (raw.githubusercontent.com/…/main/dist), unterstützt mehrteilige Downloads (GitHub-Dateilimit 100 MB).
+- Nicht verifiziert: Mehrspieler-Fähigkeiten – im Code keine Ursache gefunden (siehe unten), reale Netzwerk-/GPU-Tests stehen aus.

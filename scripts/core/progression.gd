@@ -8,11 +8,11 @@ extends RefCounted
 
 
 static func meta_xp_for_level(level: int) -> int:
-	return 100 * level
+	return 170 * level
 
 
 static func compute_points(result: Dictionary) -> int:
-	var pts := int(result.get("kills", 0)) / 20 + int(result.get("level", 1)) / 2
+	var pts := int(result.get("kills", 0)) / 45 + int(result.get("level", 1)) / 4
 	pts += int(result.get("elites", 0))
 	if result.get("boss_defeated", false):
 		pts += 4

@@ -1,0 +1,9 @@
+{
+ "version": "0.9.7",
+ "url": "https://github.com/Theed337/aethermark/tree/main/dist",
+ "parts": [
+  "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part00",
+  "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part01"
+ ],
+ "notes": "0.9.7: Talentbaum neu geordnet, Geschlecht & Ausrüstung ändern das Aussehen, Fadenkreuz, 4-s-Pause bei Fähigkeitenwahl (Koop), Monster im Koop schwächer, Beute/Punkte langsamer."
+}

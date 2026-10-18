@@ -176,12 +176,15 @@ func _draw() -> void:
 	for b in GameData.talent_branches:
 		var first := ""
 		for id in GameData.talents:
-			if GameData.talents[id]["branch"] == b["id"] and GameData.talents[id].get("requires", []).is_empty():
+			if GameData.talents[id]["branch"] == b["id"] and id.ends_with("_4"):
 				first = id
 		if first != "":
 			var p := _to_screen(GameData.talents[first]["pos"])
 			var dir := (p - center).normalized()
-			_text(p + dir * 40.0 * zoom - Vector2(50, 0), b["name"].split(" ")[0].left(14), int(13 * zoom + 3), Color.html(b["color"]).lightened(0.2))
+			var lbl: String = b["name"].split(" &")[0].split(",")[0].left(20)
+			var fs2 := int(13 * zoom + 3)
+			var lw := ThemeDB.fallback_font.get_string_size(lbl, HORIZONTAL_ALIGNMENT_LEFT, -1, fs2).x
+			_text(p + dir * 50.0 * zoom + Vector2(-lw * 0.5 + dir.x * lw * 0.5, 5), lbl, fs2, Color.html(b["color"]).lightened(0.2))
 	# Knoten
 	for id in GameData.talents:
 		var n: Dictionary = GameData.talents[id]

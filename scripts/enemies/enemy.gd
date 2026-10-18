@@ -298,6 +298,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if dead:
 		return
+	if RunState.world_freeze > 0.0:
+		return
 	_anim_t += delta
 	_update_status(delta)
 	if not is_on_floor():

@@ -48,12 +48,14 @@ func _ready() -> void:
 	RunState.difficulty = 1
 	RunState.quick_mode = true
 	RunState.bot_mode = true
+	RunState.drop_mult = 5.0
 	RunState.bot_damage_scale = 0.12
 	RunState.seed_value = seed_v
 	Engine.time_scale = 3.0
 	print("Smoke-Test: Waffe=%s Seed=%d Gebiet=%s" % [weapon, seed_v, area])
 	arena = load("res://scenes/arena.tscn").instantiate()
 	add_child(arena)
+	arena.xp_mult = 3.5
 	start_pos = arena.player.global_position
 
 

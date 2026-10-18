@@ -3,7 +3,7 @@ extends Control
 ## neben dem Launcher in den Ordner "Aethermark" und startet es.
 ## Konfiguration: Datei "launcher.cfg" neben der EXE (Zeile 1 = URL der version.json) überschreibt den Standard.
 
-const DEFAULT_VERSION_URL := "https://github.com/Theed337/aethermark/releases/latest/download/version.json"
+const DEFAULT_VERSION_URL := "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/version.json"
 const GAME_DIR := "Aethermark"
 const GAME_EXE := "Aethermark.exe"
 
@@ -12,6 +12,8 @@ var _version_url := DEFAULT_VERSION_URL
 var _installed := ""
 var _latest := ""
 var _zip_url := ""
+var _parts: Array = []   # mehrere Teil-URLs (GitHub erlaubt max. 100 MB je Datei); werden zusammengesetzt
+var _part_i := 0
 var _notes := ""
 var _http: HTTPRequest
 var _downloading := false
@@ -135,11 +137,12 @@ func _on_version(result: int, code: int, _h: PackedStringArray, body: PackedByte
 		_offline("Keine Verbindung zum Update-Server (Code %d)." % code)
 		return
 	var d = JSON.parse_string(body.get_string_from_utf8())
-	if not (d is Dictionary) or not d.has("version") or not d.has("url"):
+	if not (d is Dictionary) or not d.has("version") or not (d.has("url") or d.has("parts")):
 		_offline("Update-Information ist fehlerhaft.")
 		return
 	_latest = str(d["version"])
-	_zip_url = str(d["url"])
+	_zip_url = str(d.get("url", ""))
+	_parts = d.get("parts", [_zip_url]) if d.has("parts") else [_zip_url]
 	_notes = str(d.get("notes", ""))
 	_notes_label.text = _notes
 	if _installed == "":
@@ -182,14 +185,19 @@ func _on_main() -> void:
 	_bar.visible = true
 	_bar.value = 0
 	_status.text = "Lade Version %s herunter …" % _latest
-	var tmp := _base_dir.path_join("download.tmp")
+	_part_i = 0
+	_start_part()
+
+
+func _start_part() -> void:
+	var tmp := _base_dir.path_join("download.tmp.part%d" % _part_i)
 	_http = HTTPRequest.new()
 	_http.download_file = tmp
 	_http.timeout = 0.0
 	_http.max_redirects = 10
 	add_child(_http)
 	_http.request_completed.connect(_on_downloaded.bind(tmp))
-	if _http.request(_zip_url) != OK:
+	if _http.request(str(_parts[_part_i])) != OK:
 		_fail("Download konnte nicht gestartet werden.")
 
 
@@ -207,23 +215,33 @@ func _process(delta: float) -> void:
 		var got := _http.get_downloaded_bytes()
 		if total > 0:
 			_bar.value = 100.0 * got / total
-			_status.text = "Lade herunter … %.1f / %.1f MB" % [got / 1048576.0, total / 1048576.0]
+			_status.text = "Lade herunter … %.1f / %.1f MB%s" % [got / 1048576.0, total / 1048576.0, ("  (Teil %d/%d)" % [_part_i + 1, _parts.size()]) if _parts.size() > 1 else ""]
 		else:
 			_bar.value = 0
 			_status.text = "Lade herunter … %.1f MB" % (got / 1048576.0)
 
 
 func _on_downloaded(result: int, code: int, _h: PackedStringArray, _b: PackedByteArray, tmp: String) -> void:
-	_downloading = false
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		_downloading = false
 		DirAccess.remove_absolute(tmp)
 		_fail("Download fehlgeschlagen (Code %d)." % code)
 		return
+	_http.queue_free()
+	if _part_i + 1 < _parts.size():
+		_part_i += 1
+		_start_part()
+		return
+	_downloading = false
 	_status.text = "Installiere …"
 	_bar.value = 100
 	await get_tree().process_frame
-	var err := _extract(tmp)
-	DirAccess.remove_absolute(tmp)
+	var full := _base_dir.path_join("download.tmp")
+	if not _join_parts(full):
+		_fail("Teile konnten nicht zusammengesetzt werden.")
+		return
+	var err := _extract(full)
+	DirAccess.remove_absolute(full)
 	if err != "":
 		_fail(err)
 		return
@@ -238,6 +256,23 @@ func _on_downloaded(result: int, code: int, _h: PackedStringArray, _b: PackedByt
 	_refresh_info()
 	_status.text = "Fertig! Version %s ist installiert." % _latest
 	_status.add_theme_color_override("font_color", Color("#5cff9a"))
+
+
+func _join_parts(dest: String) -> bool:
+	var out := FileAccess.open(dest, FileAccess.WRITE)
+	if out == null:
+		return false
+	for i in _parts.size():
+		var pth := _base_dir.path_join("download.tmp.part%d" % i)
+		var f := FileAccess.open(pth, FileAccess.READ)
+		if f == null:
+			return false
+		while not f.eof_reached():
+			out.store_buffer(f.get_buffer(8 * 1024 * 1024))
+		f.close()
+		DirAccess.remove_absolute(pth)
+	out.close()
+	return true
 
 
 func _extract(zip_path: String) -> String:

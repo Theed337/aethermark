@@ -5,7 +5,7 @@ extends Node
 ## Solange UPDATE_URL leer ist (Standard), passiert gar nichts – kein Netzwerkzugriff.
 ## Einen echten Launcher/Installer braucht das Spiel nicht; siehe docs/BUILD_UND_UPDATE.md.
 
-const UPDATE_URL := "https://github.com/Theed337/aethermark/releases/latest/download/version.json"
+const UPDATE_URL := "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/version.json"
 
 signal update_available(version: String, url: String, notes: String)
 

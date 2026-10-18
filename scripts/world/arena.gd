@@ -138,6 +138,7 @@ func _connect_player(p: Player) -> void:
 
 ## Koop: Remote-Spieler anlegen und Netzwerk-Hooks setzen.
 func _setup_coop() -> void:
+	RunState.world_freeze = 0.0
 	Net.run.arena = self
 	FX.net_hook = Net.run.queue_fx
 	Sfx.net_hook = Net.run.queue_sfx
@@ -219,6 +220,15 @@ func player_banner(p: Player, text: String, color: Color = UI.GOLD, duration: fl
 
 func _process(delta: float) -> void:
 	if finished:
+		return
+	if RunState.world_freeze > 0.0:
+		RunState.world_freeze = maxf(RunState.world_freeze - delta, 0.0)
+		_update_pickups(delta)
+		_update_prompt()
+		_update_offers()
+		if net_on:
+			_update_revive(delta)
+			_net_tick(delta)
 		return
 	run_time += delta
 	_update_spawner(delta)
@@ -407,13 +417,13 @@ func _on_enemy_died(e: Enemy) -> void:
 	killer.on_enemy_killed(e)
 	if e.is_mini or e.elite_mod != "":
 		# Loot bewusst knapp: Mini-Bosse immer, Elite nur etwa jeder zweite
-		if e.is_mini or rng.randf() < 0.45:
+		if e.is_mini or rng.randf() < 0.30 * RunState.drop_mult:
 			_drop_item(e.global_position, "rare" if e.is_mini else "uncommon", 1.0)
 	elif is_boss:
 		for i in 3:
 			_drop_item(e.global_position + Vector3(rng.randf_range(-2, 2), 0, rng.randf_range(-2, 2)), "rare", 3.0)
 		_drop_unique_for_boss(e.global_position)
-	elif rng.randf() < 0.025:
+	elif rng.randf() < 0.012 * RunState.drop_mult:
 		_drop_item(e.global_position, "common", 1.0, killer)
 	if is_boss:
 		run_stats["boss_defeated"] = true
@@ -578,7 +588,7 @@ func _open_chest(i: int, p: Player) -> void:
 	for q in players:
 		if not is_instance_valid(q):
 			continue
-		var n := 1 + (1 if rng.randf() < 0.4 else 0)
+		var n := 1 + (1 if rng.randf() < 0.2 else 0)
 		for k in n:
 			_drop_item_for(q, c["node"].global_position + Vector3(rng.randf_range(-1, 1), 0, 1.2), "uncommon", 1.5)
 		q.add_xp(20)
@@ -632,6 +642,9 @@ func _start_offer(p: Player) -> void:
 		return
 	p.net_offers = offers
 	p.offer_deadline = run_time + OFFER_TIMEOUT
+	if net_on and RunState.world_freeze < RunState.OFFER_FREEZE:
+		RunState.world_freeze = RunState.OFFER_FREEZE
+		banner_all("Fähigkeitenwahl – kurze Pause!", UI.TEAL, 3.0)
 	if p == player:
 		if RunState.bot_mode:
 			_resolve_offer(p, "pick", offers[p.rng.randi() % offers.size()]["id"])
@@ -940,6 +953,7 @@ func build_result(victory: bool, p: Player = null) -> Dictionary:
 
 
 func _finish(victory: bool) -> void:
+	RunState.world_freeze = 0.0
 	if finished:
 		return
 	finished = true

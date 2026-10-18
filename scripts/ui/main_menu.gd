@@ -32,13 +32,14 @@ var status_label: Label
 var creating_new := false
 var selected_area := "emerald_forest"
 var selected_difficulty := 1
-var spin_speed := 0.35
+var spin_speed := 0.0
 var _rot_drag := false
 var _t := 0.0
 var _cam_target := Vector3(0, 1.2, 3.4)
 var _cam_look := Vector3(0, 1.0, 0)
 var preview_appearance: Dictionary = {}
 var preview_weapon := "sword"
+var preview_gear: Dictionary = {}
 var _ui: CanvasLayer
 var _root_ui: Control
 var _fireflies: Array = []
@@ -216,7 +217,9 @@ func _update_mirrors() -> void:
 		c.far = 60.0
 
 
-func set_preview(appearance: Dictionary, weapon_type: String = "") -> void:
+func set_preview(appearance: Dictionary, weapon_type: String = "", gear: Variant = null) -> void:
+	if gear is Dictionary:
+		preview_gear = gear
 	preview_appearance = appearance.duplicate(true)
 	if weapon_type != "":
 		preview_weapon = weapon_type
@@ -224,7 +227,7 @@ func set_preview(appearance: Dictionary, weapon_type: String = "") -> void:
 	if not model.is_empty():
 		yaw = model["root"].rotation.y
 		model["root"].queue_free()
-	model = CharacterModel.build(preview_appearance, preview_weapon)
+	model = CharacterModel.build(preview_appearance, preview_weapon, preview_gear)
 	pedestal.add_child(model["root"])
 	model["root"].position = Vector3(0, 0.15, 0)
 	model["root"].rotation.y = yaw
@@ -235,13 +238,13 @@ func set_preview(appearance: Dictionary, weapon_type: String = "") -> void:
 func show_active_character() -> void:
 	var c := SaveSystem.active_character()
 	if c.is_empty():
-		set_preview(SaveSystem.default_appearance(), "sword")
+		set_preview(SaveSystem.default_appearance(), "sword", {})
 		return
 	var w := "sword"
 	var eq: Dictionary = c.get("equipment", {})
 	if eq.has("weapon"):
 		w = SaveSystem.find_item(c, eq["weapon"]).get("weapon_type", "sword")
-	set_preview(c["appearance"], w)
+	set_preview(c["appearance"], w, CharacterModel.gear_looks(c))
 
 
 ## Kamera-Voreinstellungen für den Charaktereditor.

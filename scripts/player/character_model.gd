@@ -8,9 +8,9 @@ const OUTFIT_COLORS := [Color("#3f6b8a"), Color("#7a4a3a"), Color("#5a3f8a"), Co
 
 
 ## Gibt ein Dictionary mit "root" und den animierbaren Teilen zurück.
-static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dictionary:
+static func build(appearance: Dictionary, weapon_type: String = "sword", gear: Dictionary = {}) -> Dictionary:
 	if ResourceLoader.exists(KK_DIR + "Knight.glb"):
-		return _build_kaykit(appearance, weapon_type)
+		return _build_kaykit(appearance, weapon_type, gear)
 	if ResourceLoader.exists(RIG_PATH):
 		return _build_rigged(appearance, weapon_type)
 	return _build_procedural(appearance, weapon_type)
@@ -173,7 +173,7 @@ static func kk_clip(kind: String, weapon_type: String, combo: int = 1) -> String
 	return "Idle"
 
 
-static func _build_kaykit(appearance: Dictionary, weapon_type: String) -> Dictionary:
+static func _build_kaykit(appearance: Dictionary, weapon_type: String, gear: Dictionary = {}) -> Dictionary:
 	var a: Dictionary = SaveSystem.default_appearance()
 	for k in appearance:
 		a[k] = appearance[k]
@@ -204,6 +204,7 @@ static func _build_kaykit(appearance: Dictionary, weapon_type: String) -> Dictio
 			var n := String(c.name)
 			if not (n.contains("Hat") or n.contains("Cape") or n.contains("Helmet") or n.contains("Hood")):
 				c.visible = false
+	_apply_gear(sk, bname, gear, int(a.get("female", 0)) == 1)
 	# Waffe in der rechten Hand
 	var wa := BoneAttachment3D.new()
 	wa.bone_name = "handslot.r"
@@ -221,6 +222,132 @@ static func _build_kaykit(appearance: Dictionary, weapon_type: String) -> Dictio
 	anim.play("Idle")
 	return {"root": root, "body": body_pivot, "legs": [Node3D.new(), Node3D.new()], "arms": [Node3D.new(), Node3D.new()],
 			"head": Node3D.new(), "weapon": weapon, "torso": inst, "anim": anim, "skeleton": sk}
+
+
+## Aus der Ausrüstung des Charakters wird das Aussehen abgeleitet: je Rüstungsteil ein Figurensatz (0..4 = KK_BODIES),
+## Schild als Name. Jedes Teil sieht je nach Gegenstand anders aus; wechselt man Teile, ändert sich die Figur sofort.
+const KK_SHIELDS := ["Round_Shield", "Rectangle_Shield", "Spike_Shield", "Barbarian_Round_Shield"]
+const UNIQUE_STYLE := {"stormcrown": 2, "sovereign_crown": 0, "wyrm_scale": 1}
+
+
+static func _style_of(it: Dictionary) -> int:
+	if UNIQUE_STYLE.has(it.get("base_id", "")):
+		return UNIQUE_STYLE[it["base_id"]]
+	return absi(hash(str(it.get("uid", it.get("name", ""))))) % KK_BODIES.size()
+
+
+static func gear_looks(c: Dictionary) -> Dictionary:
+	var out := {}
+	if c.is_empty():
+		return out
+	var eq: Dictionary = c.get("equipment", {})
+	for slot in ["head", "chest", "legs"]:
+		if eq.has(slot):
+			var it := SaveSystem.find_item(c, eq[slot])
+			if not it.is_empty():
+				out[slot] = _style_of(it)
+	if eq.has("offhand"):
+		var it2 := SaveSystem.find_item(c, eq["offhand"])
+		if not it2.is_empty():
+			out["shield"] = KK_SHIELDS[_style_of(it2) % KK_SHIELDS.size()]
+	return out
+
+
+static func _kk_instance(n: String) -> Node3D:
+	if not _kk_scenes.has(n):
+		_kk_scenes[n] = load(KK_DIR + n + ".glb")
+	return _kk_scenes[n].instantiate()
+
+
+## Teil (Mesh) aus einer anderen Figur in das Skelett der Basisfigur übernehmen (gleiches Skelett, gleiche Bindepose).
+static func _graft_mesh(sk: Skeleton3D, src_sk: Skeleton3D, part: String, remove_prefix: String) -> void:
+	for c in sk.get_children():
+		if c is MeshInstance3D and String(c.name).begins_with(remove_prefix):
+			c.queue_free()
+	var m := src_sk.get_node_or_null(part)
+	if m == null:
+		return
+	m.get_parent().remove_child(m)
+	sk.add_child(m)
+	m.skeleton = NodePath("..")
+
+
+## Anbauteil (Helm, Umhang, Schild) von einem Hilfsknochen der Quellfigur an den Elternknochen der Basisfigur hängen.
+static func _graft_attachment(sk: Skeleton3D, src_sk: Skeleton3D, att_name: String) -> void:
+	var att := src_sk.get_node_or_null(att_name)
+	if att == null or not (att is BoneAttachment3D):
+		return
+	var idx := src_sk.find_bone(att.bone_name)
+	if idx < 0:
+		return
+	var par := src_sk.get_bone_parent(idx)
+	if par < 0:
+		return
+	var rel := src_sk.get_bone_global_rest(par).affine_inverse() * src_sk.get_bone_global_rest(idx)
+	var na := BoneAttachment3D.new()
+	na.bone_name = src_sk.get_bone_name(par)
+	sk.add_child(na)
+	for k in att.get_children():
+		att.remove_child(k)
+		na.add_child(k)
+		if k is Node3D:
+			k.transform = rel * k.transform
+
+
+static func _hide_named(sk: Skeleton3D, tokens: Array) -> void:
+	for c in sk.get_children():
+		if c is BoneAttachment3D:
+			for t in tokens:
+				if String(c.name).contains(t):
+					c.visible = false
+
+
+static func _apply_gear(sk: Skeleton3D, base: String, gear: Dictionary, female: bool) -> void:
+	var base_short := base.split("_")[0]
+	var head_style := base
+	if gear.has("head"):
+		head_style = KK_BODIES[int(gear["head"])]
+		_hide_named(sk, ["Hat", "Helmet", "Hood"])
+		var hs := _kk_instance(head_style)
+		var hsk: Skeleton3D = hs.find_child("Skeleton3D", true, false)
+		for tok in ["Helmet", "Hat"]:
+			_graft_attachment(sk, hsk, "%s_%s" % [head_style.split("_")[0], tok])
+		hs.free()
+	if female and not gear.has("head") and base_short != "Rogue":
+		_hide_named(sk, ["Hat", "Helmet", "Hood"])
+	var head_src := head_style
+	if female:
+		head_src = "Rogue_Hooded" if head_style == "Rogue_Hooded" else "Rogue"
+	if head_src != base or gear.has("head"):
+		var src := _kk_instance(head_src)
+		var ssk: Skeleton3D = src.find_child("Skeleton3D", true, false)
+		var hname := "%s_Head%s" % [head_src.split("_")[0], "_Hooded" if head_src == "Rogue_Hooded" else ""]
+		_graft_mesh(sk, ssk, hname, "%s_Head" % base_short)
+		src.free()
+	if gear.has("chest"):
+		var cs: String = KK_BODIES[int(gear["chest"])]
+		var cshort := cs.split("_")[0]
+		var src2 := _kk_instance(cs)
+		var ssk2: Skeleton3D = src2.find_child("Skeleton3D", true, false)
+		_hide_named(sk, ["Cape"])
+		for part in ["Body", "ArmLeft", "ArmRight"]:
+			_graft_mesh(sk, ssk2, "%s_%s" % [cshort, part], "%s_%s" % [base_short, part])
+		_graft_attachment(sk, ssk2, "%s_Cape" % cshort)
+		src2.free()
+	if gear.has("legs"):
+		var ls: String = KK_BODIES[int(gear["legs"])]
+		var lshort := ls.split("_")[0]
+		var src3 := _kk_instance(ls)
+		var ssk3: Skeleton3D = src3.find_child("Skeleton3D", true, false)
+		for part in ["LegLeft", "LegRight"]:
+			_graft_mesh(sk, ssk3, "%s_%s" % [lshort, part], "%s_%s" % [base_short, part])
+		src3.free()
+	if gear.has("shield"):
+		var sname: String = gear["shield"]
+		var ssrc := _kk_instance("Barbarian" if sname.begins_with("Barbarian") else "Knight")
+		var ssk4: Skeleton3D = ssrc.find_child("Skeleton3D", true, false)
+		_graft_attachment(sk, ssk4, sname)
+		ssrc.free()
 
 
 static func idle_clip(weapon_type: String) -> String:

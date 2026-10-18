@@ -178,7 +178,7 @@ func _ready() -> void:
 	cs.shape = sh
 	cs.position.y = 0.9
 	add_child(cs)
-	model = CharacterModel.build(character.get("appearance", {}), weapon_type)
+	model = CharacterModel.build(character.get("appearance", {}), weapon_type, CharacterModel.gear_looks(character))
 	add_child(model["root"])
 	if not is_local_view():
 		if net_role == "puppet" or net_role == "remote_sim":

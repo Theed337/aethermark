@@ -66,6 +66,8 @@ func _physics_process(delta: float) -> void:
 		if life <= 0.0 or position.y < 0.05:
 			queue_free()
 		return
+	if RunState.world_freeze > 0.0:
+		return
 	life -= delta
 	if gravity != 0.0:
 		velocity.y -= gravity * delta

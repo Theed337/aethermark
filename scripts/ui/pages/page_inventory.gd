@@ -356,6 +356,7 @@ func toggle_equip() -> void:
 		SaveSystem.equip(c, selected_uid)
 	SaveSystem.save_game()
 	Sfx.play("loot", 1.0, -8.0)
+	menu.show_active_character()
 	refresh()
 
 

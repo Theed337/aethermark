@@ -149,6 +149,14 @@ func _build_editor() -> void:
 		_origin_desc.text = GameData.origins[origin_ids[i]]["desc"]
 		_preview())
 	_row("Herkunft", ob)
+	var sx := UI.option()
+	sx.add_item("Männlich", 0)
+	sx.add_item("Weiblich", 1)
+	sx.select(clampi(int(_draft.get("female", 0)), 0, 1))
+	sx.item_selected.connect(func(i: int):
+		_draft["female"] = i
+		_preview())
+	_row("Geschlecht", sx)
 	var gb := UI.option()
 	for i in CharacterModel.KK_BODY_NAMES.size():
 		gb.add_item(CharacterModel.KK_BODY_NAMES[i], i)
@@ -268,12 +276,14 @@ func _swatches(label: String, key: String, colors_fn: Callable, free_picker: boo
 
 func _preview() -> void:
 	var w := "sword"
+	var gear := {}
 	if not _creating and SaveSystem.has_character():
 		var c := character()
 		var eq: Dictionary = c.get("equipment", {})
 		if eq.has("weapon"):
 			w = SaveSystem.find_item(c, eq["weapon"]).get("weapon_type", "sword")
-	menu.set_preview(_draft, w)
+		gear = CharacterModel.gear_looks(c)
+	menu.set_preview(_draft, w, gear)
 
 
 func _check_name(silent: bool = false) -> bool:
