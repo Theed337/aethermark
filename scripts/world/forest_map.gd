@@ -203,6 +203,13 @@ static func _ground(root: Node3D, rng: RandomNumberGenerator) -> void:
 	gm.set_shader_parameter("pond_r", POND_R)
 	gm.set_shader_parameter("arena_r", BOSS_ARENA_R)
 	gm.set_shader_parameter("path_pts", path_points())
+	for k in ["grass", "dirt", "rock"]:
+		var td: Dictionary = Toon._tex(k)
+		if td["tex"] != null:
+			gm.set_shader_parameter("t_" + k, td["tex"])
+			if td["h"] != null:
+				gm.set_shader_parameter("t_%s_h" % k, td["h"])
+			gm.set_shader_parameter("n_" + k, td["norm"])
 	plane.material_override = gm
 	plane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	body.add_child(plane)
@@ -265,26 +272,26 @@ static func _tree(parent: Node3D, pos: Vector3, scale_f: float, rng: RandomNumbe
 			Toon.part(t, "prism", Vector3(0.3 * scale_f, ch, 0.3 * scale_f), leaf.lightened(0.1 * i), Vector3((i - 1) * 0.45 * scale_f, ch * 0.5, (i % 2) * 0.3), Vector3(0, 0, (i - 1) * 12), Toon.glow_mat(leaf, 1.2, 0.9))
 		kind = -1
 	elif style == "dead":
-		Toon.part(t, "cyl", Vector3(0.2 * scale_f, h * 1.3, 0.3 * scale_f), bark, Vector3(0, h * 0.65, 0))
+		Toon.part(t, "trunk", Vector3(0.2 * scale_f, h * 1.3, 0.3 * scale_f), bark, Vector3(0, h * 0.65, 0), Vector3.ZERO, Toon.tmat(bark, "bark", 1.6, 1.0, 1.2))
 		for i in 3:
-			Toon.part(t, "cyl", Vector3(0.08 * scale_f, h * 0.7, 0.1 * scale_f), bark.darkened(0.1), Vector3(sin(i * 2.1) * 0.5 * scale_f, h * (0.9 + i * 0.2), cos(i * 2.1) * 0.5 * scale_f), Vector3(0, 0, 40 * (1 if i % 2 == 0 else -1)))
+			Toon.part(t, "cyl", Vector3(0.08 * scale_f, h * 0.7, 0.1 * scale_f), bark.darkened(0.1), Vector3(sin(i * 2.1) * 0.5 * scale_f, h * (0.9 + i * 0.2), cos(i * 2.1) * 0.5 * scale_f), Vector3(0, 0, 40 * (1 if i % 2 == 0 else -1)), Toon.tmat(bark.darkened(0.1), "bark", 2.0, 1.0, 1.2))
 		kind = -1
 	else:
-		Toon.part(t, "cyl", Vector3(0.28 * scale_f, h, 0.42 * scale_f), bark, Vector3(0, h * 0.5, 0))
+		Toon.part(t, "trunk", Vector3(0.28 * scale_f, h, 0.42 * scale_f), bark, Vector3(0, h * 0.5, 0), Vector3.ZERO, Toon.tmat(bark, "bark", 1.6, 1.0, 1.2))
 		if style == "pine":
 			kind = 0
 	if kind == -1:
 		pass
 	elif kind == 0:
 		for i in 3:
-			Toon.part(t, "cone", Vector3((1.5 - i * 0.35) * scale_f, 1.5 * scale_f, 0), leaf.darkened(0.04 * i), Vector3(0, h + i * 0.9 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf.darkened(0.04 * i)))
+			Toon.part(t, "cone", Vector3((1.5 - i * 0.35) * scale_f, 1.5 * scale_f, 0), leaf.darkened(0.04 * i), Vector3(0, h + i * 0.9 * scale_f, 0), Vector3.ZERO, Toon.tmat(leaf.darkened(0.04 * i), "leaves", 0.9, 0.9, 0.5, 0.0, 0.2, 1.0))
 	elif kind == 1:
-		Toon.part(t, "sphere", Vector3(1.5 * scale_f, 0.85, 0), leaf, Vector3(0, h + 0.8 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf))
-		Toon.part(t, "sphere", Vector3(1.0 * scale_f, 0.9, 0), leaf.lightened(0.08), Vector3(0.7 * scale_f, h + 0.3 * scale_f, 0.3), Vector3.ZERO, Toon.wind_mat(leaf.lightened(0.08)))
-		Toon.part(t, "sphere", Vector3(0.9 * scale_f, 0.9, 0), leaf.darkened(0.05), Vector3(-0.6 * scale_f, h + 0.4 * scale_f, -0.4), Vector3.ZERO, Toon.wind_mat(leaf.darkened(0.05)))
+		Toon.part(t, "blob", Vector3(1.5 * scale_f, 18, 0.2), leaf, Vector3(0, h + 0.8 * scale_f, 0), Vector3.ZERO, Toon.tmat(leaf, "leaves", 0.9, 0.9, 0.5, 0.0, 0.2, 1.0))
+		Toon.part(t, "blob", Vector3(1.0 * scale_f, 25, 0.2), leaf.lightened(0.08), Vector3(0.7 * scale_f, h + 0.3 * scale_f, 0.3), Vector3.ZERO, Toon.tmat(leaf.lightened(0.08), "leaves", 0.9, 0.9, 0.5, 0.0, 0.2, 1.0))
+		Toon.part(t, "blob", Vector3(0.9 * scale_f, 32, 0.2), leaf.darkened(0.05), Vector3(-0.6 * scale_f, h + 0.4 * scale_f, -0.4), Vector3.ZERO, Toon.tmat(leaf.darkened(0.05), "leaves", 0.9, 0.9, 0.5, 0.0, 0.2, 1.0))
 	else:
-		Toon.part(t, "sphere", Vector3(1.3 * scale_f, 1.1, 0), leaf, Vector3(0, h + 1.1 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf))
-		Toon.part(t, "sphere", Vector3(0.7 * scale_f, 1.0, 0), col("rune").lerp(leaf, 0.6) if style != "round" else Color("#ff9ad0").lerp(leaf, 0.3), Vector3(0.7 * scale_f, h + 1.6 * scale_f, 0.5))
+		Toon.part(t, "blob", Vector3(1.3 * scale_f, 39, 0.2), leaf, Vector3(0, h + 1.1 * scale_f, 0), Vector3.ZERO, Toon.tmat(leaf, "leaves", 0.9, 0.9, 0.5, 0.0, 0.2, 1.0))
+		Toon.part(t, "blob", Vector3(0.38 * scale_f, 46, 0.25), col("rune").lerp(leaf, 0.6) if style != "round" else Color("#ff9ad0").lerp(leaf, 0.3), Vector3(0.95 * scale_f, h + 1.75 * scale_f, 0.7))
 	if collide:
 		var sb := StaticBody3D.new()
 		sb.collision_layer = 1
@@ -424,7 +431,7 @@ static func _undergrowth(root: Node3D, rng: RandomNumberGenerator) -> void:
 		var s := rng.randf_range(0.5, 1.6)
 		var rk := pal("rocks")
 		var c: Color = rk[0].lerp(rk[1], rng.randf())
-		var rock := Toon.part(root, "sphere", Vector3(0.6 * s, 0.7, 0), c, p + Vector3(0, 0.25 * s, 0), Vector3(rng.randf() * 30, rng.randf() * 360, 0))
+		var rock := Toon.part(root, "rock", Vector3(0.6 * s, float(rng.randi() % 1000), 0.32), c, p + Vector3(0, 0.25 * s, 0), Vector3(rng.randf() * 30, rng.randf() * 360, 0), Toon.tmat(c, "rock", 1.1, 1.0, 1.6))
 		rock.scale = Vector3(1.0, 0.7, 0.9)
 		if s > 1.0:
 			var sb := StaticBody3D.new()
@@ -448,9 +455,9 @@ static func _ruins(root: Node3D, rng: RandomNumberGenerator) -> void:
 			var a := i * TAU / n
 			var p := c + Vector3(cos(a), 0, sin(a)) * 3.0
 			var h := rng.randf_range(1.2, 3.2)
-			var col := Toon.part(root, "cyl", Vector3(0.45, h, 0.5), stone.lerp(moss, rng.randf() * 0.4), p + Vector3(0, h * 0.5, 0))
+			var col := Toon.part(root, "cyl", Vector3(0.45, h, 0.5), stone.lerp(moss, rng.randf() * 0.4), p + Vector3(0, h * 0.5, 0), Vector3.ZERO, Toon.tmat(stone.lerp(moss, rng.randf() * 0.4), "bricks", 1.4, 1.0, 1.4))
 			Toon.outline(col, 0.02)
-			Toon.part(root, "box", Vector3(1.0, 0.25, 1.0), stone.darkened(0.08), p + Vector3(0, h + 0.12, 0), Vector3(0, rng.randf() * 40, rng.randf_range(-6, 6)))
+			Toon.part(root, "box", Vector3(1.0, 0.25, 1.0), stone.darkened(0.08), p + Vector3(0, h + 0.12, 0), Vector3(0, rng.randf() * 40, rng.randf_range(-6, 6)), Toon.tmat(stone.darkened(0.08), "rock", 1.2, 1.0, 1.6))
 			var sb := StaticBody3D.new()
 			sb.collision_layer = 1
 			var cs := CollisionShape3D.new()
@@ -476,7 +483,7 @@ static func _boss_arena(root: Node3D) -> void:
 		var a := i * TAU / n
 		var p := c + Vector3(cos(a), 0, sin(a)) * (BOSS_ARENA_R + 1.0)
 		var h := 3.5 + (i % 3) * 0.8
-		var col := Toon.part(root, "cyl", Vector3(0.7, h, 0.85), stone, p + Vector3(0, h * 0.5, 0))
+		var col := Toon.part(root, "cyl", Vector3(0.7, h, 0.85), stone, p + Vector3(0, h * 0.5, 0), Vector3.ZERO, Toon.tmat(stone, "bricks", 1.1, 1.0, 1.5))
 		Toon.outline(col, 0.025)
 		Toon.part(root, "sphere", Vector3(0.25, 0, 0), col("glyph"), p + Vector3(0, h + 0.3, 0), Vector3.ZERO, Toon.glow_mat(col("glyph"), 2.2), false)
 		var sb := StaticBody3D.new()

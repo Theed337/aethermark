@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.2)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.3)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -36,3 +36,12 @@
 - Die Forward+-Effekte (SSAO, Volumetrik, Helligkeit nach Tonemapping) konnte ich hier nicht rendern (nur Compatibility-Renderer). Wie es auf deinem PC aussieht, ist ungeprüft.
 - "Triple-A"-Grafik ist mit prozeduralen Primitiven nicht erreichbar; das ist eine deutlich verbesserte Stilisierung, kein AAA-Niveau. Dafür bräuchte es echte Modelle/Texturen.
 - GitHub-Push weiterhin nicht erfolgt (Token ungültig).
+
+
+## Änderungen 0.9.3
+- Balance: Level-Kurve ca. 2x flacher (weniger Fähigkeiten-Angebote), normale Gegner droppen selten (2,5 %), Elite ca. 45 %, Boss 3 statt 4 Raredrops.
+  Testlauf-Bot (Einzelspieler) schlägt den Boss meist bei Stufe ~10 nach ~7,5 Min; ein Lauf von drei scheiterte (Bot-Zufall). Echte Spielbarkeit ungeprüft.
+- Eigene Grafik: tools/gen_textures.py erzeugt 9 nahtlose Texturen (Gras, Erde, Fels, Rinde, Laub, Stoff, Leder, Metall, Mauerwerk) mit Höhenkarten; triplanar im Shader samt Relief.
+- Eigener Mesh-Generator (scripts/fx/mesh_kit.gd): Torso/Gliedmaßen/Kopf, kantige Felsen, weiche Laubkronen, Stämme mit Wurzelanlauf.
+- Ungeprüft: Aussehen im Forward+-Renderer (hier nur Compatibility-Renderer testbar). Gegner und Bosse nutzen noch die alten Primitive.
+- GitHub: Sitzung ist an andere Repos gebunden, Push von Aethermark nicht möglich (siehe Antwort).

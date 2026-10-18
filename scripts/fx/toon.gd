@@ -50,6 +50,65 @@ static func wind_mat(color: Color, strength: float = 1.0) -> ShaderMaterial:
 	return m
 
 
+static var _tex_cache: Dictionary = {}
+
+
+## Geladene Textur + Höhenkarte + Normierung (1/Durchschnittsfarbe), damit die Grundfarbe erhalten bleibt.
+static func _tex(name: String) -> Dictionary:
+	if _tex_cache.has(name):
+		return _tex_cache[name]
+	var d := {"tex": null, "h": null, "norm": Vector3.ONE}
+	var path := "res://assets/textures/%s.png" % name
+	if ResourceLoader.exists(path):
+		var t: Texture2D = load(path)
+		d["tex"] = t
+		var hp := "res://assets/textures/%s_h.png" % name
+		if ResourceLoader.exists(hp):
+			d["h"] = load(hp)
+		var img := t.get_image()
+		if img != null:
+			if img.is_compressed():
+				img.decompress()
+			img.resize(16, 16)
+			var sum := Vector3.ZERO
+			for y in 16:
+				for x in 16:
+					var c := img.get_pixel(x, y)
+					sum += Vector3(c.r, c.g, c.b)
+			sum /= 256.0
+			d["norm"] = Vector3(1.0 / maxf(sum.x, 0.05), 1.0 / maxf(sum.y, 0.05), 1.0 / maxf(sum.z, 0.05))
+	_tex_cache[name] = d
+	return d
+
+
+## Texturiertes Material (gecacht): `name` = Datei in assets/textures, `scale` = Wiederholungen je Objekteinheit.
+static func tmat(color: Color, name: String, scale: float = 1.0, amount: float = 1.0, bump: float = 0.0,
+		emission: float = 0.0, rim: float = 0.3, wind: float = 0.0) -> ShaderMaterial:
+	var key := "t_%s_%s_%.2f_%.2f_%.2f_%.2f_%.2f_%.2f" % [color.to_html(true), name, scale, amount, bump, emission, rim, wind]
+	if _cache.has(key):
+		return _cache[key]
+	var m := make_mat(color, emission, rim)
+	apply_tex(m, name, scale, amount, bump)
+	if wind > 0.0:
+		m.set_shader_parameter("wind", wind)
+	_cache[key] = m
+	return m
+
+
+static func apply_tex(m: ShaderMaterial, name: String, scale: float = 1.0, amount: float = 1.0, bump: float = 0.0) -> void:
+	var d := _tex(name)
+	if d["tex"] == null:
+		return
+	m.set_shader_parameter("tex", d["tex"])
+	if d["h"] != null:
+		m.set_shader_parameter("tex_h", d["h"])
+	m.set_shader_parameter("tex_norm", d["norm"])
+	m.set_shader_parameter("tex_mix", amount)
+	m.set_shader_parameter("tex_scale", scale)
+	m.set_shader_parameter("bump", bump)
+	m.set_shader_parameter("detail", 0.05)
+
+
 ## Eigenes Material (nicht geteilt) – z. B. für Gegner, die blitzen.
 static func make_mat(color: Color, emission: float = 0.0, rim: float = 0.35) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
@@ -127,6 +186,18 @@ static func mesh_of(kind: String, s: Vector3) -> Mesh:
 			m.rings = 20
 			m.ring_segments = 8
 			return m
+		"limb":
+			return MeshKit.limb(s.x, s.y, s.z if s.z > 0.0 else s.x)
+		"torso":
+			return MeshKit.torso(s.x, s.y)
+		"head":
+			return MeshKit.head(s.x)
+		"rock":
+			return MeshKit.blob(s.x, int(s.y), s.z if s.z > 0.0 else 0.35, true, 2)
+		"blob":
+			return MeshKit.blob(s.x, int(s.y), s.z if s.z > 0.0 else 0.18, false, 3)
+		"trunk":
+			return MeshKit.trunk(s.x, s.y, s.z if s.z > 0.0 else s.x)
 		"prism":
 			var m := PrismMesh.new()
 			m.size = s

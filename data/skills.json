@@ -1,5 +1,5 @@
 {
- "level_curve": {"base": 22, "per_level": 12, "quad": 1.6},
+ "level_curve": {"base": 50, "per_level": 22, "quad": 3.2},
  "rarity_weights": {"common": 60, "uncommon": 26, "rare": 11, "epic": 3},
  "rarity_colors": {"common": "#c8c8c8", "uncommon": "#5cd65c", "rare": "#4aa3ff", "epic": "#c46bff"},
  "rerolls_per_run": 2,

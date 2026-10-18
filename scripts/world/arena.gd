@@ -406,12 +406,14 @@ func _on_enemy_died(e: Enemy) -> void:
 	_share_xp(xp, e.global_position)
 	killer.on_enemy_killed(e)
 	if e.is_mini or e.elite_mod != "":
-		_drop_item(e.global_position, "rare" if e.is_mini else "uncommon", 1.0)
+		# Loot bewusst knapp: Mini-Bosse immer, Elite nur etwa jeder zweite
+		if e.is_mini or rng.randf() < 0.45:
+			_drop_item(e.global_position, "rare" if e.is_mini else "uncommon", 1.0)
 	elif is_boss:
-		for i in 4:
+		for i in 3:
 			_drop_item(e.global_position + Vector3(rng.randf_range(-2, 2), 0, rng.randf_range(-2, 2)), "rare", 3.0)
 		_drop_unique_for_boss(e.global_position)
-	elif rng.randf() < 0.07:
+	elif rng.randf() < 0.025:
 		_drop_item(e.global_position, "common", 1.0, killer)
 	if is_boss:
 		run_stats["boss_defeated"] = true

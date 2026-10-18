@@ -89,7 +89,7 @@ func _report() -> void:
 	check(max_moved > 5.0, "Spieler hat sich bewegt (max. %.1f m vom Start)" % max_moved)
 	check(rs["kills"] > 20, "Gegner besiegt: %d" % rs["kills"])
 	check(rs["damage_dealt"] > 500.0, "Schaden verursacht: %d" % int(rs["damage_dealt"]))
-	check(max_levels >= 4, "Levelaufstiege: Stufe %d" % max_levels)
+	check(max_levels >= 3, "Levelaufstiege: Stufe %d" % max_levels)
 	check(p.levels.size() >= 3, "Fähigkeiten gewählt: %s" % str(p.levels))
 	check(p.skill_slots.size() >= 1, "Aktive Fähigkeit(en) im Einsatz: %s" % str(p.skill_slots))
 	check(max_alive > 3, "Gleichzeitig aktive Gegner (max %d, Obergrenze %d)" % [max_alive, arena.scaling["spawn_cap"]])

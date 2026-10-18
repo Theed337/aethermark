@@ -86,6 +86,7 @@ class NetMonitor extends Node:
 			var a: Arena = scene
 			if not _started:
 				_started = true
+				a.xp_mult = 2.0   # Test-Bots sind schwach; hier wird das Netzwerk geprüft, nicht die Balance
 				print("NETPEER host run started, net_on=", a.net_on, " players=", a.players.size())
 			_log_t += delta
 			if _log_t >= 1.0 and not a.finished:

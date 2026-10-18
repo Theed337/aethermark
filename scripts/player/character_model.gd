@@ -34,9 +34,9 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 		var pivot := Node3D.new()
 		pivot.position = Vector3(0.14 * sx, 0.55, 0)
 		body_pivot.add_child(pivot)
-		var leg := Toon.part(pivot, "capsule", Vector3(0.105, 0.5, 0), cloth.darkened(0.15), Vector3(0, -0.2, 0))
+		var leg := Toon.part(pivot, "limb", Vector3(0.118, 0.3, 0.082), cloth.darkened(0.15), Vector3(0, -0.2, 0), Vector3.ZERO, Toon.tmat(cloth.darkened(0.15), "cloth", 4.0, 0.8, 0.35))
 		Toon.outline(leg, 0.014)
-		var boot := Toon.part(pivot, "cyl", Vector3(0.12, 0.26, 0.13), leather, Vector3(0, -0.4, 0))
+		var boot := Toon.part(pivot, "cyl", Vector3(0.12, 0.26, 0.13), leather, Vector3(0, -0.4, 0), Vector3.ZERO, Toon.tmat(leather, "leather", 5.0, 0.9, 0.5))
 		Toon.outline(boot, 0.014)
 		Toon.part(pivot, "cyl", Vector3(0.14, 0.05, 0.14), leather.lightened(0.15), Vector3(0, -0.29, 0))    # Stiefelkrempe
 		var toe := Toon.part(pivot, "box", Vector3(0.2, 0.1, 0.3), leather.darkened(0.2), Vector3(0, -0.51, 0.06))
@@ -45,11 +45,9 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 			Toon.part(pivot, "sphere", Vector3(0.07, 0, 0), trim, Vector3(0, -0.16, 0.09))                    # Knieschützer
 		legs.append(pivot)
 	# Torso: Brust und Taille getrennt, Gürtel mit Schnalle und Beutel
-	var torso := Toon.part(body_pivot, "capsule", Vector3(0.27, 0.66, 0), cloth, Vector3(0, 1.0, 0))
+	var torso := Toon.part(body_pivot, "torso", Vector3(0.31, 0.78, 0), cloth, Vector3(0, 1.0, 0), Vector3.ZERO, Toon.tmat(cloth, "cloth", 4.0, 0.8, 0.35))
 	Toon.outline(torso, 0.016)
-	var waist := Toon.part(body_pivot, "capsule", Vector3(0.21, 0.5, 0), cloth.darkened(0.08), Vector3(0, 0.8, 0))
-	Toon.outline(waist, 0.014)
-	Toon.part(body_pivot, "box", Vector3(0.5, 0.09, 0.32), leather, Vector3(0, 0.74, 0))                   # Gürtel
+	Toon.part(body_pivot, "box", Vector3(0.5, 0.09, 0.32), leather, Vector3(0, 0.74, 0), Vector3.ZERO, Toon.tmat(leather, "leather", 5.0, 0.9, 0.5))                   # Gürtel
 	Toon.part(body_pivot, "box", Vector3(0.1, 0.1, 0.03), Color("#d8b25a"), Vector3(0, 0.74, 0.17), Vector3.ZERO, Toon.glow_mat(Color("#d8b25a"), 0.35), false)
 	Toon.part(body_pivot, "box", Vector3(0.12, 0.14, 0.09), leather.lightened(0.1), Vector3(0.27, 0.72, 0.06))  # Beutel
 	Toon.part(body_pivot, "cyl", Vector3(0.09, 0.09, 0.09), trim, Vector3(0, 1.36, 0))                      # Halsbund
@@ -68,7 +66,7 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 		Toon.outline(cape, 0.012)
 	# Schulterpanzer
 	for sx in [-1, 1]:
-		var pad := Toon.part(body_pivot, "sphere", Vector3(0.14, 0.7, 0), trim, Vector3(0.36 * sx, 1.32, 0))
+		var pad := Toon.part(body_pivot, "sphere", Vector3(0.14, 0.7, 0), trim, Vector3(0.36 * sx, 1.32, 0), Vector3.ZERO, Toon.tmat(trim, "metal", 3.0, 1.0, 0.8, 0.0, 0.5))
 		pad.scale = Vector3(1.15, 0.8, 1.0)
 		Toon.outline(pad, 0.012)
 	# Arme: Oberarm, Unterarmschiene, Hand
@@ -77,9 +75,9 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 		var pivot := Node3D.new()
 		pivot.position = Vector3(0.38 * sx, 1.2, 0)
 		body_pivot.add_child(pivot)
-		var arm := Toon.part(pivot, "capsule", Vector3(0.085, 0.46, 0), cloth2, Vector3(0, -0.2, 0))
+		var arm := Toon.part(pivot, "limb", Vector3(0.098, 0.26, 0.07), cloth2, Vector3(0, -0.2, 0), Vector3.ZERO, Toon.tmat(cloth2, "cloth", 4.0, 0.8, 0.35))
 		Toon.outline(arm, 0.012)
-		var bracer := Toon.part(pivot, "cyl", Vector3(0.095, 0.2, 0.1), leather, Vector3(0, -0.36, 0))
+		var bracer := Toon.part(pivot, "cyl", Vector3(0.095, 0.2, 0.1), leather, Vector3(0, -0.36, 0), Vector3.ZERO, Toon.tmat(leather, "leather", 5.0, 0.9, 0.5))
 		Toon.outline(bracer, 0.01)
 		Toon.part(pivot, "sphere", Vector3(0.085, 0, 0), skin.darkened(0.04), Vector3(0, -0.5, 0.01))
 		arms.append(pivot)
@@ -88,10 +86,8 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 	var head := Node3D.new()
 	head.position = Vector3(0, 1.6, 0)
 	body_pivot.add_child(head)
-	var skull := Toon.part(head, "sphere", Vector3(0.24, 1.05, 0), skin)
+	var skull := Toon.part(head, "head", Vector3(0.245, 0, 0), skin, Vector3.ZERO, Vector3.ZERO, Toon.tmat(skin, "leather", 3.0, 0.4, 0.08, 0.0, 0.35))
 	Toon.outline(skull, 0.014)
-	var jaw := Toon.part(head, "sphere", Vector3(0.17, 0.8, 0), skin, Vector3(0, -0.09, 0.04))
-	jaw.scale = Vector3(1.0, 0.75, 1.0)
 	var eye_c := Color(a["eye_color"])
 	var hair_c := Color(a["hair_color"])
 	for sx in [-1, 1]:

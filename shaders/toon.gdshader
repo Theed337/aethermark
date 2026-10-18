@@ -13,8 +13,16 @@ uniform float detail : hint_range(0.0, 0.6) = 0.16;
 uniform float roughness : hint_range(0.0, 1.0) = 0.78;
 uniform float wind : hint_range(0.0, 1.0) = 0.0;
 uniform float wrap : hint_range(0.0, 1.0) = 0.3;
+// Triplanare Textur (Objektraum): Detail + Relief aus selbst erzeugten Texturen (tools/gen_textures.py)
+uniform sampler2D tex : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D tex_h : hint_default_black, filter_linear_mipmap, repeat_enable;
+uniform vec3 tex_norm = vec3(1.0);
+uniform float tex_mix : hint_range(0.0, 1.0) = 0.0;
+uniform float tex_scale = 1.0;
+uniform float bump = 0.0;
 
 varying vec3 lpos;
+varying vec3 lnorm;
 varying float wy;
 
 float hash3(vec3 p) {
@@ -35,6 +43,7 @@ float vnoise(vec3 x) {
 
 void vertex() {
 	lpos = VERTEX;
+	lnorm = NORMAL;
 	vec3 wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wy = wpos.y;
 	if (wind > 0.0) {
@@ -49,7 +58,28 @@ void fragment() {
 	float n = vnoise(lpos * 3.2) * 0.65 + vnoise(lpos * 9.0) * 0.35;
 	vec3 base = albedo.rgb * COLOR.rgb;
 	base *= 1.0 + (n - 0.5) * 2.0 * detail;
-	base *= mix(0.78, 1.0, smoothstep(0.0, 0.9, wy));
+	if (tex_mix > 0.0) {
+		vec3 w = pow(abs(lnorm), vec3(4.0));
+		w /= (w.x + w.y + w.z + 1e-5);
+		vec3 q = lpos * tex_scale;
+		vec3 tc = texture(tex, q.yz).rgb * w.x + texture(tex, q.xz).rgb * w.y + texture(tex, q.xy).rgb * w.z;
+		base *= mix(vec3(1.0), clamp(tc * tex_norm, 0.0, 2.2), tex_mix);
+		if (bump > 0.0) {
+			float e = 1.5 / 512.0;
+			vec2 uyz = q.yz;
+			vec2 uxz = q.xz;
+			vec2 uxy = q.xy;
+			vec3 g = vec3(0.0);
+			float h0 = texture(tex_h, uyz).r;
+			g += w.x * vec3(0.0, texture(tex_h, uyz + vec2(e, 0)).r - h0, texture(tex_h, uyz + vec2(0, e)).r - h0);
+			h0 = texture(tex_h, uxz).r;
+			g += w.y * vec3(texture(tex_h, uxz + vec2(e, 0)).r - h0, 0.0, texture(tex_h, uxz + vec2(0, e)).r - h0);
+			h0 = texture(tex_h, uxy).r;
+			g += w.z * vec3(texture(tex_h, uxy + vec2(e, 0)).r - h0, texture(tex_h, uxy + vec2(0, e)).r - h0, 0.0);
+			vec3 nl = normalize(lnorm - bump * 0.025 * (g / e) * tex_scale);
+			NORMAL = normalize((VIEW_MATRIX * vec4(mat3(MODEL_MATRIX) * nl, 0.0)).xyz);
+		}
+	}
 	ALBEDO = mix(base, vec3(1.0), flash);
 	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
 	EMISSION = emission_color.rgb * emission_energy + rim_color.rgb * fres * rim + vec3(1.0, 0.9, 0.8) * flash * 0.9;
