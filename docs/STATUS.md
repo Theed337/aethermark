@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.1)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.2)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -24,3 +24,15 @@
 - Mobile-Touch-Steuerung und Mobile-Export (nur Architektur vorbereitet).
 - Weitere Ereignisse (Verteidigung, Händler), interaktive Umgebung (explosive Fässer etc.), Wahl der Flüche durch den Spieler (aktuell zufällig), Heimatbasis, eigene Kartenlayouts je Gebiet.
 - Subjektive Spielbarkeit/Balance auf echter Hardware mit Grafikkarte: hier nur per Bot-Läufe headless geprüft.
+
+
+## Änderungen 0.9.2 (Feedback-Runde nach Test von 0.9.1)
+- Charaktereditor: Figur sichtbar und zentriert, Panels passen sich der Fensterbreite an (UI-Basis 1920x1080, skalierbar).
+- Welt: Flackern behoben (Transparenz-Pipeline nur noch für wirklich durchsichtige Materialien), neuer Boden-Shader, Gras, Wind, Schatten, Tonemapping.
+- HUD im Diablo-3-Stil: Lebens-/Ressourcenkugel, Skillleiste mit Icons, Minimap, Gruppenanzeige, Fähigkeiten-Übersicht (Taste K).
+- Talentbaum: Ansicht passt sich dem Baum an, erlernte Talente werden als Liste mit Effekten angezeigt.
+- Charaktermodell: Gesicht, Stiefel, Schulterpanzer, Gürtel, Unterarmschienen.
+## Ehrlich: nicht verifiziert
+- Die Forward+-Effekte (SSAO, Volumetrik, Helligkeit nach Tonemapping) konnte ich hier nicht rendern (nur Compatibility-Renderer). Wie es auf deinem PC aussieht, ist ungeprüft.
+- "Triple-A"-Grafik ist mit prozeduralen Primitiven nicht erreichbar; das ist eine deutlich verbesserte Stilisierung, kein AAA-Niveau. Dafür bräuchte es echte Modelle/Texturen.
+- GitHub-Push weiterhin nicht erfolgt (Token ungültig).

@@ -26,46 +26,81 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 	var cloth: Color = OUTFIT_COLORS[outfit_i]
 	var cloth2: Color = cloth.lightened(0.18)
 
-	# Beine
+	var leather := Color("#4a3322")
+	var trim := accent.darkened(0.15)
+	# Beine: Oberschenkel, Stiefel mit Schaft und Sohle
 	var legs: Array = []
 	for sx in [-1, 1]:
 		var pivot := Node3D.new()
 		pivot.position = Vector3(0.14 * sx, 0.55, 0)
 		body_pivot.add_child(pivot)
-		var leg := Toon.part(pivot, "capsule", Vector3(0.11, 0.55, 0), cloth.darkened(0.15), Vector3(0, -0.26, 0))
-		Toon.outline(leg, 0.02)
-		Toon.part(pivot, "box", Vector3(0.2, 0.12, 0.3), Color("#3a2a20"), Vector3(0, -0.52, 0.04))
+		var leg := Toon.part(pivot, "capsule", Vector3(0.105, 0.5, 0), cloth.darkened(0.15), Vector3(0, -0.2, 0))
+		Toon.outline(leg, 0.014)
+		var boot := Toon.part(pivot, "cyl", Vector3(0.12, 0.26, 0.13), leather, Vector3(0, -0.4, 0))
+		Toon.outline(boot, 0.014)
+		Toon.part(pivot, "cyl", Vector3(0.14, 0.05, 0.14), leather.lightened(0.15), Vector3(0, -0.29, 0))    # Stiefelkrempe
+		var toe := Toon.part(pivot, "box", Vector3(0.2, 0.1, 0.3), leather.darkened(0.2), Vector3(0, -0.51, 0.06))
+		toe.scale = Vector3(1, 1, 1)
+		if outfit_i != 2:
+			Toon.part(pivot, "sphere", Vector3(0.07, 0, 0), trim, Vector3(0, -0.16, 0.09))                    # Knieschützer
 		legs.append(pivot)
-	# Torso
-	var torso := Toon.part(body_pivot, "capsule", Vector3(0.28, 0.7, 0), cloth, Vector3(0, 0.95, 0))
-	Toon.outline(torso, 0.025)
-	Toon.part(body_pivot, "box", Vector3(0.62, 0.09, 0.36), accent, Vector3(0, 0.78, 0))   # Gürtel in Akzentfarbe
-	if outfit_i == 1:
-		Toon.part(body_pivot, "box", Vector3(0.5, 0.35, 0.34), cloth2, Vector3(0, 1.05, 0.03))
+	# Torso: Brust und Taille getrennt, Gürtel mit Schnalle und Beutel
+	var torso := Toon.part(body_pivot, "capsule", Vector3(0.27, 0.66, 0), cloth, Vector3(0, 1.0, 0))
+	Toon.outline(torso, 0.016)
+	var waist := Toon.part(body_pivot, "capsule", Vector3(0.21, 0.5, 0), cloth.darkened(0.08), Vector3(0, 0.8, 0))
+	Toon.outline(waist, 0.014)
+	Toon.part(body_pivot, "box", Vector3(0.5, 0.09, 0.32), leather, Vector3(0, 0.74, 0))                   # Gürtel
+	Toon.part(body_pivot, "box", Vector3(0.1, 0.1, 0.03), Color("#d8b25a"), Vector3(0, 0.74, 0.17), Vector3.ZERO, Toon.glow_mat(Color("#d8b25a"), 0.35), false)
+	Toon.part(body_pivot, "box", Vector3(0.12, 0.14, 0.09), leather.lightened(0.1), Vector3(0.27, 0.72, 0.06))  # Beutel
+	Toon.part(body_pivot, "cyl", Vector3(0.09, 0.09, 0.09), trim, Vector3(0, 1.36, 0))                      # Halsbund
+	if outfit_i == 0:
+		var scarf := Toon.part(body_pivot, "torus", Vector3(0.17, 0.11, 0), accent, Vector3(0, 1.37, 0.01), Vector3.ZERO, Toon.mat(accent))
+		scarf.scale = Vector3(1, 1.2, 1)
+		Toon.part(body_pivot, "box", Vector3(0.09, 0.3, 0.04), accent, Vector3(0.1, 1.2, 0.18), Vector3(0, 0, 8))
+	elif outfit_i == 1:
+		Toon.part(body_pivot, "box", Vector3(0.46, 0.38, 0.33), cloth2, Vector3(0, 1.03, 0.03))
+		Toon.part(body_pivot, "box", Vector3(0.05, 0.4, 0.34), leather, Vector3(0, 1.03, 0.04))
 	elif outfit_i == 2:
-		Toon.part(body_pivot, "cone", Vector3(0.42, 0.7, 0), cloth2, Vector3(0, 0.45, 0))
+		Toon.part(body_pivot, "cone", Vector3(0.4, 0.75, 0), cloth2, Vector3(0, 0.42, 0))
+		Toon.part(body_pivot, "torus", Vector3(0.3, 0.26, 0), accent, Vector3(0, 0.08, 0), Vector3.ZERO, Toon.glow_mat(accent, 0.5), false)
 	elif outfit_i == 3:
-		Toon.part(body_pivot, "prism", Vector3(0.7, 0.5, 0.3), cloth2, Vector3(0, 1.0, -0.2), Vector3(0, 0, 180))   # Umhang
-	# Arme
+		var cape := Toon.part(body_pivot, "prism", Vector3(0.74, 0.8, 0.07), cloth2, Vector3(0, 0.95, -0.2), Vector3(0, 0, 180))
+		Toon.outline(cape, 0.012)
+	# Schulterpanzer
+	for sx in [-1, 1]:
+		var pad := Toon.part(body_pivot, "sphere", Vector3(0.14, 0.7, 0), trim, Vector3(0.36 * sx, 1.32, 0))
+		pad.scale = Vector3(1.15, 0.8, 1.0)
+		Toon.outline(pad, 0.012)
+	# Arme: Oberarm, Unterarmschiene, Hand
 	var arms: Array = []
 	for sx in [-1, 1]:
 		var pivot := Node3D.new()
-		pivot.position = Vector3(0.38 * sx, 1.18, 0)
+		pivot.position = Vector3(0.38 * sx, 1.2, 0)
 		body_pivot.add_child(pivot)
-		var arm := Toon.part(pivot, "capsule", Vector3(0.09, 0.5, 0), cloth2, Vector3(0, -0.22, 0))
-		Toon.outline(arm, 0.02)
-		Toon.part(pivot, "sphere", Vector3(0.1, 0, 0), skin, Vector3(0, -0.5, 0))
+		var arm := Toon.part(pivot, "capsule", Vector3(0.085, 0.46, 0), cloth2, Vector3(0, -0.2, 0))
+		Toon.outline(arm, 0.012)
+		var bracer := Toon.part(pivot, "cyl", Vector3(0.095, 0.2, 0.1), leather, Vector3(0, -0.36, 0))
+		Toon.outline(bracer, 0.01)
+		Toon.part(pivot, "sphere", Vector3(0.085, 0, 0), skin.darkened(0.04), Vector3(0, -0.5, 0.01))
 		arms.append(pivot)
-	# Kopf
+	# Hals und Kopf
+	Toon.part(body_pivot, "cyl", Vector3(0.075, 0.14, 0.085), skin.darkened(0.06), Vector3(0, 1.44, 0))
 	var head := Node3D.new()
-	head.position = Vector3(0, 1.58, 0)
+	head.position = Vector3(0, 1.6, 0)
 	body_pivot.add_child(head)
 	var skull := Toon.part(head, "sphere", Vector3(0.24, 1.05, 0), skin)
-	Toon.outline(skull, 0.02)
+	Toon.outline(skull, 0.014)
+	var jaw := Toon.part(head, "sphere", Vector3(0.17, 0.8, 0), skin, Vector3(0, -0.09, 0.04))
+	jaw.scale = Vector3(1.0, 0.75, 1.0)
 	var eye_c := Color(a["eye_color"])
+	var hair_c := Color(a["hair_color"])
 	for sx in [-1, 1]:
-		Toon.part(head, "sphere", Vector3(0.05, 0, 0), Color.WHITE, Vector3(0.09 * sx, 0.03, 0.2), Vector3.ZERO, null, false)
-		Toon.part(head, "sphere", Vector3(0.028, 0, 0), eye_c, Vector3(0.09 * sx, 0.03, 0.245), Vector3.ZERO, Toon.glow_mat(eye_c, 0.6), false)
+		Toon.part(head, "sphere", Vector3(0.048, 0, 0), Color("#f4f1ea"), Vector3(0.088 * sx, 0.035, 0.19), Vector3.ZERO, null, false)
+		Toon.part(head, "sphere", Vector3(0.03, 0, 0), eye_c, Vector3(0.088 * sx, 0.035, 0.228), Vector3.ZERO, Toon.glow_mat(eye_c, 0.5), false)
+		Toon.part(head, "sphere", Vector3(0.016, 0, 0), Color("#0b0b10"), Vector3(0.088 * sx, 0.035, 0.248), Vector3.ZERO, null, false)
+		Toon.part(head, "box", Vector3(0.085, 0.017, 0.02), hair_c.darkened(0.25), Vector3(0.088 * sx, 0.1, 0.205), Vector3(0, 0, -8 * sx), null, false)  # Augenbraue
+	Toon.part(head, "sphere", Vector3(0.035, 0, 0), skin.darkened(0.08), Vector3(0, -0.03, 0.235), Vector3.ZERO, null, false)   # Nase
+	Toon.part(head, "box", Vector3(0.07, 0.012, 0.012), Color("#7a3a3a"), Vector3(0, -0.105, 0.215), Vector3.ZERO, null, false)   # Mund
 	_hair(head, int(a["hair_style"]), Color(a["hair_color"]))
 	_beard(head, int(a["beard"]), Color(a["hair_color"]))
 	# Ohren: Herkunft oder Auswahl (0 rund, 1 spitz, 2 Tierohren); Elfen haben immer spitze Ohren

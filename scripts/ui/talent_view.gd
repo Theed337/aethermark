@@ -35,8 +35,17 @@ func bind(c: Dictionary) -> void:
 func _fit() -> void:
 	if size.x < 10:
 		return
-	var c: Array = GameData.talent_center
-	offset = size * 0.5 - Vector2(c[0], c[1]) * zoom
+	# Gesamten Baum einpassen (Mausrad zoomt danach frei)
+	var lo := Vector2(1e9, 1e9)
+	var hi := Vector2(-1e9, -1e9)
+	for id in GameData.talents:
+		var p: Array = GameData.talents[id]["pos"]
+		lo = Vector2(minf(lo.x, p[0]), minf(lo.y, p[1]))
+		hi = Vector2(maxf(hi.x, p[0]), maxf(hi.y, p[1]))
+	var ext := (hi - lo) + Vector2(120, 120)
+	zoom = clampf(minf(size.x / ext.x, size.y / ext.y), 0.5, 1.5)
+	var mid := (lo + hi) * 0.5
+	offset = size * 0.5 - mid * zoom
 
 
 func _to_screen(p: Array) -> Vector2:
@@ -201,6 +210,13 @@ func _draw() -> void:
 				draw_arc(p, r, 0.0, TAU, 28, ring, 2.5 if avail or owned else 1.5)
 		if n["cost"] > 1:
 			_text(p + Vector2(-4, 5) * zoom, str(n["cost"]), int(12 * zoom + 3), Color.BLACK if owned else ring)
+		if owned and zoom >= 0.55:
+			var fs := int(12.0 * zoom + 4.0)
+			var nm: String = n["name"]
+			var tw := ThemeDB.fallback_font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			var tp := p + Vector2(-tw * 0.5, r + 14.0 * zoom + 4.0)
+			draw_string_outline(ThemeDB.fallback_font, tp, nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 5, Color(0, 0, 0, 0.9))
+			draw_string(ThemeDB.fallback_font, tp, nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col.lightened(0.45))
 		if hover == id:
 			draw_arc(p, r + 4.0, 0.0, TAU, 28, Color.WHITE, 2.0)
 	if hover != "":

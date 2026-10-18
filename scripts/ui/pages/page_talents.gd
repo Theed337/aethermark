@@ -49,12 +49,12 @@ func build() -> void:
 	h.add_child(view)
 	view.bind(c)
 	view.changed.connect(refresh)
-	var side := UI.panel(Vector2(250, 0))
+	var side := UI.panel(Vector2(330, 0))
 	h.add_child(side)
 	var sc := ScrollContainer.new()
 	side.add_child(sc)
 	_stats_box = VBoxContainer.new()
-	_stats_box.custom_minimum_size = Vector2(225, 0)
+	_stats_box.custom_minimum_size = Vector2(300, 0)
 	sc.add_child(_stats_box)
 	refresh()
 
@@ -99,6 +99,22 @@ func refresh() -> void:
 			_stats_box.add_child(UI.label("%s: %d" % [b["name"], n], 14, Color.html(b["color"]).lightened(0.25)))
 	if per.is_empty():
 		_stats_box.add_child(UI.label("Noch nichts gewählt.", 14, UI.DIM))
+	# Übersicht aller erlernten Talente mit Wirkung (damit man jederzeit sieht, was man geskillt hat)
+	_stats_box.add_child(HSeparator.new())
+	_stats_box.add_child(UI.label("Erlernte Talente (%d)" % c["talents"].size(), 17, UI.TEAL, true))
+	for b in GameData.talent_branches:
+		var mine: Array = c["talents"].filter(func(id): return GameData.talents[id]["branch"] == b["id"])
+		if mine.is_empty():
+			continue
+		var bc := Color.html(b["color"]).lightened(0.25)
+		_stats_box.add_child(UI.label(b["name"], 15, bc, true))
+		for id in mine:
+			var n: Dictionary = GameData.talents[id]
+			var fx: Array = TalentTree.describe_effects(n.get("effects", {}))
+			var l := UI.label("• %s%s" % [n["name"], ("  –  " + ", ".join(fx)) if not fx.is_empty() else ""], 13, UI.TEXT)
+			l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			l.custom_minimum_size = Vector2(1, 0)
+			_stats_box.add_child(l)
 	if view != null:
 		view.queue_redraw()
 	menu.refresh_header()
