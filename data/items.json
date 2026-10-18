@@ -1,0 +1,535 @@
+{
+ "rarities": {
+  "common": {
+   "name": "Gewöhnlich",
+   "color": "#c8c8c8",
+   "weight": 52,
+   "affixes": 1,
+   "mult": 1.0
+  },
+  "uncommon": {
+   "name": "Ungewöhnlich",
+   "color": "#5cd65c",
+   "weight": 28,
+   "affixes": 2,
+   "mult": 1.15
+  },
+  "rare": {
+   "name": "Selten",
+   "color": "#4aa3ff",
+   "weight": 13,
+   "affixes": 3,
+   "mult": 1.3
+  },
+  "epic": {
+   "name": "Episch",
+   "color": "#c46bff",
+   "weight": 5.5,
+   "affixes": 4,
+   "mult": 1.5
+  },
+  "legendary": {
+   "name": "Legendär",
+   "color": "#ff9d2e",
+   "weight": 1.3,
+   "affixes": 4,
+   "mult": 1.75
+  },
+  "mythic": {
+   "name": "Mythisch",
+   "color": "#ff4d6d",
+   "weight": 0.2,
+   "affixes": 5,
+   "mult": 2.0
+  }
+ },
+ "slots": {
+  "head": "Kopf",
+  "chest": "Brust",
+  "hands": "Hände",
+  "legs": "Beine",
+  "feet": "Füße",
+  "weapon": "Hauptwaffe",
+  "offhand": "Zweitwaffe/Schild",
+  "amulet": "Amulett",
+  "ring1": "Ring 1",
+  "ring2": "Ring 2",
+  "artifact": "Artefakt"
+ },
+ "stat_labels": {
+  "damage": "Angriffsschaden",
+  "defense": "Verteidigung",
+  "max_hp": "Maximale Lebenspunkte",
+  "max_hp_pct": "Maximale LP %",
+  "crit_chance": "Kritische Trefferchance",
+  "crit_mult": "Kritischer Schaden",
+  "move_speed_pct": "Bewegungstempo %",
+  "attack_speed_pct": "Angriffstempo %",
+  "elem_dmg_pct": "Elementarschaden %",
+  "melee_dmg_pct": "Nahkampfschaden %",
+  "ranged_dmg_pct": "Fernkampfschaden %",
+  "summon_dmg_pct": "Beschwörungsschaden %",
+  "dot_dmg_pct": "Schaden über Zeit %",
+  "cooldown_reduction": "Abklingzeit-Reduktion",
+  "mana_regen_pct": "Manaregeneration %",
+  "mana_max": "Maximales Mana",
+  "hp_regen": "LP-Regeneration /s",
+  "lifesteal": "Lebensraub",
+  "heal_power_pct": "Heilkraft %",
+  "area_pct": "Wirkungsbereich %",
+  "damage_pct": "Gesamtschaden %",
+  "dodge_iframes": "Ausweich-Unverwundbarkeit (s)",
+  "pickup_radius_pct": "Einsammelradius %",
+  "summon_count": "Zusätzliche Begleiter"
+ },
+ "pct_stats": [
+  "max_hp_pct",
+  "crit_chance",
+  "crit_mult",
+  "move_speed_pct",
+  "attack_speed_pct",
+  "elem_dmg_pct",
+  "melee_dmg_pct",
+  "ranged_dmg_pct",
+  "summon_dmg_pct",
+  "dot_dmg_pct",
+  "cooldown_reduction",
+  "mana_regen_pct",
+  "lifesteal",
+  "heal_power_pct",
+  "area_pct",
+  "damage_pct",
+  "pickup_radius_pct"
+ ],
+ "affix_pool": {
+  "weapon": {
+   "damage": [
+    2,
+    5
+   ],
+   "crit_chance": [
+    0.01,
+    0.03
+   ],
+   "crit_mult": [
+    0.08,
+    0.2
+   ],
+   "attack_speed_pct": [
+    0.03,
+    0.08
+   ],
+   "melee_dmg_pct": [
+    0.04,
+    0.1
+   ],
+   "elem_dmg_pct": [
+    0.04,
+    0.1
+   ],
+   "ranged_dmg_pct": [
+    0.04,
+    0.1
+   ],
+   "lifesteal": [
+    0.005,
+    0.015
+   ]
+  },
+  "armor": {
+   "max_hp": [
+    8,
+    20
+   ],
+   "defense": [
+    1,
+    4
+   ],
+   "max_hp_pct": [
+    0.02,
+    0.06
+   ],
+   "move_speed_pct": [
+    0.01,
+    0.04
+   ],
+   "hp_regen": [
+    0.2,
+    0.7
+   ],
+   "dodge_iframes": [
+    0.01,
+    0.03
+   ]
+  },
+  "jewelry": {
+   "crit_chance": [
+    0.01,
+    0.03
+   ],
+   "elem_dmg_pct": [
+    0.03,
+    0.08
+   ],
+   "cooldown_reduction": [
+    0.02,
+    0.05
+   ],
+   "mana_regen_pct": [
+    0.05,
+    0.12
+   ],
+   "mana_max": [
+    6,
+    14
+   ],
+   "summon_dmg_pct": [
+    0.04,
+    0.1
+   ],
+   "heal_power_pct": [
+    0.05,
+    0.12
+   ],
+   "area_pct": [
+    0.03,
+    0.08
+   ],
+   "damage_pct": [
+    0.02,
+    0.05
+   ]
+  }
+ },
+ "bases": [
+  {
+   "id": "short_sword",
+   "name": "Kurzschwert",
+   "slot": "weapon",
+   "weapon_type": "sword",
+   "base": {
+    "damage": 3
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "war_axe",
+   "name": "Kriegsaxt",
+   "slot": "weapon",
+   "weapon_type": "axe",
+   "base": {
+    "damage": 5
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "great_hammer",
+   "name": "Schmiedehammer",
+   "slot": "weapon",
+   "weapon_type": "hammer",
+   "base": {
+    "damage": 8
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "twin_dagger",
+   "name": "Zwillingsdolch",
+   "slot": "weapon",
+   "weapon_type": "dagger",
+   "base": {
+    "damage": 2,
+    "crit_chance": 0.03
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "hunter_bow",
+   "name": "Jagdbogen",
+   "slot": "weapon",
+   "weapon_type": "bow",
+   "base": {
+    "damage": 4,
+    "ranged_dmg_pct": 0.05
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "oak_staff",
+   "name": "Eichenstab",
+   "slot": "weapon",
+   "weapon_type": "staff",
+   "base": {
+    "damage": 3,
+    "elem_dmg_pct": 0.06
+   },
+   "pool": "weapon"
+  },
+  {
+   "id": "leaf_cap",
+   "name": "Blätterhaube",
+   "slot": "head",
+   "base": {
+    "max_hp": 6,
+    "defense": 1
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "bark_vest",
+   "name": "Rindenweste",
+   "slot": "chest",
+   "base": {
+    "max_hp": 14,
+    "defense": 3
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "vine_gloves",
+   "name": "Rankenhandschuhe",
+   "slot": "hands",
+   "base": {
+    "defense": 1,
+    "attack_speed_pct": 0.02
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "moss_leggings",
+   "name": "Moosbeinlinge",
+   "slot": "legs",
+   "base": {
+    "max_hp": 8,
+    "defense": 2
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "root_boots",
+   "name": "Wurzelstiefel",
+   "slot": "feet",
+   "base": {
+    "move_speed_pct": 0.03,
+    "defense": 1
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "oak_shield",
+   "name": "Eichenschild",
+   "slot": "offhand",
+   "base": {
+    "defense": 4,
+    "max_hp": 6
+   },
+   "pool": "armor"
+  },
+  {
+   "id": "emerald_amulet",
+   "name": "Smaragdamulett",
+   "slot": "amulet",
+   "base": {
+    "max_hp": 8
+   },
+   "pool": "jewelry"
+  },
+  {
+   "id": "dew_ring",
+   "name": "Tauring",
+   "slot": "ring1",
+   "base": {
+    "mana_regen_pct": 0.05
+   },
+   "pool": "jewelry"
+  },
+  {
+   "id": "ember_ring",
+   "name": "Glutring",
+   "slot": "ring2",
+   "base": {
+    "elem_dmg_pct": 0.04
+   },
+   "pool": "jewelry"
+  }
+ ],
+ "uniques": [
+  {
+   "id": "stormcrown",
+   "name": "Sturmkrone",
+   "slot": "head",
+   "rarity": "legendary",
+   "stats": {
+    "elem_dmg_pct": 0.4,
+    "max_hp_pct": -0.2,
+    "cooldown_reduction": 0.06
+   },
+   "text": "Artefakt mit Nachteil: +40% Elementarschaden, aber -20% maximale Lebenspunkte."
+  },
+  {
+   "id": "dancers_sash",
+   "name": "Schleier des Tänzers",
+   "slot": "artifact",
+   "rarity": "legendary",
+   "stats": {
+    "move_speed_pct": 0.08,
+    "dodge_iframes": 0.04,
+    "flags": [
+     "dodge_empower"
+    ]
+   },
+   "text": "Nach einem Ausweichen verursacht dein nächster Angriff +60% Schaden."
+  },
+  {
+   "id": "bloodgrail",
+   "name": "Blutkelch",
+   "slot": "artifact",
+   "rarity": "mythic",
+   "stats": {
+    "lifesteal": 0.06,
+    "damage_pct": 0.25,
+    "hp_regen": -1.0,
+    "max_hp_pct": -0.1
+   },
+   "text": "Mythisches Artefakt mit Nachteil: starker Lebensraub und Schaden, aber negative Regeneration."
+  },
+  {
+   "id": "wardens_blade",
+   "name": "Klinge des Wächters",
+   "slot": "weapon",
+   "weapon_type": "sword",
+   "rarity": "legendary",
+   "stats": {
+    "damage": 12,
+    "melee_dmg_pct": 0.18,
+    "crit_chance": 0.05,
+    "flags": [
+     "dodge_empower"
+    ]
+   },
+   "text": "Wird nur vom Wurzelwächter fallengelassen.",
+   "boss": "rootwarden"
+  },
+  {
+   "id": "clockwork_heart",
+   "name": "Uhrwerkherz",
+   "slot": "artifact",
+   "rarity": "legendary",
+   "boss": "clockwork_guardian",
+   "stats": {
+    "cooldown_reduction": 0.12,
+    "attack_speed_pct": 0.1,
+    "max_hp_pct": -0.12
+   },
+   "text": "Artefakt mit Nachteil: schnellere Fertigkeiten und Angriffe, aber -12% maximale Lebenspunkte."
+  },
+  {
+   "id": "ember_core",
+   "name": "Glutkern",
+   "slot": "artifact",
+   "rarity": "legendary",
+   "boss": "lava_titan",
+   "stats": {
+    "damage_pct": 0.2,
+    "dot_dmg_pct": 0.3,
+    "move_speed_pct": -0.08
+   },
+   "text": "Artefakt mit Nachteil: mehr Schaden und Brandschaden, aber -8% Bewegungstempo."
+  },
+  {
+   "id": "wyrm_scale",
+   "name": "Wyrmschuppe",
+   "slot": "chest",
+   "rarity": "legendary",
+   "boss": "frost_wyrm",
+   "stats": {
+    "defense": 30,
+    "max_hp_pct": 0.12,
+    "attack_speed_pct": -0.1
+   },
+   "text": "Mit Nachteil: robuste Rüstung, aber -10% Angriffstempo."
+  },
+  {
+   "id": "mirror_shard",
+   "name": "Spiegelscherbe",
+   "slot": "amulet",
+   "rarity": "legendary",
+   "boss": "mirror_witch",
+   "stats": {
+    "crit_chance": 0.1,
+    "crit_mult": 0.3,
+    "max_hp_pct": -0.15
+   },
+   "text": "Artefakt mit Nachteil: starke Kritische Treffer, aber -15% maximale Lebenspunkte."
+  },
+  {
+   "id": "sovereign_crown",
+   "name": "Krone des Himmelsherrschers",
+   "slot": "head",
+   "rarity": "mythic",
+   "boss": "sky_sovereign",
+   "stats": {
+    "damage_pct": 0.22,
+    "cooldown_reduction": 0.1,
+    "heal_power_pct": -0.3
+   },
+   "text": "Mythisches Artefakt mit Nachteil: Macht über Schaden und Abklingzeit, aber -30% Heilkraft."
+  }
+ ],
+ "weapon_types": {
+  "sword": {
+   "name": "Schwert",
+   "range": 2.8,
+   "angle": 110,
+   "speed": 1.0,
+   "dmg": 1.0,
+   "combo": 3,
+   "ranged": false
+  },
+  "axe": {
+   "name": "Axt",
+   "range": 2.6,
+   "angle": 140,
+   "speed": 0.85,
+   "dmg": 1.25,
+   "combo": 2,
+   "ranged": false
+  },
+  "hammer": {
+   "name": "Hammer",
+   "range": 3.2,
+   "angle": 90,
+   "speed": 0.65,
+   "dmg": 1.9,
+   "combo": 2,
+   "ranged": false
+  },
+  "dagger": {
+   "name": "Dolch",
+   "range": 2.0,
+   "angle": 80,
+   "speed": 1.6,
+   "dmg": 0.6,
+   "combo": 4,
+   "ranged": false
+  },
+  "bow": {
+   "name": "Bogen",
+   "range": 22.0,
+   "angle": 0,
+   "speed": 0.9,
+   "dmg": 1.0,
+   "combo": 1,
+   "ranged": true
+  },
+  "staff": {
+   "name": "Stab",
+   "range": 18.0,
+   "angle": 0,
+   "speed": 0.8,
+   "dmg": 0.9,
+   "combo": 1,
+   "ranged": true
+  }
+ }
+}

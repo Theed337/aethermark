@@ -1,0 +1,28 @@
+{
+ "origins": {
+  "human":  {"name": "Mensch",  "desc": "Anpassungsfähig. +4% kritische Trefferchance.", "effects": {"crit_chance": 0.04},
+             "skin": ["#f1c9a5", "#e0b090", "#c68e63", "#8d5a3b", "#5c3a26"], "height": 1.0, "build": 1.0, "ears": 0},
+  "elf":    {"name": "Elf",     "desc": "Flink und arkan begabt. +10% Manaregeneration, +3% Tempo.", "effects": {"mana_regen_pct": 0.10, "move_speed_pct": 0.03},
+             "skin": ["#f4dcc6", "#e8cdb0", "#d9c1a3", "#b8c9a0", "#9fb8c9"], "height": 1.06, "build": 0.88, "ears": 1},
+  "dwarf":  {"name": "Zwerg",   "desc": "Zäh wie Fels. +10% maximale Lebenspunkte, +2 Verteidigung.", "effects": {"max_hp_pct": 0.10, "defense": 2},
+             "skin": ["#e8b98f", "#d49a72", "#b87a55", "#8b5a3c", "#6b4a35"], "height": 0.86, "build": 1.2, "ears": 0},
+  "orc":    {"name": "Ork",     "desc": "Brutale Kraft. +8% Nahkampfschaden.", "effects": {"melee_dmg_pct": 0.08},
+             "skin": ["#7fae5a", "#6a9a4a", "#8fb86a", "#5f8a55", "#a0b070"], "height": 1.1, "build": 1.25, "ears": 1},
+  "faun":   {"name": "Faun",    "desc": "Behände Waldwesen. +6% Bewegungstempo, +6% Beschwörungsschaden.", "effects": {"move_speed_pct": 0.06, "summon_dmg_pct": 0.06},
+             "skin": ["#e0b090", "#c68e63", "#d9a066", "#b07a50", "#9a6a48"], "height": 0.98, "build": 0.95, "ears": 2}
+ },
+ "voices": ["Tief", "Mittel", "Hell", "Rau"],
+ "voice_pitch": [0.78, 1.0, 1.28, 0.9],
+ "hair_styles": ["Glatze", "Kurz", "Lang", "Irokese", "Zopf", "Stacheln"],
+ "beards": ["Kein Bart", "Stoppeln", "Vollbart", "Geflochten"],
+ "ears": ["Rund", "Spitz", "Tierohren"],
+ "horns": ["Keine", "Klein", "Gebogen", "Widder"],
+ "scars": ["Keine", "Auge", "Wange", "Stirn"],
+ "tattoos": ["Keine", "Streifen", "Punkte", "Rune"],
+ "outfits": ["Wanderer", "Lederrüstung", "Magierrobe", "Waldläufer"],
+ "palettes": {
+  "hair": ["#2b1b12", "#4a2f1b", "#8a5a2b", "#d9b26a", "#e8e0d0", "#b8442c", "#2e5d8a", "#6b3f8a"],
+  "eyes": ["#3a7bd5", "#2f9e6a", "#8a5a2b", "#c0392b", "#9b59b6", "#f1c40f", "#2c3e50"],
+  "accent": ["#4ecdc4", "#e8a838", "#e0605a", "#7a8cf0", "#8cd04a", "#d86ad8", "#f0f0f0", "#ff8a3d"]
+ }
+}

@@ -1,0 +1,1035 @@
+{
+ "center": [
+  600,
+  420
+ ],
+ "branches": [
+  {
+   "id": "melee",
+   "name": "Nahkampf & schwere Waffen",
+   "color": "#d9694a"
+  },
+  {
+   "id": "swift",
+   "name": "Schnelle Waffen & Kritische Treffer",
+   "color": "#e8c547"
+  },
+  {
+   "id": "ranged",
+   "name": "Bögen & Fernkampf",
+   "color": "#7fc46b"
+  },
+  {
+   "id": "elemental",
+   "name": "Elementarmagie",
+   "color": "#ff8a3d"
+  },
+  {
+   "id": "dark",
+   "name": "Dunkle Magie & Fluch",
+   "color": "#9b5de5"
+  },
+  {
+   "id": "summon",
+   "name": "Beschwörungen & Begleiter",
+   "color": "#4ecdc4"
+  },
+  {
+   "id": "defense",
+   "name": "Verteidigung & Überleben",
+   "color": "#5aa9e6"
+  },
+  {
+   "id": "support",
+   "name": "Heilung & Unterstützung",
+   "color": "#f4a6c0"
+  },
+  {
+   "id": "tactics",
+   "name": "Fallen, Gadgets & Taktik",
+   "color": "#c9a227"
+  },
+  {
+   "id": "agility",
+   "name": "Beweglichkeit & Ausweichen",
+   "color": "#6ee7b7"
+  },
+  {
+   "id": "resource",
+   "name": "Ressourcen & Abklingzeiten",
+   "color": "#8ecae6"
+  }
+ ],
+ "nodes": {
+  "melee_1": {
+   "id": "melee_1",
+   "name": "Kraftvoll",
+   "branch": "melee",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    600,
+    325
+   ],
+   "color": "#d9694a",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "melee_dmg_pct": 0.06
+   }
+  },
+  "melee_2": {
+   "id": "melee_2",
+   "name": "Eisenhaut",
+   "branch": "melee",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    600,
+    247
+   ],
+   "color": "#d9694a",
+   "requires": [
+    "melee_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "max_hp_pct": 0.05,
+    "defense": 2
+   }
+  },
+  "melee_3": {
+   "id": "melee_3",
+   "name": "Schlachtrausch",
+   "branch": "melee",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    600,
+    169
+   ],
+   "color": "#d9694a",
+   "requires": [
+    "melee_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "melee_dmg_pct": 0.15,
+    "attack_speed_pct": 0.05
+   }
+  },
+  "melee_4": {
+   "id": "melee_4",
+   "name": "Wucht",
+   "branch": "melee",
+   "type": "transform",
+   "cost": 3,
+   "pos": [
+    600,
+    91
+   ],
+   "color": "#d9694a",
+   "requires": [
+    "melee_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "melee_dmg_pct": 0.1,
+    "flags": [
+     "heavy_light_attacks"
+    ]
+   }
+  },
+  "swift_1": {
+   "id": "swift_1",
+   "name": "Scharfes Auge",
+   "branch": "swift",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    669,
+    340
+   ],
+   "color": "#e8c547",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "crit_chance": 0.03
+   }
+  },
+  "swift_2": {
+   "id": "swift_2",
+   "name": "Flinke Hand",
+   "branch": "swift",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    726,
+    274
+   ],
+   "color": "#e8c547",
+   "requires": [
+    "swift_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "attack_speed_pct": 0.06
+   }
+  },
+  "swift_3": {
+   "id": "swift_3",
+   "name": "Klingentanz",
+   "branch": "swift",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    783,
+    209
+   ],
+   "color": "#e8c547",
+   "requires": [
+    "swift_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "crit_chance": 0.06,
+    "crit_mult": 0.2
+   }
+  },
+  "swift_4": {
+   "id": "swift_4",
+   "name": "Meister der Klinge",
+   "branch": "swift",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    840,
+    143
+   ],
+   "color": "#e8c547",
+   "requires": [
+    "swift_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "crit_mult": 0.35,
+    "attack_speed_pct": 0.08
+   }
+  },
+  "ranged_1": {
+   "id": "ranged_1",
+   "name": "Ruhige Hand",
+   "branch": "ranged",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    717,
+    381
+   ],
+   "color": "#7fc46b",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "ranged_dmg_pct": 0.06
+   }
+  },
+  "ranged_2": {
+   "id": "ranged_2",
+   "name": "Weitsicht",
+   "branch": "ranged",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    812,
+    348
+   ],
+   "color": "#7fc46b",
+   "requires": [
+    "ranged_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "area_pct": 0.05,
+    "crit_chance": 0.02
+   }
+  },
+  "ranged_3": {
+   "id": "ranged_3",
+   "name": "Scharfschütze",
+   "branch": "ranged",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    908,
+    316
+   ],
+   "color": "#7fc46b",
+   "requires": [
+    "ranged_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "ranged_dmg_pct": 0.16,
+    "crit_chance": 0.04
+   }
+  },
+  "ranged_4": {
+   "id": "ranged_4",
+   "name": "Schnellfeuer",
+   "branch": "ranged",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    1004,
+    283
+   ],
+   "color": "#7fc46b",
+   "requires": [
+    "ranged_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "ranged_dmg_pct": 0.12,
+    "attack_speed_pct": 0.1
+   }
+  },
+  "elemental_1": {
+   "id": "elemental_1",
+   "name": "Funkenschlag",
+   "branch": "elemental",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    727,
+    434
+   ],
+   "color": "#ff8a3d",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "elem_dmg_pct": 0.06
+   }
+  },
+  "elemental_2": {
+   "id": "elemental_2",
+   "name": "Glutherz",
+   "branch": "elemental",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    831,
+    445
+   ],
+   "color": "#ff8a3d",
+   "requires": [
+    "elemental_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "mana_max": 10,
+    "elem_dmg_pct": 0.03
+   }
+  },
+  "elemental_3": {
+   "id": "elemental_3",
+   "name": "Elementarsturm",
+   "branch": "elemental",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    935,
+    456
+   ],
+   "color": "#ff8a3d",
+   "requires": [
+    "elemental_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "elem_dmg_pct": 0.16,
+    "area_pct": 0.06
+   }
+  },
+  "elemental_4": {
+   "id": "elemental_4",
+   "name": "Meteor-Wandlung",
+   "branch": "elemental",
+   "type": "transform",
+   "cost": 3,
+   "pos": [
+    1040,
+    467
+   ],
+   "color": "#ff8a3d",
+   "requires": [
+    "elemental_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "elem_dmg_pct": 0.1,
+    "flags": [
+     "fireball_meteor"
+    ]
+   }
+  },
+  "dark_1": {
+   "id": "dark_1",
+   "name": "Schattenfaden",
+   "branch": "dark",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    697,
+    482
+   ],
+   "color": "#9b5de5",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "dot_dmg_pct": 0.08
+   }
+  },
+  "dark_2": {
+   "id": "dark_2",
+   "name": "Seelenhunger",
+   "branch": "dark",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    777,
+    533
+   ],
+   "color": "#9b5de5",
+   "requires": [
+    "dark_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "lifesteal": 0.01
+   }
+  },
+  "dark_3": {
+   "id": "dark_3",
+   "name": "Verderben",
+   "branch": "dark",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    856,
+    584
+   ],
+   "color": "#9b5de5",
+   "requires": [
+    "dark_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "dot_dmg_pct": 0.18,
+    "elem_dmg_pct": 0.05
+   }
+  },
+  "dark_4": {
+   "id": "dark_4",
+   "name": "Blutpakt",
+   "branch": "dark",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    936,
+    635
+   ],
+   "color": "#9b5de5",
+   "requires": [
+    "dark_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "lifesteal": 0.03,
+    "melee_dmg_pct": 0.08
+   }
+  },
+  "summon_1": {
+   "id": "summon_1",
+   "name": "Rufer",
+   "branch": "summon",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    636,
+    511
+   ],
+   "color": "#4ecdc4",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "summon_dmg_pct": 0.08
+   }
+  },
+  "summon_2": {
+   "id": "summon_2",
+   "name": "Band der Geister",
+   "branch": "summon",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    666,
+    586
+   ],
+   "color": "#4ecdc4",
+   "requires": [
+    "summon_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "summon_dmg_pct": 0.05,
+    "hp_regen": 0.5
+   }
+  },
+  "summon_3": {
+   "id": "summon_3",
+   "name": "Herr der Geister",
+   "branch": "summon",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    695,
+    661
+   ],
+   "color": "#4ecdc4",
+   "requires": [
+    "summon_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "summon_dmg_pct": 0.18,
+    "summon_count": 1
+   }
+  },
+  "summon_4": {
+   "id": "summon_4",
+   "name": "Schwarmgeist",
+   "branch": "summon",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    725,
+    736
+   ],
+   "color": "#4ecdc4",
+   "requires": [
+    "summon_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "summon_dmg_pct": 0.12,
+    "summon_count": 1
+   }
+  },
+  "defense_1": {
+   "id": "defense_1",
+   "name": "Zäh",
+   "branch": "defense",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    564,
+    511
+   ],
+   "color": "#5aa9e6",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "max_hp_pct": 0.06
+   }
+  },
+  "defense_2": {
+   "id": "defense_2",
+   "name": "Plattenpanzer",
+   "branch": "defense",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    534,
+    586
+   ],
+   "color": "#5aa9e6",
+   "requires": [
+    "defense_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "defense": 4
+   }
+  },
+  "defense_3": {
+   "id": "defense_3",
+   "name": "Bollwerk",
+   "branch": "defense",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    505,
+    661
+   ],
+   "color": "#5aa9e6",
+   "requires": [
+    "defense_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "max_hp_pct": 0.14,
+    "defense": 6
+   }
+  },
+  "defense_4": {
+   "id": "defense_4",
+   "name": "Unerschütterlich",
+   "branch": "defense",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    475,
+    736
+   ],
+   "color": "#5aa9e6",
+   "requires": [
+    "defense_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "defense": 8,
+    "hp_regen": 1.0
+   }
+  },
+  "support_1": {
+   "id": "support_1",
+   "name": "Linderung",
+   "branch": "support",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    503,
+    482
+   ],
+   "color": "#f4a6c0",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "heal_power_pct": 0.08
+   }
+  },
+  "support_2": {
+   "id": "support_2",
+   "name": "Lebensquell",
+   "branch": "support",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    423,
+    533
+   ],
+   "color": "#f4a6c0",
+   "requires": [
+    "support_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "hp_regen": 0.8
+   }
+  },
+  "support_3": {
+   "id": "support_3",
+   "name": "Segenbringer",
+   "branch": "support",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    344,
+    584
+   ],
+   "color": "#f4a6c0",
+   "requires": [
+    "support_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "heal_power_pct": 0.2,
+    "hp_regen": 0.8
+   }
+  },
+  "support_4": {
+   "id": "support_4",
+   "name": "Schutzengel",
+   "branch": "support",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    264,
+    635
+   ],
+   "color": "#f4a6c0",
+   "requires": [
+    "support_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "heal_power_pct": 0.25,
+    "max_hp_pct": 0.05
+   }
+  },
+  "tactics_1": {
+   "id": "tactics_1",
+   "name": "Späher",
+   "branch": "tactics",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    473,
+    434
+   ],
+   "color": "#c9a227",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "pickup_radius_pct": 0.15
+   }
+  },
+  "tactics_2": {
+   "id": "tactics_2",
+   "name": "Pionier",
+   "branch": "tactics",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    369,
+    445
+   ],
+   "color": "#c9a227",
+   "requires": [
+    "tactics_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "area_pct": 0.06
+   }
+  },
+  "tactics_3": {
+   "id": "tactics_3",
+   "name": "Taktiker",
+   "branch": "tactics",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    265,
+    456
+   ],
+   "color": "#c9a227",
+   "requires": [
+    "tactics_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "area_pct": 0.14,
+    "elem_dmg_pct": 0.05
+   }
+  },
+  "tactics_4": {
+   "id": "tactics_4",
+   "name": "Sprengmeister",
+   "branch": "tactics",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    160,
+    467
+   ],
+   "color": "#c9a227",
+   "requires": [
+    "tactics_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "area_pct": 0.12,
+    "damage_pct": 0.05
+   }
+  },
+  "agility_1": {
+   "id": "agility_1",
+   "name": "Leichtfüßig",
+   "branch": "agility",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    483,
+    381
+   ],
+   "color": "#6ee7b7",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "move_speed_pct": 0.04
+   }
+  },
+  "agility_2": {
+   "id": "agility_2",
+   "name": "Gewandt",
+   "branch": "agility",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    388,
+    348
+   ],
+   "color": "#6ee7b7",
+   "requires": [
+    "agility_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "dodge_iframes": 0.03
+   }
+  },
+  "agility_3": {
+   "id": "agility_3",
+   "name": "Schattenschritt",
+   "branch": "agility",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    292,
+    316
+   ],
+   "color": "#6ee7b7",
+   "requires": [
+    "agility_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "move_speed_pct": 0.08,
+    "dodge_iframes": 0.05
+   }
+  },
+  "agility_4": {
+   "id": "agility_4",
+   "name": "Windtänzer",
+   "branch": "agility",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    196,
+    283
+   ],
+   "color": "#6ee7b7",
+   "requires": [
+    "agility_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "move_speed_pct": 0.08,
+    "attack_speed_pct": 0.05
+   }
+  },
+  "resource_1": {
+   "id": "resource_1",
+   "name": "Konzentration",
+   "branch": "resource",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    531,
+    340
+   ],
+   "color": "#8ecae6",
+   "requires": [],
+   "requires_mode": "any",
+   "effects": {
+    "mana_regen_pct": 0.1
+   }
+  },
+  "resource_2": {
+   "id": "resource_2",
+   "name": "Tiefer Brunnen",
+   "branch": "resource",
+   "type": "small",
+   "cost": 1,
+   "pos": [
+    474,
+    274
+   ],
+   "color": "#8ecae6",
+   "requires": [
+    "resource_1"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "mana_max": 15
+   }
+  },
+  "resource_3": {
+   "id": "resource_3",
+   "name": "Zeitfluss",
+   "branch": "resource",
+   "type": "large",
+   "cost": 2,
+   "pos": [
+    417,
+    209
+   ],
+   "color": "#8ecae6",
+   "requires": [
+    "resource_2"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "cooldown_reduction": 0.08,
+    "mana_regen_pct": 0.1
+   }
+  },
+  "resource_4": {
+   "id": "resource_4",
+   "name": "Meister der Zeit",
+   "branch": "resource",
+   "type": "specialization",
+   "cost": 3,
+   "pos": [
+    360,
+    143
+   ],
+   "color": "#8ecae6",
+   "requires": [
+    "resource_3"
+   ],
+   "requires_mode": "any",
+   "effects": {
+    "cooldown_reduction": 0.1,
+    "mana_max": 20
+   }
+  },
+  "syn_swift_elemental": {
+   "id": "syn_swift_elemental",
+   "name": "Frostkritiker",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    886,
+    323
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "swift_3",
+    "elemental_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "crit_chance": 0.04,
+    "elem_dmg_pct": 0.08
+   }
+  },
+  "syn_summon_dark": {
+   "id": "syn_summon_dark",
+   "name": "Seelenmeute",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    794,
+    644
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "summon_3",
+    "dark_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "summon_dmg_pct": 0.1,
+    "dot_dmg_pct": 0.1
+   }
+  },
+  "syn_melee_defense": {
+   "id": "syn_melee_defense",
+   "name": "Eiserner Wall",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    524,
+    412
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "melee_3",
+    "defense_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "melee_dmg_pct": 0.08,
+    "defense": 4
+   }
+  },
+  "syn_support_summon": {
+   "id": "syn_support_summon",
+   "name": "Geistheiler",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    509,
+    649
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "support_3",
+    "summon_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "heal_power_pct": 0.1,
+    "summon_dmg_pct": 0.06
+   }
+  },
+  "syn_agility_swift": {
+   "id": "syn_agility_swift",
+   "name": "Klingenwind",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    527,
+    236
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "agility_3",
+    "swift_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "move_speed_pct": 0.05,
+    "crit_chance": 0.03
+   }
+  },
+  "syn_resource_elemental": {
+   "id": "syn_resource_elemental",
+   "name": "Arkaner Fluss",
+   "branch": "synergy",
+   "type": "synergy",
+   "cost": 2,
+   "pos": [
+    694,
+    311
+   ],
+   "color": "#ffffff",
+   "requires": [
+    "resource_3",
+    "elemental_3"
+   ],
+   "requires_mode": "all",
+   "effects": {
+    "cooldown_reduction": 0.06,
+    "elem_dmg_pct": 0.06
+   }
+  }
+ }
+}

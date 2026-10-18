@@ -1,0 +1,1297 @@
+{
+ "areas": [
+  {
+   "id": "emerald_forest",
+   "name": "Der Smaragdwald",
+   "playable": true,
+   "unlock": {
+    "type": "none"
+   },
+   "desc": "Farbenfroher Fantasy-Wald mit Ruinen, Pilzen und einem uralten Wächter.",
+   "boss": "rootwarden",
+   "difficulty": 1
+  },
+  {
+   "id": "sunken_ruins",
+   "name": "Die versunkenen Ruinen",
+   "playable": true,
+   "unlock": {
+    "type": "boss",
+    "id": "rootwarden"
+   },
+   "desc": "Alte Tempelanlage mit Wasserpassagen, Fallen und einem mechanischen Wächter.",
+   "boss": "clockwork_guardian",
+   "difficulty": 2,
+   "biome": {
+    "sky_top": "#3a8fb8",
+    "sky_horizon": "#bfe8e0",
+    "sky_ground": "#1f4a55",
+    "fog": "#9fd0cc",
+    "fog_density": 0.008,
+    "sun": "#fff5da",
+    "sun_energy": 1.1,
+    "ground": "#5c8f84",
+    "patches": [
+     "#4f8478",
+     "#6aa090",
+     "#3f7468",
+     "#7ab0a0"
+    ],
+    "path": "#b9ad8a",
+    "clearing": "#cbbf9a",
+    "foliage": [
+     "#2f8a6a",
+     "#3fa07a",
+     "#58b890"
+    ],
+    "bark": [
+     "#6a5a4a",
+     "#4a3e32"
+    ],
+    "trees": 60,
+    "grass_hue": [
+     0.38,
+     0.5
+    ],
+    "flowers": [
+     "#7de0ff",
+     "#ffe9a0",
+     "#ffffff"
+    ],
+    "glow_things": [
+     "#4ae0d0",
+     "#60b8ff",
+     "#a0ffe0"
+    ],
+    "rocks": [
+     "#7f8c88",
+     "#566a66"
+    ],
+    "stone": "#a9b0a4",
+    "moss": "#5f9a8a",
+    "rune": "#4af0e0",
+    "arena_floor": "#8a9a98",
+    "arena_inner": "#5a8a88",
+    "glyph": "#5af0ff",
+    "particles": "#aaf4ff",
+    "hills": [
+     "#2f6f7a",
+     "#4a90a8"
+    ]
+   },
+   "skins": {
+    "grunt": {
+     "name": "Tempelwächterling",
+     "color": "#7a8a86",
+     "accent": "#c0f0e8"
+    },
+    "archer": {
+     "name": "Schlangenschütze",
+     "color": "#4a8a6a",
+     "accent": "#d0f0c0"
+    },
+    "bomber": {
+     "name": "Zündkrabbe",
+     "color": "#c86a3a",
+     "accent": "#ffe0a0"
+    },
+    "shaman": {
+     "name": "Ruinenpriester",
+     "color": "#3a7a9a",
+     "accent": "#a0e0f0"
+    },
+    "brute": {
+     "name": "Steinkoloss",
+     "color": "#6a7a70",
+     "accent": "#d0e0d0"
+    }
+   },
+   "tiers": [
+    {
+     "time": 0,
+     "groups": [
+      [
+       "grunt",
+       3
+      ]
+     ],
+     "interval": 6.0
+    },
+    {
+     "time": 25,
+     "groups": [
+      [
+       "grunt",
+       3
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ]
+     ],
+     "interval": 5.5
+    },
+    {
+     "time": 55,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ],
+      [
+       "sentinel",
+       1
+      ]
+     ],
+     "interval": 5.0
+    },
+    {
+     "time": 90,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "sentinel",
+       1
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.5,
+     "elite_chance": 0.12
+    },
+    {
+     "time": 130,
+     "groups": [
+      [
+       "grunt",
+       5
+      ],
+      [
+       "brute",
+       1
+      ],
+      [
+       "archer",
+       3
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "sentinel",
+       2
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.0,
+     "elite_chance": 0.2
+    }
+   ]
+  },
+  {
+   "id": "ash_lands",
+   "name": "Die Aschelande",
+   "playable": true,
+   "unlock": {
+    "type": "area_clear",
+    "id": "sunken_ruins"
+   },
+   "desc": "Vulkanisches Gebiet mit Lava, brüchigen Wegen und einem mehrphasigen Lavaboss.",
+   "boss": "lava_titan",
+   "difficulty": 3,
+   "biome": {
+    "sky_top": "#3a1a1a",
+    "sky_horizon": "#e8803a",
+    "sky_ground": "#2a1410",
+    "fog": "#8a3a20",
+    "fog_density": 0.012,
+    "sun": "#ff9a50",
+    "sun_energy": 1.0,
+    "ambient": 0.75,
+    "saturation": 1.1,
+    "ground": "#4a3a36",
+    "patches": [
+     "#3a2c28",
+     "#5a443c",
+     "#2f2420",
+     "#6a3a2a"
+    ],
+    "path": "#7a5a44",
+    "clearing": "#8a6a50",
+    "foliage": [
+     "#3a3030",
+     "#2a2222"
+    ],
+    "bark": [
+     "#2a2020",
+     "#1a1414"
+    ],
+    "tree_style": "dead",
+    "trees": 45,
+    "grass_hue": [
+     0.02,
+     0.08
+    ],
+    "flowers": [
+     "#ff7a30",
+     "#ffb040",
+     "#ff4a20"
+    ],
+    "glow_things": [
+     "#ff6a20",
+     "#ffb030",
+     "#ff3a10"
+    ],
+    "rocks": [
+     "#4a403c",
+     "#2f2926"
+    ],
+    "stone": "#6a5a52",
+    "moss": "#8a3a20",
+    "rune": "#ff8a30",
+    "arena_floor": "#5a4a44",
+    "arena_inner": "#3a2e2a",
+    "glyph": "#ff6a20",
+    "particles": "#ff9a40",
+    "hills": [
+     "#3a1f1a",
+     "#6a2f1a"
+    ],
+    "liquid": "lava",
+    "liquid_color": "#ff5a10",
+    "hazard": "lava",
+    "hazard_dps": 9.0
+   },
+   "skins": {
+    "grunt": {
+     "name": "Aschling",
+     "color": "#6a3a2a",
+     "accent": "#ffb060"
+    },
+    "archer": {
+     "name": "Glutschütze",
+     "color": "#a8421e",
+     "accent": "#ffd080"
+    },
+    "bomber": {
+     "name": "Magmabombe",
+     "color": "#e0521a",
+     "accent": "#fff080"
+    },
+    "shaman": {
+     "name": "Flammenseher",
+     "color": "#8a2a3a",
+     "accent": "#ff9aa0"
+    },
+    "brute": {
+     "name": "Obsidiankoloss",
+     "color": "#2a2a32",
+     "accent": "#ff6a2a"
+    },
+    "crawler": {
+     "name": "Funkenkriecher",
+     "color": "#b0501e",
+     "accent": "#ffe080"
+    },
+    "splitter": {
+     "name": "Schlackebrocken",
+     "color": "#5a3a2a",
+     "accent": "#ff8a40"
+    }
+   },
+   "tiers": [
+    {
+     "time": 0,
+     "groups": [
+      [
+       "grunt",
+       3
+      ]
+     ],
+     "interval": 6.0
+    },
+    {
+     "time": 25,
+     "groups": [
+      [
+       "grunt",
+       3
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ]
+     ],
+     "interval": 5.5
+    },
+    {
+     "time": 55,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 5.0
+    },
+    {
+     "time": 90,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "splitter",
+       1
+      ],
+      [
+       "sentinel",
+       1
+      ]
+     ],
+     "interval": 4.5,
+     "elite_chance": 0.12
+    },
+    {
+     "time": 130,
+     "groups": [
+      [
+       "grunt",
+       5
+      ],
+      [
+       "brute",
+       1
+      ],
+      [
+       "archer",
+       3
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "splitter",
+       2
+      ],
+      [
+       "sentinel",
+       1
+      ]
+     ],
+     "interval": 4.0,
+     "elite_chance": 0.2
+    }
+   ]
+  },
+  {
+   "id": "frost_cliffs",
+   "name": "Die Frostklippen",
+   "playable": true,
+   "unlock": {
+    "type": "area_clear",
+    "id": "ash_lands"
+   },
+   "desc": "Verschneites Berggebiet mit Eisflächen und gefährlichen Höhenunterschieden.",
+   "boss": "frost_wyrm",
+   "difficulty": 4,
+   "biome": {
+    "sky_top": "#7ab8e8",
+    "sky_horizon": "#eaf6ff",
+    "sky_ground": "#8aa8c0",
+    "fog": "#d8ecf8",
+    "fog_density": 0.01,
+    "sun": "#e8f4ff",
+    "sun_energy": 1.2,
+    "ambient": 1.0,
+    "saturation": 0.95,
+    "ground": "#dfeaf2",
+    "patches": [
+     "#cfe0ec",
+     "#eef6fb",
+     "#b8d0e0",
+     "#ffffff"
+    ],
+    "path": "#a8c0d4",
+    "clearing": "#c0d6e6",
+    "foliage": [
+     "#9ac8d8",
+     "#7ab0c8",
+     "#c8e8f4"
+    ],
+    "bark": [
+     "#5a4a3a",
+     "#3a3028"
+    ],
+    "tree_style": "pine",
+    "trees": 70,
+    "grass_hue": [
+     0.5,
+     0.58
+    ],
+    "flowers": [
+     "#ffffff",
+     "#bfe8ff",
+     "#d0c8ff"
+    ],
+    "glow_things": [
+     "#7ad8ff",
+     "#c0f0ff",
+     "#a0b0ff"
+    ],
+    "rocks": [
+     "#9aa8b4",
+     "#6a7c8c"
+    ],
+    "stone": "#aab8c4",
+    "moss": "#7ac0d8",
+    "rune": "#8ae8ff",
+    "arena_floor": "#b8cad8",
+    "arena_inner": "#9ab8d0",
+    "glyph": "#aaf0ff",
+    "particles": "#ffffff",
+    "hills": [
+     "#8aa8c8",
+     "#c0d8ec"
+    ],
+    "liquid": "ice",
+    "liquid_color": "#a8e0ff",
+    "hazard": "ice",
+    "hazard_dps": 5.0
+   },
+   "skins": {
+    "grunt": {
+     "name": "Frostling",
+     "color": "#8ab8d8",
+     "accent": "#f0faff"
+    },
+    "archer": {
+     "name": "Eisschütze",
+     "color": "#5a8ab0",
+     "accent": "#d0f0ff"
+    },
+    "bomber": {
+     "name": "Frostbombe",
+     "color": "#7ad0f0",
+     "accent": "#ffffff"
+    },
+    "shaman": {
+     "name": "Schneehexer",
+     "color": "#6a6ab0",
+     "accent": "#d0d0ff"
+    },
+    "brute": {
+     "name": "Eisgolem",
+     "color": "#a0c0d8",
+     "accent": "#e8f8ff"
+    },
+    "crawler": {
+     "name": "Eisspinne",
+     "color": "#6a9ab8",
+     "accent": "#e0f4ff"
+    },
+    "splitter": {
+     "name": "Eisbrocken",
+     "color": "#9ac0d8",
+     "accent": "#ffffff"
+    },
+    "sentinel": {
+     "name": "Gletscherwacht",
+     "color": "#7a9ab8",
+     "accent": "#d0f0ff"
+    }
+   },
+   "tiers": [
+    {
+     "time": 0,
+     "groups": [
+      [
+       "grunt",
+       3
+      ]
+     ],
+     "interval": 6.0
+    },
+    {
+     "time": 25,
+     "groups": [
+      [
+       "grunt",
+       3
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ]
+     ],
+     "interval": 5.5
+    },
+    {
+     "time": 55,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ],
+      [
+       "sentinel",
+       1
+      ]
+     ],
+     "interval": 5.0
+    },
+    {
+     "time": 90,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "sentinel",
+       1
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.5,
+     "elite_chance": 0.12
+    },
+    {
+     "time": 130,
+     "groups": [
+      [
+       "grunt",
+       5
+      ],
+      [
+       "brute",
+       1
+      ],
+      [
+       "archer",
+       3
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "sentinel",
+       2
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.0,
+     "elite_chance": 0.2
+    }
+   ]
+  },
+  {
+   "id": "shadow_wood",
+   "name": "Der Schattenwald",
+   "playable": true,
+   "unlock": {
+    "type": "area_clear",
+    "id": "frost_cliffs"
+   },
+   "desc": "Düsterer Wald mit Illusionen, verfluchten Kreaturen und versteckten Pfaden.",
+   "boss": "mirror_witch",
+   "difficulty": 5,
+   "biome": {
+    "sky_top": "#1a1030",
+    "sky_horizon": "#5a3a7a",
+    "sky_ground": "#0e0a1a",
+    "fog": "#3a2a5a",
+    "fog_density": 0.014,
+    "sun": "#a890e0",
+    "sun_energy": 0.7,
+    "ambient": 0.6,
+    "saturation": 1.15,
+    "ground": "#2a2a3a",
+    "patches": [
+     "#262436",
+     "#34304a",
+     "#1e1c2c",
+     "#3a2f50"
+    ],
+    "path": "#4a4060",
+    "clearing": "#5a5070",
+    "foliage": [
+     "#4a2a6a",
+     "#5a3a80",
+     "#3a2a5a"
+    ],
+    "bark": [
+     "#2a2030",
+     "#1a1424"
+    ],
+    "trees": 110,
+    "grass_hue": [
+     0.72,
+     0.8
+    ],
+    "flowers": [
+     "#c07aff",
+     "#7a8aff",
+     "#ff7ad0"
+    ],
+    "glow_things": [
+     "#b04aff",
+     "#4ae0ff",
+     "#ff4ad0"
+    ],
+    "rocks": [
+     "#3a3648",
+     "#26243a"
+    ],
+    "stone": "#5a5470",
+    "moss": "#6a3a8a",
+    "rune": "#c07aff",
+    "arena_floor": "#3a3450",
+    "arena_inner": "#2a2640",
+    "glyph": "#d08aff",
+    "particles": "#c090ff",
+    "hills": [
+     "#1f1a3a",
+     "#3a2a5a"
+    ],
+    "liquid": "poison",
+    "liquid_color": "#4aff6a",
+    "hazard": "poison",
+    "hazard_dps": 6.0
+   },
+   "skins": {
+    "grunt": {
+     "name": "Schattenling",
+     "color": "#3a2a5a",
+     "accent": "#c0a0ff"
+    },
+    "archer": {
+     "name": "Nachtschütze",
+     "color": "#2a2a4a",
+     "accent": "#a0c0ff"
+    },
+    "bomber": {
+     "name": "Giftspore",
+     "color": "#5a8a2a",
+     "accent": "#d0ff70"
+    },
+    "shaman": {
+     "name": "Irrlichtseher",
+     "color": "#4a3a8a",
+     "accent": "#e0c0ff"
+    },
+    "brute": {
+     "name": "Fluchbär",
+     "color": "#2a2030",
+     "accent": "#ff7ad0"
+    },
+    "crawler": {
+     "name": "Schleicher",
+     "color": "#4a2a5a",
+     "accent": "#ff9ae0"
+    },
+    "splitter": {
+     "name": "Trugbild",
+     "color": "#5a3a7a",
+     "accent": "#e0c0ff"
+    },
+    "cultist": {
+     "name": "Mondkultist",
+     "color": "#3a2a5a",
+     "accent": "#ffc0ff"
+    }
+   },
+   "tiers": [
+    {
+     "time": 0,
+     "groups": [
+      [
+       "grunt",
+       3
+      ]
+     ],
+     "interval": 6.0
+    },
+    {
+     "time": 25,
+     "groups": [
+      [
+       "grunt",
+       3
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "cultist",
+       1
+      ]
+     ],
+     "interval": 5.5
+    },
+    {
+     "time": 55,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       2
+      ],
+      [
+       "cultist",
+       1
+      ],
+      [
+       "crawler",
+       2
+      ]
+     ],
+     "interval": 5.0
+    },
+    {
+     "time": 90,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "cultist",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.5,
+     "elite_chance": 0.12
+    },
+    {
+     "time": 130,
+     "groups": [
+      [
+       "grunt",
+       5
+      ],
+      [
+       "brute",
+       1
+      ],
+      [
+       "archer",
+       3
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "cultist",
+       2
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "splitter",
+       1
+      ]
+     ],
+     "interval": 4.0,
+     "elite_chance": 0.2
+    }
+   ]
+  },
+  {
+   "id": "sky_fortress",
+   "name": "Die zerbrochene Himmelsfestung",
+   "playable": true,
+   "unlock": {
+    "type": "area_clear",
+    "id": "shadow_wood"
+   },
+   "desc": "Späte Region mit schwebenden Inseln und einem aufwendigen Endboss.",
+   "boss": "sky_sovereign",
+   "difficulty": 6,
+   "biome": {
+    "sky_top": "#4a7ae8",
+    "sky_horizon": "#f8e8d0",
+    "sky_ground": "#e8d0b0",
+    "fog": "#fff0dc",
+    "fog_density": 0.005,
+    "sun": "#fff8e0",
+    "sun_energy": 1.5,
+    "ambient": 1.0,
+    "saturation": 1.2,
+    "ground": "#b8b0a0",
+    "patches": [
+     "#a8a090",
+     "#c8c0b0",
+     "#9a9284",
+     "#d8d0c0"
+    ],
+    "path": "#e0d0a0",
+    "clearing": "#e8d8b0",
+    "foliage": [
+     "#e8d070",
+     "#f0e090",
+     "#d0b850"
+    ],
+    "bark": [
+     "#8a7a60",
+     "#6a5a48"
+    ],
+    "tree_style": "crystal",
+    "trees": 55,
+    "grass_hue": [
+     0.1,
+     0.14
+    ],
+    "flowers": [
+     "#fff0a0",
+     "#ffd070",
+     "#ffffff"
+    ],
+    "glow_things": [
+     "#ffd24a",
+     "#9ad8ff",
+     "#ffffff"
+    ],
+    "rocks": [
+     "#a8a8b0",
+     "#8a8a96"
+    ],
+    "stone": "#d0c8b0",
+    "moss": "#c0a860",
+    "rune": "#ffd24a",
+    "arena_floor": "#c0b8a8",
+    "arena_inner": "#a8a090",
+    "glyph": "#ffe070",
+    "particles": "#fff0a0",
+    "hills": [
+     "#e8e0f0",
+     "#c0d0f0"
+    ],
+    "liquid": "void",
+    "liquid_color": "#101030",
+    "hazard": "void",
+    "hazard_dps": 12.0
+   },
+   "skins": {
+    "grunt": {
+     "name": "Himmelssoldat",
+     "color": "#b0a070",
+     "accent": "#fff0a0"
+    },
+    "archer": {
+     "name": "Windschütze",
+     "color": "#6a9ad0",
+     "accent": "#e0f0ff"
+    },
+    "bomber": {
+     "name": "Blitzbombe",
+     "color": "#e0b030",
+     "accent": "#ffffff"
+    },
+    "shaman": {
+     "name": "Himmelspriester",
+     "color": "#d0c0e0",
+     "accent": "#fff0c0"
+    },
+    "brute": {
+     "name": "Festungswächter",
+     "color": "#a0a0b0",
+     "accent": "#ffe070"
+    },
+    "crawler": {
+     "name": "Sturmläufer",
+     "color": "#80a0d0",
+     "accent": "#ffffff"
+    },
+    "splitter": {
+     "name": "Splittergolem",
+     "color": "#c0b090",
+     "accent": "#ffe0a0"
+    },
+    "sentinel": {
+     "name": "Himmelswache",
+     "color": "#b8b0a0",
+     "accent": "#ffe070"
+    },
+    "cultist": {
+     "name": "Äthermagier",
+     "color": "#8a90d0",
+     "accent": "#fff0c0"
+    }
+   },
+   "tiers": [
+    {
+     "time": 0,
+     "groups": [
+      [
+       "grunt",
+       3
+      ]
+     ],
+     "interval": 6.0
+    },
+    {
+     "time": 25,
+     "groups": [
+      [
+       "grunt",
+       3
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "sentinel",
+       1
+      ]
+     ],
+     "interval": 5.5
+    },
+    {
+     "time": 55,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       2
+      ],
+      [
+       "sentinel",
+       1
+      ],
+      [
+       "crawler",
+       2
+      ]
+     ],
+     "interval": 5.0
+    },
+    {
+     "time": 90,
+     "groups": [
+      [
+       "grunt",
+       4
+      ],
+      [
+       "archer",
+       2
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "sentinel",
+       2
+      ],
+      [
+       "crawler",
+       2
+      ],
+      [
+       "cultist",
+       1
+      ]
+     ],
+     "interval": 4.5,
+     "elite_chance": 0.12
+    },
+    {
+     "time": 130,
+     "groups": [
+      [
+       "grunt",
+       5
+      ],
+      [
+       "brute",
+       1
+      ],
+      [
+       "archer",
+       3
+      ],
+      [
+       "bomber",
+       3
+      ],
+      [
+       "shaman",
+       1
+      ],
+      [
+       "sentinel",
+       2
+      ],
+      [
+       "crawler",
+       3
+      ],
+      [
+       "cultist",
+       1
+      ]
+     ],
+     "interval": 4.0,
+     "elite_chance": 0.2
+    }
+   ]
+  }
+ ],
+ "achievements": [
+  {
+   "id": "first_blood",
+   "name": "Erstes Blut",
+   "desc": "Besiege 1 Gegner.",
+   "stat": "kills",
+   "target": 1,
+   "reward_points": 1
+  },
+  {
+   "id": "slayer_100",
+   "name": "Waldräumer",
+   "desc": "Besiege insgesamt 100 Gegner.",
+   "stat": "kills",
+   "target": 100,
+   "reward_points": 2
+  },
+  {
+   "id": "slayer_1000",
+   "name": "Schrecken des Waldes",
+   "desc": "Besiege insgesamt 1000 Gegner.",
+   "stat": "kills",
+   "target": 1000,
+   "reward_points": 4
+  },
+  {
+   "id": "boss_1",
+   "name": "Wächterbezwinger",
+   "desc": "Besiege den Wurzelwächter.",
+   "stat": "bosses",
+   "target": 1,
+   "reward_points": 3
+  },
+  {
+   "id": "flawless",
+   "name": "Unberührt",
+   "desc": "Gewinne einen Run, ohne kampfunfähig zu werden.",
+   "stat": "flawless_wins",
+   "target": 1,
+   "reward_points": 3
+  },
+  {
+   "id": "elite_hunter",
+   "name": "Elitejäger",
+   "desc": "Besiege 10 Elitegegner.",
+   "stat": "elites",
+   "target": 10,
+   "reward_points": 2
+  },
+  {
+   "id": "level_10",
+   "name": "Erfahren",
+   "desc": "Erreiche in einem Run Stufe 10.",
+   "stat": "best_run_level",
+   "target": 10,
+   "reward_points": 2
+  },
+  {
+   "id": "legendary_find",
+   "name": "Glückskind",
+   "desc": "Finde einen legendären Gegenstand.",
+   "stat": "legendaries",
+   "target": 1,
+   "reward_points": 2
+  }
+ ]
+}

@@ -1,0 +1,403 @@
+{
+ "types": {
+  "grunt": {
+   "name": "Moosling",
+   "behavior": "chaser",
+   "hp": 42,
+   "damage": 9,
+   "speed": 3.6,
+   "xp": 6,
+   "scale": 1.0,
+   "color": "#6aa84f",
+   "accent": "#d9ead3",
+   "attack_range": 1.9,
+   "windup": 0.55,
+   "cooldown": 1.3,
+   "tier": 0
+  },
+  "archer": {
+   "name": "Dornschütze",
+   "behavior": "ranged",
+   "hp": 28,
+   "damage": 8,
+   "speed": 3.2,
+   "xp": 8,
+   "scale": 0.95,
+   "color": "#b45f06",
+   "accent": "#f9cb9c",
+   "attack_range": 13.0,
+   "windup": 0.6,
+   "cooldown": 2.4,
+   "tier": 0
+  },
+  "bomber": {
+   "name": "Sporenbombe",
+   "behavior": "exploder",
+   "hp": 22,
+   "damage": 26,
+   "speed": 5.6,
+   "xp": 7,
+   "scale": 0.85,
+   "color": "#cc4125",
+   "accent": "#ffd966",
+   "attack_range": 2.2,
+   "windup": 0.8,
+   "cooldown": 0.0,
+   "tier": 1
+  },
+  "shaman": {
+   "name": "Wurzelschamane",
+   "behavior": "healer",
+   "hp": 36,
+   "damage": 6,
+   "speed": 3.0,
+   "xp": 14,
+   "scale": 1.05,
+   "color": "#674ea7",
+   "accent": "#b4a7d6",
+   "attack_range": 10.0,
+   "windup": 0.6,
+   "cooldown": 3.2,
+   "tier": 2
+  },
+  "brute": {
+   "name": "Steinrücken",
+   "behavior": "chaser",
+   "hp": 130,
+   "damage": 18,
+   "speed": 2.7,
+   "xp": 20,
+   "scale": 1.45,
+   "color": "#7f6000",
+   "accent": "#e6b8af",
+   "attack_range": 2.5,
+   "windup": 0.9,
+   "cooldown": 1.9,
+   "tier": 2
+  },
+  "crawler": {
+   "name": "Kriecher",
+   "behavior": "chaser",
+   "hp": 30,
+   "damage": 8,
+   "speed": 5.2,
+   "xp": 7,
+   "scale": 0.8,
+   "color": "#7a5a8a",
+   "accent": "#e0c8f0",
+   "attack_range": 1.7,
+   "windup": 0.4,
+   "cooldown": 1.0,
+   "tier": 1
+  },
+  "sentinel": {
+   "name": "Wächterschütze",
+   "behavior": "ranged",
+   "hp": 64,
+   "damage": 12,
+   "speed": 2.4,
+   "xp": 16,
+   "scale": 1.15,
+   "color": "#6a7a8a",
+   "accent": "#c8e0f0",
+   "attack_range": 14.0,
+   "windup": 0.8,
+   "cooldown": 2.8,
+   "tier": 2
+  },
+  "splitter": {
+   "name": "Teiler",
+   "behavior": "chaser",
+   "hp": 55,
+   "damage": 10,
+   "speed": 3.0,
+   "xp": 12,
+   "scale": 1.2,
+   "color": "#8a6a3a",
+   "accent": "#f0d8a0",
+   "attack_range": 2.0,
+   "windup": 0.6,
+   "cooldown": 1.4,
+   "tier": 1,
+   "split": {
+    "type": "splitling",
+    "count": 2
+   }
+  },
+  "splitling": {
+   "name": "Splitter",
+   "behavior": "chaser",
+   "hp": 14,
+   "damage": 6,
+   "speed": 4.4,
+   "xp": 2,
+   "scale": 0.6,
+   "color": "#8a6a3a",
+   "accent": "#f0d8a0",
+   "attack_range": 1.5,
+   "windup": 0.4,
+   "cooldown": 1.0,
+   "tier": 0
+  },
+  "cultist": {
+   "name": "Kultist",
+   "behavior": "healer",
+   "hp": 44,
+   "damage": 7,
+   "speed": 3.0,
+   "xp": 15,
+   "scale": 1.0,
+   "color": "#5a3a6a",
+   "accent": "#d0a0f0",
+   "attack_range": 10.0,
+   "windup": 0.6,
+   "cooldown": 3.0,
+   "tier": 2
+  }
+ },
+ "elite_mods": {
+  "swift": {
+   "name": "Flink",
+   "speed_mult": 1.35,
+   "color": "#4fc3f7"
+  },
+  "armored": {
+   "name": "Gepanzert",
+   "damage_reduction": 0.35,
+   "color": "#cfd8dc"
+  },
+  "vampiric": {
+   "name": "Blutsaugend",
+   "lifesteal": 0.5,
+   "color": "#e57373"
+  }
+ },
+ "boss": {
+  "id": "rootwarden",
+  "name": "Der Wurzelwächter",
+  "hp": 1500,
+  "damage": 20,
+  "xp": 150,
+  "scale": 3.2,
+  "color": "#4a6b2f",
+  "accent": "#d8ff6a"
+ },
+ "threat_tiers": [
+  {
+   "time": 0,
+   "groups": [
+    [
+     "grunt",
+     3
+    ]
+   ],
+   "interval": 6.0
+  },
+  {
+   "time": 25,
+   "groups": [
+    [
+     "grunt",
+     3
+    ],
+    [
+     "archer",
+     2
+    ]
+   ],
+   "interval": 5.5
+  },
+  {
+   "time": 55,
+   "groups": [
+    [
+     "grunt",
+     4
+    ],
+    [
+     "archer",
+     2
+    ],
+    [
+     "bomber",
+     2
+    ]
+   ],
+   "interval": 5.0
+  },
+  {
+   "time": 90,
+   "groups": [
+    [
+     "grunt",
+     4
+    ],
+    [
+     "archer",
+     2
+    ],
+    [
+     "bomber",
+     3
+    ],
+    [
+     "shaman",
+     1
+    ]
+   ],
+   "interval": 4.5,
+   "elite_chance": 0.12
+  },
+  {
+   "time": 130,
+   "groups": [
+    [
+     "grunt",
+     5
+    ],
+    [
+     "brute",
+     1
+    ],
+    [
+     "archer",
+     3
+    ],
+    [
+     "bomber",
+     3
+    ],
+    [
+     "shaman",
+     1
+    ]
+   ],
+   "interval": 4.0,
+   "elite_chance": 0.2
+  }
+ ],
+ "bosses": {
+  "rootwarden": {
+   "id": "rootwarden",
+   "name": "Der Wurzelwächter",
+   "hp": 1500,
+   "damage": 20,
+   "xp": 150,
+   "scale": 3.2,
+   "color": "#4a6b2f",
+   "accent": "#d8ff6a",
+   "form": "tree",
+   "kit": {}
+  },
+  "clockwork_guardian": {
+   "id": "clockwork_guardian",
+   "name": "Der Uhrwerkwächter",
+   "hp": 1900,
+   "damage": 22,
+   "xp": 200,
+   "scale": 3.0,
+   "color": "#6a7a86",
+   "accent": "#5af0ff",
+   "form": "crystal",
+   "kit": {
+    "slam_r": 4.0,
+    "slam_count": 2,
+    "waves": 3,
+    "add_type": "crawler",
+    "summon_text": "%s ruft Wartungsdrohnen!",
+    "rain_n": 8,
+    "rain_text": "Funkenregen!",
+    "line": true,
+    "line_text": "Zahnradansturm!"
+   }
+  },
+  "lava_titan": {
+   "id": "lava_titan",
+   "name": "Der Lavatitan",
+   "hp": 2400,
+   "damage": 26,
+   "xp": 260,
+   "scale": 3.6,
+   "color": "#4a2a22",
+   "accent": "#ff7a2a",
+   "form": "flame",
+   "kit": {
+    "slam_r": 5.2,
+    "slam_count": 1,
+    "waves": 4,
+    "add_type": "splitter",
+    "summon_text": "%s speit Magmabrocken!",
+    "rain_n": 10,
+    "rain_text": "Aschemeteore!",
+    "line": true,
+    "line_text": "Lavawalze!"
+   }
+  },
+  "frost_wyrm": {
+   "id": "frost_wyrm",
+   "name": "Der Frostwyrm",
+   "hp": 2900,
+   "damage": 28,
+   "xp": 320,
+   "scale": 3.4,
+   "color": "#8ab4d0",
+   "accent": "#bfeaff",
+   "form": "ice",
+   "kit": {
+    "slam_r": 4.6,
+    "slam_count": 2,
+    "waves": 3,
+    "add_type": "crawler",
+    "summon_text": "%s ruft Eisspinnen!",
+    "rain_n": 12,
+    "rain_text": "Eissplitterhagel!",
+    "line": true,
+    "line_text": "Frostatem-Schneise!"
+   }
+  },
+  "mirror_witch": {
+   "id": "mirror_witch",
+   "name": "Die Spiegelhexe",
+   "hp": 3200,
+   "damage": 30,
+   "xp": 380,
+   "scale": 2.8,
+   "color": "#4a2a6a",
+   "accent": "#e0a0ff",
+   "form": "veil",
+   "kit": {
+    "slam_r": 4.0,
+    "slam_count": 3,
+    "waves": 4,
+    "add_type": "cultist",
+    "summon_text": "%s beschwört Spiegelbilder!",
+    "rain_n": 14,
+    "rain_text": "Splitterspiegel!",
+    "line": true,
+    "line_text": "Schattensprung!"
+   }
+  },
+  "sky_sovereign": {
+   "id": "sky_sovereign",
+   "name": "Der Himmelsherrscher",
+   "hp": 4200,
+   "damage": 34,
+   "xp": 520,
+   "scale": 3.8,
+   "color": "#d8c890",
+   "accent": "#ffe070",
+   "form": "wing",
+   "kit": {
+    "slam_r": 5.0,
+    "slam_count": 3,
+    "waves": 5,
+    "add_type": "sentinel",
+    "summon_text": "%s ruft die Himmelswache!",
+    "rain_n": 16,
+    "rain_text": "Sturm der Klingen!",
+    "line": true,
+    "line_text": "Sturzflug!"
+   }
+  }
+ }
+}

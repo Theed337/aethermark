@@ -1,0 +1,125 @@
+{
+ "items": [
+  {
+   "id": "outfit_3",
+   "kind": "outfit",
+   "value": 3,
+   "name": "Waldläufer-Umhang",
+   "unlock": {
+    "stat": "bosses",
+    "target": 1,
+    "text": "Besiege den Wurzelwächter"
+   }
+  },
+  {
+   "id": "horns_3",
+   "kind": "horns",
+   "value": 3,
+   "name": "Widderhörner",
+   "unlock": {
+    "stat": "kills",
+    "target": 100,
+    "text": "Besiege 100 Gegner"
+   }
+  },
+  {
+   "id": "tattoo_3",
+   "kind": "tattoo",
+   "value": 3,
+   "name": "Leuchtrune",
+   "unlock": {
+    "stat": "flawless_wins",
+    "target": 1,
+    "text": "Gewinne einen Run ohne kampfunfähig zu werden"
+   }
+  },
+  {
+   "id": "hair_5",
+   "kind": "hair_style",
+   "value": 5,
+   "name": "Stachelkrone",
+   "unlock": {
+    "stat": "runs",
+    "target": 3,
+    "text": "Schließe 3 Runs ab"
+   }
+  },
+  {
+   "id": "beard_3",
+   "kind": "beard",
+   "value": 3,
+   "name": "Geflochtener Bart",
+   "unlock": {
+    "stat": "elites",
+    "target": 10,
+    "text": "Besiege 10 Elitegegner"
+   }
+  },
+  {
+   "id": "title_wanderer",
+   "kind": "title",
+   "value": "Wanderer",
+   "name": "Titel: Wanderer",
+   "unlock": {
+    "stat": "runs",
+    "target": 0,
+    "text": "Von Anfang an"
+   }
+  },
+  {
+   "id": "title_cleaner",
+   "kind": "title",
+   "value": "Waldräumer",
+   "name": "Titel: Waldräumer",
+   "unlock": {
+    "stat": "kills",
+    "target": 100,
+    "text": "Besiege 100 Gegner"
+   }
+  },
+  {
+   "id": "title_warden",
+   "kind": "title",
+   "value": "Wächterbezwinger",
+   "name": "Titel: Wächterbezwinger",
+   "unlock": {
+    "stat": "bosses",
+    "target": 1,
+    "text": "Besiege den Wurzelwächter"
+   }
+  },
+  {
+   "id": "title_flawless",
+   "kind": "title",
+   "value": "Die Unberührte Klinge",
+   "name": "Titel: Die Unberührte Klinge",
+   "unlock": {
+    "stat": "flawless_wins",
+    "target": 1,
+    "text": "Gewinne einen Run ohne kampfunfähig zu werden"
+   }
+  },
+  {
+   "id": "title_lucky",
+   "kind": "title",
+   "value": "Glückskind",
+   "name": "Titel: Glückskind",
+   "unlock": {
+    "stat": "legendaries",
+    "target": 1,
+    "text": "Finde einen legendären Gegenstand"
+   }
+  },
+  {
+   "id": "title_elite",
+   "kind": "title",
+   "value": "Elitejäger",
+   "name": "Titel: Elitejäger",
+   "unlock": {
+    "stat": "elites",
+    "target": 10,
+    "text": "Besiege 10 Elitegegner"
+   }
+  }
+ ]
+}
