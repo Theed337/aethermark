@@ -72,6 +72,32 @@ func rarity_name(rarity: String) -> String:
 	return items_cfg.get("rarities", {}).get(rarity, {}).get("name", rarity)
 
 
+var _base_types: Dictionary = {}
+var _base_tiers: Array = []
+var _bosses: Dictionary = {}
+var active_area := ""
+
+
+## Stellt Gegnerwerte, Bedrohungsstufen und Boss auf das Gebiet ein (Host und Client rufen das beim Laufstart auf).
+func activate_area(area_id: String) -> void:
+	if _base_types.is_empty():
+		_base_types = enemy_types.duplicate(true)
+		_base_tiers = threat_tiers.duplicate(true)
+		_bosses = _load_json("res://data/enemies.json").get("bosses", {})
+	var a := area_by_id(area_id)
+	var types: Dictionary = _base_types.duplicate(true)
+	for k in a.get("skins", {}):
+		if types.has(k):
+			for f in a["skins"][k]:
+				types[k][f] = a["skins"][k][f]
+	enemy_types = types
+	threat_tiers = a["tiers"].duplicate(true) if a.has("tiers") else _base_tiers.duplicate(true)
+	var bid: String = a.get("boss", "rootwarden")
+	if _bosses.has(bid):
+		boss = _bosses[bid].duplicate(true)
+	active_area = area_id
+
+
 func area_by_id(id: String) -> Dictionary:
 	for a in areas:
 		if a["id"] == id:

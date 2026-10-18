@@ -50,6 +50,7 @@ func objective_text() -> String:
 
 
 func _ready() -> void:
+	GameData.activate_area(RunState.area_id)
 	_area = GameData.area_by_id(RunState.area_id)
 	_my_slot = Net.my_slot()
 	map_info = ForestMap.build(self, RunState.seed_value)

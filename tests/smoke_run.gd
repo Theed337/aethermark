@@ -30,6 +30,7 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	var weapon: String = args[0] if args.size() > 0 else "sword"
 	var seed_v: int = int(args[1]) if args.size() > 1 else 12345
+	var area: String = args[2] if args.size() > 2 else "emerald_forest"
 	SaveSystem.save_path = "user://smoke_save.json"
 	for suf in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists("user://smoke_save.json" + suf):
@@ -43,14 +44,14 @@ func _ready() -> void:
 		w["name"] = weapon
 		c["inventory"].append(w)
 		SaveSystem.equip(c, w["uid"])
-	RunState.area_id = "emerald_forest"
+	RunState.area_id = area
 	RunState.difficulty = 1
 	RunState.quick_mode = true
 	RunState.bot_mode = true
 	RunState.bot_damage_scale = 0.12
 	RunState.seed_value = seed_v
 	Engine.time_scale = 3.0
-	print("Smoke-Test: Waffe=%s Seed=%d" % [weapon, seed_v])
+	print("Smoke-Test: Waffe=%s Seed=%d Gebiet=%s" % [weapon, seed_v, area])
 	arena = load("res://scenes/arena.tscn").instantiate()
 	add_child(arena)
 	start_pos = arena.player.global_position
@@ -60,9 +61,12 @@ func _process(delta: float) -> void:
 	t += delta / Engine.time_scale
 	if arena == null:
 		return
-	if int(t) % 15 == 0 and int(t) != _last_log:
+	if int(t) % 5 == 0 and int(t) != _last_log:
 		_last_log = int(t)
-		print("  .. real %ds | Spielzeit %.0f s | FPS %d | Gegner %d | Stufe %d" % [int(t), arena.run_time, Engine.get_frames_per_second(), get_tree().get_nodes_in_group("enemies").size(), arena.player.level])
+		print("  .. HP %.0f/%.0f" % [arena.player.hp, arena.player.stats["max_hp"]]); print("  .. real %ds | Spielzeit %.0f s | FPS %d | Gegner %d | Stufe %d" % [int(t), arena.run_time, Engine.get_frames_per_second(), get_tree().get_nodes_in_group("enemies").size(), arena.player.level])
+		if arena.boss != null and is_instance_valid(arena.boss):
+			var b = arena.boss
+			print("     Boss hp %.0f/%.0f Phase %d Schild %s busy %s Adds %d Abstand %.1f" % [b.hp, b.max_hp, b.phase, str(b.shielded), str(b.busy), b.adds.size(), b.global_position.distance_to(arena.player.global_position)])
 	var p: Player = arena.player
 	max_levels = maxi(max_levels, p.level)
 	max_moved = maxf(max_moved, p.global_position.distance_to(start_pos))
@@ -78,7 +82,7 @@ func _process(delta: float) -> void:
 func _report() -> void:
 	set_process(false)
 	print("")
-	print("Run beendet nach %.0f s Spielzeit (%.0f s real)" % [arena.run_time, t])
+	print("Run beendet nach %.0f s Spielzeit (%.0f s real) | Spieler hp %.0f Zustand %s Schaden erlitten %.0f" % [arena.run_time, t, arena.player.hp, arena.player.state, arena.player.run_stats["damage_taken"]])
 	var p: Player = arena.player
 	var rs: Dictionary = p.run_stats.duplicate()
 	rs["boss_defeated"] = arena.run_stats["boss_defeated"]
@@ -99,8 +103,8 @@ func _report() -> void:
 	var c := SaveSystem.active_character()
 	check(c["stats"]["runs"] == 1, "Run im Spielstand gespeichert")
 	check(c["talent_points"] > 3, "Talentpunkte erhalten (%d)" % c["talent_points"])
-	check("emerald_forest" in c["cleared_areas"] or not rs["boss_defeated"], "Gebiet als abgeschlossen vermerkt")
-	check("sunken_ruins" in c["unlocked_areas"] or not rs["boss_defeated"], "Nächstes Gebiet freigeschaltet")
+	check(RunState.area_id in c["cleared_areas"] or not rs["boss_defeated"], "Gebiet als abgeschlossen vermerkt")
+	check(RunState.area_id != "emerald_forest" or "sunken_ruins" in c["unlocked_areas"] or not rs["boss_defeated"], "Nächstes Gebiet freigeschaltet")
 	var reloaded := SaveSystem.load_game()
 	check(reloaded and SaveSystem.active_character()["stats"]["runs"] == 1, "Spielstand lässt sich neu laden")
 	print("")

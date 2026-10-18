@@ -36,11 +36,12 @@ func finish_run(result: Dictionary) -> void:
 
 ## Gruppenskalierung: nicht nur Lebenspunkte, auch Schaden, Gruppengrößen, Spawn-Obergrenze,
 ## Elite-Chance und zusätzliche Verhaltensweisen (Flankieren ab 3 Spielern).
-static func scaling(players: int, diff: int, avg_power: float = 1.0) -> Dictionary:
+static func scaling(players: int, diff: int, avg_power: float = 1.0, area: String = "emerald_forest") -> Dictionary:
 	var extra := maxi(players - 1, 0)
+	var ad := float(GameData.area_by_id(area).get("difficulty", 1)) - 1.0   # Gebietsstufe: spätere Gebiete sind härter
 	return {
-		"hp_mult": (1.0 + 0.55 * extra + 0.25 * (diff - 1)) * clampf(avg_power, 0.8, 1.6),
-		"dmg_mult": 1.0 + 0.10 * extra + 0.18 * (diff - 1),
+		"hp_mult": (1.0 + 0.55 * extra + 0.25 * (diff - 1) + 0.22 * ad) * clampf(avg_power, 0.8, 1.6),
+		"dmg_mult": 1.0 + 0.10 * extra + 0.18 * (diff - 1) + 0.08 * ad,
 		"spawn_cap": mini(22 + 5 * extra, 42),         # harte Obergrenze für Performance/Übersicht
 		"group_bonus": extra / 2,                       # zusätzliche Gegner pro Gruppe
 		"elite_bonus": 0.03 * extra,

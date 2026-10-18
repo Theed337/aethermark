@@ -19,6 +19,7 @@ const WIPE_DELAY := 2.0
 var player: Player                   # lokaler Spieler (Solo oder Host)
 var players: Array = []              # alle Spieler dieses Runs
 var boss: Boss = null
+var _hazard_t := 0.0
 var hud: Hud
 var map_info: Dictionary = {}
 var scaling: Dictionary = {}
@@ -59,6 +60,7 @@ func area_name() -> String:
 
 
 func _ready() -> void:
+	GameData.activate_area(RunState.area_id)
 	rng.seed = RunState.seed_value
 	_area = GameData.area_by_id(RunState.area_id)
 	_time_k = TIME_SCALE_QUICK if RunState.quick_mode else 1.0
@@ -71,7 +73,7 @@ func _ready() -> void:
 		for id in Net.players:
 			sum += float(Net.players[id].get("power", 1.0))
 		avg_power = sum / float(party)
-	scaling = RunState.scaling(party, RunState.difficulty, avg_power)
+	scaling = RunState.scaling(party, RunState.difficulty, avg_power, RunState.area_id)
 	map_info = ForestMap.build(self, RunState.seed_value)
 	var c := SaveSystem.active_character()
 	player = Player.new()
@@ -98,7 +100,7 @@ func _ready() -> void:
 	if not RunState.bot_mode and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	hud.show_banner(_area.get("name", "Smaragdwald"), UI.GOLD, 3.5)
-	hud.show_hint("Besiege Gegner, steige auf – am Ende wartet der Wurzelwächter", 5.0)
+	hud.show_hint("Besiege Gegner, steige auf – am Ende wartet %s" % GameData.boss.get("name", "der Boss"), 5.0)
 	_spawn_wave(["grunt", "grunt", "grunt"])
 
 
@@ -158,7 +160,7 @@ func _build_world_objects() -> void:
 
 func objective_text() -> String:
 	if boss != null and is_instance_valid(boss) and not boss.dead:
-		return "Besiege den Wurzelwächter!"
+		return "Besiege %s!" % GameData.boss.get("name", "den Boss")
 	if boss_spawned:
 		return ""
 	var t_boss := _boss_time()
@@ -207,6 +209,7 @@ func _process(delta: float) -> void:
 	run_time += delta
 	_update_spawner(delta)
 	_update_pickups(delta)
+	_update_hazards(delta)
 	_update_prompt()
 	_update_offers()
 	if net_on:
@@ -223,6 +226,21 @@ func _process(delta: float) -> void:
 		_spawn_boss()
 	if not miniboss_spawned and run_time >= 70.0 * _time_k and not boss_spawned:
 		_spawn_miniboss()
+
+
+## Gefahrenzone des Gebiets (Lava, Gift, Eisloch, Leere): periodischer Schaden für Spieler darin.
+func _update_hazards(delta: float) -> void:
+	if str(ForestMap.T["hazard"]) == "none":
+		return
+	_hazard_t += delta
+	if _hazard_t < 0.5:
+		return
+	_hazard_t = 0.0
+	var dmg := float(ForestMap.T["hazard_dps"]) * 0.5 * float(scaling.get("dmg_mult", 1.0))
+	for p in players:
+		if is_instance_valid(p) and not p.is_down() and not p.net_away and ForestMap.in_hazard(p.global_position):
+			p.take_damage(dmg, p.global_position)
+			FX.burst(self, p.global_position + Vector3(0, 0.3, 0), ForestMap.col("liquid_color"), 6, 3.0)
 
 
 func _current_tier() -> Dictionary:
@@ -330,12 +348,21 @@ func _spawn_boss() -> void:
 	boss = Boss.spawn_boss(self, ForestMap.BOSS_POS + Vector3(0, 0.2, -3), scaling)
 	boss.announce = func(t: String): banner_all(t, UI.GOLD, 2.6)
 	register_enemy(boss)
-	banner_all("Der Wurzelwächter erwacht!", UI.RED, 4.0)
+	banner_all("%s erwacht!" % GameData.boss.get("name", "Der Boss"), UI.RED, 4.0)
 	Sfx.play("boss", 0.8, 0.0)
 	# Die Gegner der Umgebung ziehen sich nicht zurück, aber es kommen weniger nach (Obergrenze 8)
 
 
 # ------------------------------------------------------------------ Gegner-Tod, XP, Beute
+
+## Teiler-Gegner zerfallen beim Tod in kleinere Gegner.
+func _split_enemy(e: Enemy) -> void:
+	var sp: Dictionary = e.data["split"]
+	for i in int(sp["count"]):
+		var a := rng.randf() * TAU
+		var pos := e.global_position + Vector3(cos(a), 0.3, sin(a)) * 1.2
+		register_enemy(Enemy.spawn(self, str(sp["type"]), pos, scaling))
+
 
 func _on_enemy_died(e: Enemy) -> void:
 	if finished:
@@ -348,6 +375,8 @@ func _on_enemy_died(e: Enemy) -> void:
 		killer = e.last_hit_by
 	var xp: int = int(e.data.get("xp", 5))
 	var is_boss := e is Boss
+	if e.data.has("split") and not e.ghost:
+		_split_enemy(e)
 	run_stats["kills"] += 1
 	killer.run_stats["kills"] += 1
 	if e.is_mini:
@@ -411,7 +440,7 @@ func _drop_unique_for_boss(pos: Vector3) -> void:
 		if not is_instance_valid(p):
 			continue
 		for u in GameData.items_cfg["uniques"]:
-			if u["id"] == "wardens_blade" and rng.randf() < 0.5:
+			if u.get("boss", "") == GameData.boss.get("id", "") and rng.randf() < 0.5:
 				_spawn_pickup(pos + Vector3(1.5, 0, 0), Loot.from_unique(u, _item_level()), p)
 				break
 

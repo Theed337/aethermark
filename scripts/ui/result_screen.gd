@@ -24,7 +24,7 @@ func show_result(result: Dictionary, summary: Dictionary) -> void:
 	var t := UI.label("SIEG!" if win else "Niederlage", 44, UI.GOLD if win else UI.RED, true)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(t)
-	var sub := UI.label("Der Wurzelwächter ist besiegt." if win else "Dein Fortschritt bleibt erhalten – Ausrüstung und Talentpunkte gehören dir.", 17, UI.DIM)
+	var sub := UI.label("%s ist besiegt." % GameData.boss.get("name", "Der Boss") if win else "Dein Fortschritt bleibt erhalten – Ausrüstung und Talentpunkte gehören dir.", 17, UI.DIM)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(sub)
 	var cols := HBoxContainer.new()

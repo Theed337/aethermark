@@ -538,7 +538,7 @@ func _ai_healer(delta: float, player: Node3D, dir: Vector3, dist: float, rng_a: 
 				worst = ratio
 				target = o
 		if target != null:
-			target.heal(target.max_hp * 0.25)
+			target.heal(target.max_hp * (0.03 if target._is_boss() else 0.25))   # Bosse werden nur schwach geheilt
 			FX.beam(arena, global_position + Vector3(0, 1.6, 0), target.global_position + Vector3(0, 1.0, 0), Color("#7dffb0"), 0.4, 0.05)
 			FX.burst(arena, target.global_position + Vector3(0, 1, 0), Color("#7dffb0"), 8, 2.0, 0.08, 0.5)
 			cd = float(data["cooldown"])
