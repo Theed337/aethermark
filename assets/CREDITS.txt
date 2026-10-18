@@ -2,3 +2,8 @@ Aethermark – Fremdassets (alle CC0 1.0 / Public Domain)
 - Quaternius: Stylized Nature MegaKit (Bäume, Büsche, Felsen, Pilze, Pflanzen) – https://quaternius.com
 - Quaternius: Universal Animation Library inkl. Mannequin-Charaktermodell (Held, 120 Animationen)
 Quelle der Dateien: GitHub tilakpatell/tilakverse-assets (unveränderte Kopien der CC0-Pakete).
+- Quaternius: Universal Animation Library 2 – weibliches Mannequin (Mannequin_F.glb), CC0, gleiche Quelle.
+- Sound-Effekte (assets/audio/sfx, neu geschnitten/normalisiert): CC0-Sammlungen "100 CC0 SFX", "80 CC0 RPG SFX", "75 CC0 breaking/falling/hit SFX"
+  (Autor: rubberduck, OpenGameArt, CC0) und Kenney Interface Sounds (kenney.nl, CC0).
+  Quelle der Dateien: GitHub lavenderdotpet/CC0-Public-Domain-Sounds bzw. Calinou/kenney-interface-sounds.
+- Effekt-Texturen (assets/fx): selbst erzeugt per tools/gen_fx.py (CC0).

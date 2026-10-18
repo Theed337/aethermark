@@ -19,6 +19,16 @@ func _ready() -> void:
 	SaveSystem.save_path = "user://shot_save.json"
 	SaveSystem.data = SaveSystem.default_data()
 	SaveSystem.new_character("Testheld", SaveSystem.default_appearance())
+	if OS.get_environment("SHOT_ITEMS") != "":
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 5
+		var ch: Dictionary = SaveSystem.active_character()
+		for i in 14:
+			ch["inventory"].append(Loot.roll_item(rng, 3 + i, 3.0))
+		for slot in ["chest", "head", "feet"]:
+			var it := Loot.roll_item(rng, 5, 2.0, "uncommon", slot)
+			ch["inventory"].append(it)
+			SaveSystem.equip(ch, it["uid"])
 	var kind := mode.split(":")[0]
 	var arg := mode.split(":")[1]
 	var m: Node = null

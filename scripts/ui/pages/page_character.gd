@@ -149,6 +149,14 @@ func _build_editor() -> void:
 		_origin_desc.text = GameData.origins[origin_ids[i]]["desc"]
 		_preview())
 	_row("Herkunft", ob)
+	var gb := UI.option()
+	gb.add_item("Männlich", 0)
+	gb.add_item("Weiblich", 1)
+	gb.select(clampi(int(_draft.get("female", 0)), 0, 1))
+	gb.item_selected.connect(func(i: int):
+		_draft["female"] = i
+		_preview())
+	_row("Geschlecht", gb)
 	_origin_desc = UI.label(GameData.origins[_draft["origin"]]["desc"], 14, UI.GOLD)
 	_origin_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.add_child(_origin_desc)

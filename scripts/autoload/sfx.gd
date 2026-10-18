@@ -1,10 +1,14 @@
 extends Node
-## Prozedurale Soundeffekte (PLATZHALTER-Audio, in Phase 6 durch echte Assets ersetzen) und Lautstärke-Busse.
-## Es gibt noch KEINE Musik – siehe docs/STATUS.md.
+## Soundeffekte aus echten CC0-Aufnahmen (assets/audio/sfx, Quellen in assets/CREDITS.txt); fehlt eine Datei,
+## springt der prozedurale Platzhalter ein. Lautstärke-Busse. Es gibt noch KEINE Musik – siehe docs/STATUS.md.
 
 const MIX_RATE := 22050
 
 var _cache: Dictionary = {}
+var _files: Dictionary = {}   # id -> Array[AudioStream]
+## Feinabstimmung der Lautstärke je Klang (dB), weil die Quelldateien unterschiedlich laut sind
+const GAIN_DB := {"hit": -2.0, "swing": -3.0, "crit": -1.0, "cast": -2.0, "boom": -1.0, "levelup": -3.0, "loot": -4.0,
+		"rare_loot": -3.0, "hurt": -2.0, "ui": -8.0, "roll": -5.0, "boss": 0.0}
 var _players: Array[AudioStreamPlayer] = []
 var _next := 0
 
@@ -50,16 +54,32 @@ func play(id: String, pitch: float = 1.0, vol_db: float = 0.0) -> void:
 		net_hook.call(id, pitch, vol_db)
 	if DisplayServer.get_name() == "headless":
 		return
-	var stream: AudioStreamWAV = _cache.get(id)
+	var stream: AudioStream = _pick_file(id)
 	if stream == null:
-		stream = _make(id)
-		_cache[id] = stream
+		stream = _cache.get(id)
+		if stream == null:
+			stream = _make(id)
+			_cache[id] = stream
 	var p := _players[_next]
 	_next = (_next + 1) % _players.size()
 	p.stream = stream
 	p.pitch_scale = pitch * randf_range(0.94, 1.06)
-	p.volume_db = vol_db
+	p.volume_db = vol_db + float(GAIN_DB.get(id, 0.0)) if _files.get(id, []).size() > 0 else vol_db
 	p.play()
+
+
+func _pick_file(id: String) -> AudioStream:
+	if not _files.has(id):
+		var arr: Array = []
+		for i in range(1, 9):
+			var path := "res://assets/audio/sfx/%s_%d.ogg" % [id, i]
+			if ResourceLoader.exists(path):
+				arr.append(load(path))
+		_files[id] = arr
+	var list: Array = _files[id]
+	if list.is_empty():
+		return null
+	return list[randi() % list.size()]
 
 
 func _make(id: String) -> AudioStreamWAV:

@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.4)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.5)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -54,3 +54,11 @@
 - Gegner, Bosse, Ruinen-Säulen und Gras sind weiter prozedural (keine passenden CC0-Pakete hier verfügbar).
 - Ungeprüft: Leistung auf echter Hardware (ca. 95 Bäume + Schatten), Aussehen im Forward+-Renderer, Animationen aller Waffentypen.
 - Balance-Test (Einzelspieler-Bot) schlägt den Boss nur noch in etwa jedem zweiten Lauf (Bot spielt schwach, echte Spieler ausweichen). Level-Tempo ggf. nachjustieren.
+
+## Änderungen 0.9.5 (Waffen, weibliche Figur, Spiegel, Inventar, Sound, Effekte)
+- Waffen: Haltung per Screenshot in der Idle-Pose und im Schwertangriff abgestimmt (Schwert/Axt/Hammer/Dolch vorwärts-oben, Stab/Bogen schräg). Bogen ist jetzt ein gebogener Bogen mit Sehne. Stab/Bogen-Haltung nur grob (leicht schräg), Zauber-/Schussanimation nur als Standbild geprüft.
+- Weibliche Figur: neue Option "Geschlecht" im Charaktereditor (Quaternius Female Mannequin, gleiche Animationen). Es ist weiterhin ein einfarbig eingefärbtes Mannequin ohne Kleidung; Bart wird bei weiblich ausgeblendet. Haare größer, Langhaar länger.
+- Menü: die weißen Säulen mit Dreiecken sind weg; stattdessen 4 echte Spiegel (SubViewport mit gespiegelter Kamera, Rahmen). Kostet 4 zusätzliche Szenen-Renderings im Menü (Leistung auf echter Hardware ungeprüft).
+- Inventar: Kachel-Raster mit Seltenheitsrahmen, grünem "ANGELEGT"-Streifen, Platz-Kacheln links (leere Plätze sichtbar), Doppelklick zum Anlegen/Ablegen, Tooltips.
+- Sound: echte CC0-Aufnahmen statt Sinus-Piepsern (je Klang 3–4 Varianten). Ich kann sie nicht hören; Auswahl nach Dateinamen/Länge, Lautstärkeabgleich per loudnorm. Fehlt eine Datei, greift der alte prozedurale Klang. Weiterhin KEINE Musik.
+- Effekte: Texturen (Glow, Funken, Ringe, Flamme) statt Kugeln/Torus: Treffer-Funken mit Blitz, Schockwellenringe, Flammenflächen mit Glut, Strahlen mit Endblitzen. Aussehen nur im Compatibility-Renderer geprüft.

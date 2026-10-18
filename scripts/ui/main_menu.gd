@@ -42,6 +42,7 @@ var preview_weapon := "sword"
 var _ui: CanvasLayer
 var _root_ui: Control
 var _fireflies: Array = []
+var _mirrors: Array = []   # {cam, center, normal, right, up, size}
 
 
 func _ready() -> void:
@@ -126,10 +127,13 @@ func _build_scene() -> void:
 	for i in 7:
 		var ang := i * TAU / 7.0 + 0.3
 		var p := Vector3(cos(ang) * 4.6, 0, sin(ang) * 4.6 - 0.5)
-		var pillar := Toon.part(self, "box", Vector3(0.6, rng.randf_range(1.6, 3.0), 0.6), Color("#9aa7ad"), p + Vector3(0, 0.9, 0), Vector3(0, rad_to_deg(-ang), 0))
-		Toon.outline(pillar, 0.025)
-		var crystal := Toon.part(self, "prism", Vector3(0.3, 0.6, 0.3), Color("#4ecdc4"), p + Vector3(0, 0.3, 0.6), Vector3(0, 0, 0), Toon.glow_mat(Color("#4ecdc4"), 1.6), false)
-		crystal.rotation_degrees.y = rng.randf() * 360.0
+		if i == 2 or i == 4:
+			_make_mirror(p)
+		else:
+			var pillar := Toon.part(self, "box", Vector3(0.6, rng.randf_range(1.6, 3.0), 0.6), Color("#9aa7ad"), p + Vector3(0, 0.9, 0), Vector3(0, rad_to_deg(-ang), 0))
+			Toon.outline(pillar, 0.025)
+	_make_mirror(Vector3(-1.9, 0, -2.4))
+	_make_mirror(Vector3(1.9, 0, -2.4))
 	# Glühwürmchen
 	for i in 40:
 		var f := Toon.part(self, "sphere", Vector3(0.035, 0, 0), Color("#f8ff9a"), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(Color("#f8ff9a"), 3.0), false)
@@ -143,6 +147,69 @@ func _build_scene() -> void:
 	add_child(cam)
 	cam.look_at(_cam_look)
 	cam.current = true
+
+
+const MIRROR_SIZE := Vector2(1.5, 2.6)
+
+
+## Echter Spiegel: Steinrahmen + Quad, das das Bild einer an der Spiegelebene gespiegelten Kamera (SubViewport) zeigt.
+func _make_mirror(p: Vector3) -> void:
+	var center := Vector3(0, 1.3, -0.5)
+	var pos := p + Vector3(0, MIRROR_SIZE.y * 0.5 + 0.1, 0)
+	var n := (Vector3(center.x, pos.y, center.z) - pos).normalized()
+	var u := Vector3.UP
+	var r := u.cross(n).normalized()
+	var basis := Basis(r, u, n)
+	var holder := Node3D.new()
+	add_child(holder)
+	holder.transform = Transform3D(basis, pos)
+	# Rahmen (hinter und um den Spiegel)
+	var frame := Toon.part(holder, "box", Vector3(MIRROR_SIZE.x + 0.24, MIRROR_SIZE.y + 0.24, 0.12), Color("#7d6a4a"), Vector3(0, 0, -0.08))
+	Toon.outline(frame, 0.02)
+	Toon.part(holder, "box", Vector3(MIRROR_SIZE.x + 0.5, 0.18, 0.3), Color("#8d9aa5"), Vector3(0, -MIRROR_SIZE.y * 0.5 - 0.2, -0.05))
+	var vp := SubViewport.new()
+	vp.size = Vector2i(320, 554)
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	vp.msaa_3d = Viewport.MSAA_DISABLED
+	vp.transparent_bg = false
+	add_child(vp)
+	var mc := Camera3D.new()
+	mc.projection = Camera3D.PROJECTION_FRUSTUM
+	mc.keep_aspect = Camera3D.KEEP_HEIGHT
+	mc.cull_mask = 1   # Ebene 2 (Spiegel selbst) bleibt unsichtbar
+	vp.add_child(mc)
+	var quad := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = MIRROR_SIZE
+	quad.mesh = qm
+	quad.layers = 2
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://shaders/mirror.gdshader")
+	mat.set_shader_parameter("refl", vp.get_texture())
+	quad.material_override = mat
+	quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	holder.add_child(quad)
+	_mirrors.append({"cam": mc, "node": holder, "pos": pos, "n": n, "r": r, "u": u})
+
+
+func _update_mirrors() -> void:
+	for m in _mirrors:
+		var c: Camera3D = m["cam"]
+		var n: Vector3 = m["n"]
+		var r: Vector3 = m["r"]
+		var u: Vector3 = m["u"]
+		var pos: Vector3 = m["pos"]
+		var d := (cam.global_position - pos).dot(n)
+		if d < 0.2:
+			continue
+		var refl: Vector3 = cam.global_position - 2.0 * d * n
+		# Kamera hinter der Spiegelebene, blickt entlang +n, rechts = -r (Spiegelung)
+		c.global_transform = Transform3D(Basis(-r, u, -n), refl)
+		var rel := pos - refl
+		c.size = MIRROR_SIZE.y
+		c.frustum_offset = Vector2(-rel.dot(-r), rel.dot(u))
+		c.near = d
+		c.far = 60.0
 
 
 func set_preview(appearance: Dictionary, weapon_type: String = "") -> void:
@@ -202,6 +269,7 @@ func _process(delta: float) -> void:
 		model["root"].rotation.y += delta * spin_speed
 	cam.position = cam.position.lerp(_cam_target, clampf(delta * 4.0, 0, 1))
 	cam.look_at(_cam_look)
+	_update_mirrors()
 	# Charakter in die Mitte des freien Bereichs zwischen Navigation und Seitenpanel schieben
 	var shift := -0.4 if (page != null and not page.wide) else 0.0
 	pedestal.position.x = lerpf(pedestal.position.x, shift, clampf(delta * 5.0, 0, 1))

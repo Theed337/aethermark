@@ -27,7 +27,7 @@ func build() -> void:
 	h.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(h)
 	# Ausrüstungsplätze
-	var ep := UI.panel(Vector2(300, 0))
+	var ep := UI.panel(Vector2(310, 0))
 	h.add_child(ep)
 	var esc := ScrollContainer.new()
 	ep.add_child(esc)
@@ -47,6 +47,7 @@ func build() -> void:
 	slot_opt.item_selected.connect(func(i: int):
 		filter_slot = "all" if i == 0 else SLOT_ORDER[i - 1]
 		_fill_list())
+	slot_opt.custom_minimum_size = Vector2(150, 0)
 	fr.add_child(slot_opt)
 	var rar_opt := UI.option()
 	rar_opt.add_item("Alle Seltenheiten")
@@ -55,6 +56,7 @@ func build() -> void:
 	rar_opt.item_selected.connect(func(i: int):
 		filter_rarity = "all" if i == 0 else RARITY_ORDER[i - 1]
 		_fill_list())
+	rar_opt.custom_minimum_size = Vector2(170, 0)
 	fr.add_child(rar_opt)
 	var sort_opt := UI.option()
 	for n in ["Seltenheit", "Stufe", "Name", "Platz"]:
@@ -62,6 +64,7 @@ func build() -> void:
 	sort_opt.item_selected.connect(func(i: int):
 		sort_mode = i
 		_fill_list())
+	sort_opt.custom_minimum_size = Vector2(170, 0)
 	fr.add_child(sort_opt)
 	_count_label = UI.label("", 15, UI.DIM)
 	fr.add_child(_count_label)
@@ -98,32 +101,96 @@ func _fill_equipment() -> void:
 	UI.clear(_equip_box)
 	var c := character()
 	_equip_box.add_child(UI.label("Angelegt", 20, UI.GOLD, true))
+	_equip_box.add_child(UI.label("Das sind deine aktuell getragenen Gegenstände.", 13, UI.DIM))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	_equip_box.add_child(grid)
 	for s in SLOT_ORDER:
 		var uid: String = c["equipment"].get(s, "")
 		var it := SaveSystem.find_item(c, uid) if uid != "" else {}
-		var b := Button.new()
-		b.custom_minimum_size = Vector2(0, 44)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.clip_text = true
 		var sname: String = GameData.items_cfg["slots"][s]
-		if it.is_empty():
-			b.text = "%s: —" % sname
-			b.add_theme_color_override("font_color", UI.DIM)
-			b.disabled = false
-		else:
-			b.text = "%s: %s" % [sname, it["name"]]
-			b.add_theme_color_override("font_color", DataColors.rarity(it["rarity"]))
+		var t := _tile(it, sname, Vector2(132, 78), false, not it.is_empty() and it["uid"] == selected_uid)
+		if not it.is_empty():
 			var uu: String = it["uid"]
-			b.pressed.connect(func():
+			t.pressed.connect(func():
 				selected_uid = uu
+				_fill_list()
 				_fill_detail())
-		_equip_box.add_child(b)
+		grid.add_child(t)
 	_equip_box.add_child(HSeparator.new())
 	var st := Stats.compute(c)
 	_equip_box.add_child(UI.label("Werte", 18, UI.TEAL, true))
 	for row in [["Leben", "%d" % st["max_hp"]], ["Schaden", "%.1f" % st["damage"]], ["Krit", "%.1f%%" % (st["crit_chance"] * 100.0)],
 			["Verteidigung", "%.0f" % st["defense"]], ["Tempo", "%.2f" % st["move_speed"]]]:
 		_equip_box.add_child(UI.label("%s: %s" % row, 15))
+
+
+## Kachel für Gegenstand oder leeren Platz. Rahmenfarbe = Seltenheit, grüner "ANGELEGT"-Streifen = getragen.
+func _tile(it: Dictionary, slot_name: String, size: Vector2, equipped: bool, selected: bool) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = size
+	b.clip_text = true
+	b.focus_mode = Control.FOCUS_NONE
+	var empty := it.is_empty()
+	var rc: Color = DataColors.rarity(it["rarity"]) if not empty else Color("#33415a")
+	var bg := Color("#162033") if empty else Color("#1c2a40")
+	if equipped:
+		bg = Color("#1d3a2c")
+	var bw := 3 if selected else 2
+	var border := UI.GOLD if selected else (Color("#5cff9a") if equipped else rc)
+	for st in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var sb := UI.box(bg.lightened(0.08) if st == "hover" else bg, 8, border if st != "hover" else border.lightened(0.3), bw, 6)
+		b.add_theme_stylebox_override(st, sb)
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 7
+	box.offset_right = -7
+	box.offset_top = 4
+	box.offset_bottom = -3
+	box.add_theme_constant_override("separation", 0)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(box)
+	var nm := Label.new()
+	nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	nm.custom_minimum_size = Vector2(size.x - 16, 52)
+	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nm.add_theme_font_size_override("font_size", 14)
+	var info := Label.new()
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info.add_theme_font_size_override("font_size", 12)
+	info.add_theme_color_override("font_color", UI.DIM)
+	box.add_child(nm)
+	box.add_child(info)
+	if empty:
+		nm.text = slot_name
+		nm.add_theme_color_override("font_color", UI.DIM)
+		info.text = "— leer —"
+	else:
+		nm.text = it["name"]
+		nm.add_theme_color_override("font_color", rc.lightened(0.3))
+		info.text = "%s · Stufe %d%s" % [slot_name, it["level"], "  (gesperrt)" if it.get("locked", false) else ""]
+		b.tooltip_text = _tooltip(it)
+	if equipped:
+		var tag := Label.new()
+		tag.text = "✔ ANGELEGT"
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tag.add_theme_font_size_override("font_size", 12)
+		tag.add_theme_color_override("font_color", Color("#5cff9a"))
+		box.add_child(tag)
+	return b
+
+
+func _tooltip(it: Dictionary) -> String:
+	var lines: Array = ["%s (%s)" % [it["name"], GameData.rarity_name(it["rarity"])]]
+	for k in it["stats"]:
+		if k == "flags":
+			continue
+		lines.append(_stat_line(k, float(it["stats"][k])))
+	lines.append("Doppelklick: anlegen / ablegen")
+	return "\n".join(lines)
 
 
 func visible_items() -> Array:
@@ -155,20 +222,27 @@ func _fill_list() -> void:
 	_count_label.text = "  %d / %d Plätze" % [c["inventory"].size(), SaveSystem.INVENTORY_CAP]
 	if items.is_empty():
 		_list_box.add_child(UI.label("Keine Gegenstände für diesen Filter.", 15, UI.DIM))
+		return
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	_list_box.add_child(grid)
 	for it in items:
-		var b := Button.new()
-		b.custom_minimum_size = Vector2(0, 40)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.clip_text = true
-		var equipped := _is_equipped(c, it["uid"])
-		b.text = "%s%s%s   [%s · Stufe %d]" % ["⚿ " if it.get("locked", false) else "", "[A] " if equipped else "", it["name"], GameData.items_cfg["slots"].get(it["slot"], it["slot"]), it["level"]]
-		b.add_theme_color_override("font_color", DataColors.rarity(it["rarity"]))
-		b.add_theme_color_override("font_hover_color", DataColors.rarity(it["rarity"]).lightened(0.4))
 		var uid: String = it["uid"]
-		b.pressed.connect(func():
+		var equipped := _is_equipped(c, uid)
+		var slot_name: String = GameData.items_cfg["slots"].get(it["slot"], it["slot"])
+		var t := _tile(it, slot_name, Vector2(168, 100), equipped, uid == selected_uid)
+		t.pressed.connect(func():
 			selected_uid = uid
+			_fill_list()
+			_fill_equipment()
 			_fill_detail())
-		_list_box.add_child(b)
+		t.gui_input.connect(func(ev: InputEvent):
+			if ev is InputEventMouseButton and ev.pressed and ev.double_click and ev.button_index == MOUSE_BUTTON_LEFT:
+				selected_uid = uid
+				toggle_equip())
+		grid.add_child(t)
 
 
 func _is_equipped(c: Dictionary, uid: String) -> bool:
@@ -207,6 +281,9 @@ func _fill_detail() -> void:
 	var nm := UI.label(it["name"], 22, col, true)
 	nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail.add_child(nm)
+	if _is_equipped(c, it["uid"]):
+		var badge := UI.label("✔ ANGELEGT", 15, Color("#5cff9a"), true)
+		_detail.add_child(badge)
 	_detail.add_child(UI.label("%s · %s · Stufe %d" % [GameData.rarity_name(it["rarity"]), GameData.items_cfg["slots"].get(it["slot"], it["slot"]), it["level"]], 15, UI.DIM))
 	if it.has("weapon_type"):
 		_detail.add_child(UI.label("Waffentyp: " + GameData.items_cfg["weapon_types"][it["weapon_type"]]["name"], 15, UI.DIM))
@@ -250,7 +327,7 @@ func _fill_detail() -> void:
 	# Aktionen
 	_detail.add_child(HSeparator.new())
 	var eqd := _is_equipped(c, it["uid"])
-	var ab := UI.button("Ablegen" if eqd else "Anlegen", func(): toggle_equip(), Vector2(0, 42))
+	var ab := UI.button("Ablegen" if eqd else "Anlegen (Doppelklick)", func(): toggle_equip(), Vector2(0, 46))
 	_detail.add_child(ab)
 	var lb := UI.button("Entsperren" if it.get("locked", false) else "Sperren", func(): toggle_lock(), Vector2(0, 38))
 	_detail.add_child(lb)

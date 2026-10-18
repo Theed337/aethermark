@@ -15,6 +15,8 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 
 
 const RIG_PATH := "res://assets/characters/UAL1.glb"
+const RIG_F_PATH := "res://assets/characters/Mannequin_F.glb"
+static var _rig_f_scene: PackedScene
 static var _rig_scene: PackedScene
 static var _loops_set := false
 
@@ -40,6 +42,19 @@ static func _build_rigged(appearance: Dictionary, weapon_type: String) -> Dictio
 	var cloth2: Color = cloth.lightened(0.18)
 	var leather := Color("#4a3322")
 	var inst: Node3D = _rig_scene.instantiate()
+	if int(a.get("female", 0)) == 1 and ResourceLoader.exists(RIG_F_PATH):
+		# weiblicher Körper: gleiche Skelett-Hierarchie, Armature tauschen, Animationen bleiben
+		if _rig_f_scene == null:
+			_rig_f_scene = load(RIG_F_PATH)
+		var fi: Node3D = _rig_f_scene.instantiate()
+		var f_arm: Node = fi.get_node("Armature")
+		var old_arm: Node = inst.get_node("Armature")
+		inst.remove_child(old_arm)
+		old_arm.free()
+		fi.remove_child(f_arm)
+		inst.add_child(f_arm)
+		inst.move_child(f_arm, 0)
+		fi.free()
 	body_pivot.add_child(inst)
 	var sk: Skeleton3D = inst.find_child("Skeleton3D", true, false)
 	var anim: AnimationPlayer = inst.find_child("AnimationPlayer", true, false)
@@ -111,14 +126,21 @@ static func _build_rigged(appearance: Dictionary, weapon_type: String) -> Dictio
 	wa.add_child(wrap)
 	wrap.add_child(weapon)
 	weapon.position = Vector3(0.0, 0.0, 0.0)
-	weapon.rotation_degrees = Vector3(-50, -90, 0)
+	weapon.rotation_degrees = grip_rotation(weapon_type)
 	anim.play(idle_clip(weapon_type))
 	return {"root": root, "body": body_pivot, "legs": [Node3D.new(), Node3D.new()], "arms": [Node3D.new(), Node3D.new()],
 			"head": head, "weapon": weapon, "torso": inst, "anim": anim, "skeleton": sk}
 
 
 static func idle_clip(weapon_type: String) -> String:
-	return "Idle" if weapon_type in ["staff", "bow"] else "Sword_Idle"
+	return "Idle"
+
+
+## Griffwinkel pro Waffentyp (empirisch per Screenshot in der Idle-Pose bestimmt).
+static func grip_rotation(weapon_type: String) -> Vector3:
+	if weapon_type in ["bow", "staff"]:
+		return Vector3(-25, 0, 0)
+	return Vector3(-20, 0, 0)
 
 
 static func _region_color(bn: String, skin: Color, cloth: Color, cloth2: Color, leather: Color, outfit_i: int) -> Color:
@@ -147,7 +169,8 @@ static func _face(head: Node3D, a: Dictionary, skin: Color, accent: Color) -> vo
 	Toon.part(head, "sphere", Vector3(0.035, 0, 0), skin.darkened(0.08), Vector3(0, -0.03, 0.235), Vector3.ZERO, null, false)
 	Toon.part(head, "box", Vector3(0.07, 0.012, 0.012), Color("#7a3a3a"), Vector3(0, -0.105, 0.215), Vector3.ZERO, null, false)
 	_hair(head, int(a["hair_style"]), hair_c)
-	_beard(head, int(a["beard"]), hair_c)
+	if int(a.get("female", 0)) == 0:
+		_beard(head, int(a["beard"]), hair_c)
 	var ears: int = int(a["ears"])
 	if a["origin"] == "elf" or a["origin"] == "faun":
 		ears = maxi(ears, 1)
@@ -287,7 +310,7 @@ static func _hair(head: Node3D, style: int, c: Color) -> void:
 			_hair_cap(head, c)
 		2:
 			_hair_cap(head, c)
-			Toon.part(head, "capsule", Vector3(0.2, 0.6, 0), c, Vector3(0, -0.2, -0.12))
+			Toon.part(head, "capsule", Vector3(0.24, 0.95, 0), c, Vector3(0, -0.3, -0.14))
 		3:
 			for i in 5:
 				Toon.part(head, "cone", Vector3(0.06, 0.2, 0), c, Vector3(0, 0.27 - i * 0.02, 0.12 - i * 0.07), Vector3(-10, 0, 0))
@@ -302,8 +325,8 @@ static func _hair(head: Node3D, style: int, c: Color) -> void:
 
 
 static func _hair_cap(head: Node3D, c: Color) -> void:
-	var m := Toon.part(head, "sphere", Vector3(0.262, 0, 0), c, Vector3(0, 0.045, -0.045))
-	m.scale = Vector3(1.0, 0.82, 0.93)
+	var m := Toon.part(head, "sphere", Vector3(0.3, 0, 0), c, Vector3(0, 0.085, -0.075))
+	m.scale = Vector3(1.0, 0.88, 1.0)
 	Toon.outline(m, 0.01)
 
 
@@ -364,7 +387,17 @@ static func _weapon(wt: String, accent: Color) -> Node3D:
 			Toon.part(w, "box", Vector3(0.03, 0.06, 0.4), steel, Vector3(0, 0, 0.3))
 			Toon.part(w, "box", Vector3(0.12, 0.04, 0.04), accent, Vector3(0, 0, 0.08))
 		"bow":
-			Toon.part(w, "torus", Vector3(0.45, 0.02, 0), wood, Vector3(0, 0.1, 0.1), Vector3(0, 90, 0))
+			# Gebogener Bogen: Wirbelsäule entlang Z, Wölbung nach -Y, Sehne gerade
+			var n := 8
+			var prev := Vector3(0, 0, -0.6)
+			for i in range(1, n + 1):
+				var t := -1.0 + 2.0 * float(i) / n
+				var cur := Vector3(0, -0.16 * (1.0 - t * t), t * 0.6)
+				var d := cur - prev
+				Toon.part(w, "box", Vector3(0.035, 0.035, d.length() + 0.01), wood, (prev + cur) * 0.5,
+					Vector3(rad_to_deg(atan2(-d.y, d.z)), 0, 0))
+				prev = cur
+			Toon.part(w, "box", Vector3(0.008, 0.008, 1.2), Color("#e8e0c8"), Vector3(0, 0, 0))
 		"staff":
 			Toon.part(w, "cyl", Vector3(0.03, 1.4, 0), wood, Vector3(0, 0.2, 0.2), Vector3(70, 0, 0))
 			Toon.part(w, "sphere", Vector3(0.1, 0, 0), accent, Vector3(0, 0.66, 0.67), Vector3.ZERO, Toon.glow_mat(accent, 1.8))
