@@ -62,6 +62,7 @@ static func build(root: Node3D, seed_value: int, area_id: String = "") -> Dictio
 	_pond(root)
 	_trees(root, rng)
 	_undergrowth(root, rng)
+	_nature_scatter(root, rng)
 	_ruins(root, rng)
 	_boss_arena(root)
 	_boundary(root, rng)
@@ -254,11 +255,69 @@ static func _pond(root: Node3D) -> void:
 		Toon.part(root, "sphere", Vector3(0.14, 0, 0), Color("#ff9ad0"), Vector3(POND_POS.x + cos(a) * (2.0 + i * 0.5), 0.2, POND_POS.z + sin(a) * (2.5 + i * 0.4)), Vector3.ZERO, Toon.glow_mat(Color("#ff9ad0"), 0.6), false)
 
 
+static func _tree_model(style: String, rng: RandomNumberGenerator, scale_f: float) -> Node3D:
+	var pick := ""
+	var h := 0.0
+	match style:
+		"pine":
+			if rng.randf() < 0.25:
+				pick = NatureKit.pick("GiantPine", 5, rng)
+				h = rng.randf_range(11.0, 15.0)
+			else:
+				pick = NatureKit.pick("Pine", 5, rng)
+				h = rng.randf_range(6.0, 9.5)
+		"dead":
+			pick = NatureKit.pick("DeadTree", 5, rng) if rng.randf() < 0.7 else NatureKit.pick("TwistedTree", 5, rng)
+			h = rng.randf_range(6.0, 10.0)
+		_:
+			var r := rng.randf()
+			if RunState.area_id == "emerald_forest":
+				if r < 0.62:
+					pick = NatureKit.pick("CommonTree", 5, rng)
+					h = rng.randf_range(5.5, 8.5)
+				elif r < 0.84:
+					pick = NatureKit.pick("Pine", 5, rng)
+					h = rng.randf_range(6.0, 9.0)
+				elif r < 0.95:
+					pick = NatureKit.pick("GiantPine", 5, rng)
+					h = rng.randf_range(10.0, 14.0)
+				else:
+					pick = NatureKit.pick("CherryBlossom", 5, rng)
+					h = rng.randf_range(7.0, 9.5)
+			elif r < 0.4:
+				pick = NatureKit.pick("CommonTree", 5, rng)
+				h = rng.randf_range(5.5, 8.5)
+			elif r < 0.7:
+				pick = NatureKit.pick("Birch", 5, rng)
+				h = rng.randf_range(6.5, 9.5)
+			elif r < 0.88:
+				pick = NatureKit.pick("TallThick", 5, rng)
+				h = rng.randf_range(8.0, 11.0)
+			else:
+				pick = NatureKit.pick("CherryBlossom", 5, rng)
+				h = rng.randf_range(7.0, 9.5)
+	return NatureKit.make(pick, h * (0.7 + 0.3 * scale_f))
+
+
 static func _tree(parent: Node3D, pos: Vector3, scale_f: float, rng: RandomNumberGenerator, collide: bool = true) -> void:
 	var t := Node3D.new()
 	t.position = pos
 	t.rotation.y = rng.randf() * TAU
 	parent.add_child(t)
+	if NatureKit.available() and str(T["tree_style"]) != "crystal":
+		t.add_child(_tree_model(str(T["tree_style"]), rng, scale_f))
+		if collide:
+			var sb2 := StaticBody3D.new()
+			sb2.collision_layer = 1
+			var cs2 := CollisionShape3D.new()
+			var sh2 := CylinderShape3D.new()
+			sh2.radius = 0.55
+			sh2.height = 3.0
+			cs2.shape = sh2
+			cs2.position.y = 1.5
+			sb2.add_child(cs2)
+			t.add_child(sb2)
+		return
 	var kind := rng.randi() % 3
 	var fol := pal("foliage")
 	var leaf: Color = fol[rng.randi() % fol.size()].lightened(rng.randf_range(-0.05, 0.12))
@@ -367,6 +426,51 @@ static func grass_clump_mesh() -> ArrayMesh:
 	return m
 
 
+## Echte Büsche, Farne, Pflanzen, Blumen, Pilze und Felsen (Quaternius) verstreuen; Felsen bekommen Kollision.
+static func _nature_scatter(root: Node3D, rng: RandomNumberGenerator) -> void:
+	if not NatureKit.available():
+		return
+	var holder := Node3D.new()
+	holder.name = "NatureScatter"
+	root.add_child(holder)
+	var plan := [
+		["Bush_Large", 1, 14, 1.2, 2.0], ["Bush_Common_Flowers", 1, 14, 1.0, 1.6], ["Bush_Large", 1, 8, 1.4, 2.2], ["Bush_Large_Flowers", 1, 6, 1.4, 2.0],
+		["Bush_Long", 2, 12, 1.2, 2.0], ["Fern", 2, 40, 0.5, 0.9], ["Plant_1", 1, 18, 0.7, 1.1], ["Plant_5", 1, 12, 0.7, 1.1],
+		["Flower_1_Group", 1, 16, 0.4, 0.8], ["Flower_2_Group", 1, 16, 0.4, 0.8], ["Flower_3_Group", 1, 12, 0.4, 0.8], ["Flower_4_Group", 1, 12, 0.4, 0.8],
+		["Clover", 2, 24, 0.3, 0.5], ["Mushroom_Common", 1, 10, 0.3, 0.5], ["Mushroom_RedCap", 1, 8, 0.4, 0.7], ["Mushroom_Laetiporus", 1, 4, 0.5, 0.8]]
+	for e in plan:
+		for i in int(e[2]):
+			var name: String = e[0]
+			if int(e[1]) > 1:
+				name = "%s_%d" % [name, 1 + rng.randi() % int(e[1])]
+			if not NatureKit.has(name):
+				continue
+			var p := _free_spot(rng, 4.0, 57.0)
+			var n := NatureKit.make(name, rng.randf_range(float(e[3]), float(e[4])))
+			n.position = p
+			n.rotation.y = rng.randf() * TAU
+			holder.add_child(n)
+	# Felsen
+	for i in 26:
+		var big := rng.randf() < 0.25
+		var name := "Rock_Big_%d" % (1 + rng.randi() % 2) if big else "Rock_Medium_%d" % (1 + rng.randi() % 4)
+		var p := _free_spot(rng, 5.0, 57.0)
+		var h := rng.randf_range(2.0, 3.4) if big else rng.randf_range(0.7, 1.7)
+		var n := NatureKit.make(name, h)
+		n.position = p - Vector3(0, 0.05, 0)
+		n.rotation.y = rng.randf() * TAU
+		holder.add_child(n)
+		var sb := StaticBody3D.new()
+		sb.collision_layer = 1
+		var cs := CollisionShape3D.new()
+		var sh := SphereShape3D.new()
+		sh.radius = h * 0.45
+		cs.shape = sh
+		cs.position = p + Vector3(0, h * 0.4, 0)
+		sb.add_child(cs)
+		holder.add_child(sb)
+
+
 static func _undergrowth(root: Node3D, rng: RandomNumberGenerator) -> void:
 	# Gras und Blumen als MultiMesh (performant)
 	var grass := MultiMeshInstance3D.new()
@@ -426,7 +530,7 @@ static func _undergrowth(root: Node3D, rng: RandomNumberGenerator) -> void:
 		Toon.part(m, "cyl", Vector3(0.09 * s, 0.4 * s, 0.12 * s), Color("#f0e8d8"), Vector3(0, 0.2 * s, 0))
 		var cap := Toon.part(m, "sphere", Vector3(0.32 * s, 0.6, 0), c, Vector3(0, 0.42 * s, 0), Vector3.ZERO, Toon.make_mat(c, 0.6, 0.5))
 		cap.scale.y = 0.6
-	for i in 30:
+	for i in (0 if NatureKit.available() else 30):
 		var p := _free_spot(rng, 5.0, 57.0)
 		var s := rng.randf_range(0.5, 1.6)
 		var rk := pal("rocks")

@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.3)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.4)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -45,3 +45,12 @@
 - Eigener Mesh-Generator (scripts/fx/mesh_kit.gd): Torso/Gliedmaßen/Kopf, kantige Felsen, weiche Laubkronen, Stämme mit Wurzelanlauf.
 - Ungeprüft: Aussehen im Forward+-Renderer (hier nur Compatibility-Renderer testbar). Gegner und Bosse nutzen noch die alten Primitive.
 - GitHub: Sitzung ist an andere Repos gebunden, Push von Aethermark nicht möglich (siehe Antwort).
+
+
+## Änderungen 0.9.4 (echte Assets)
+- Held: Skelett-Modell (Quaternius Mannequin, CC0) mit Animationen (Idle/Sword_Idle, Walk, Jog, Sprint, Schwertangriff, Zauber, Rolle, Tod). Farben je Körperregion aus dem Editor, Gesicht/Haare/Ohren/Hörner/Waffe als angehängte Teile.
+  Das Modell hat KEINE Kleidungsgeometrie (nackte Puppe, nur eingefärbt); Rüstungsoptik ist offen. Waffenausrichtung nur für das Schwert per Screenshot abgestimmt, andere Waffen ungeprüft.
+- Welt: echte Bäume (Common/Pine/GiantPine/Cherry/Dead/Twisted), Büsche, Farne, Pflanzen, Blumen, Pilze und Felsen (Quaternius Stylized Nature MegaKit, CC0), je Gebiet gewählt; Rückfall auf prozedurale Formen, falls Dateien fehlen.
+- Gegner, Bosse, Ruinen-Säulen und Gras sind weiter prozedural (keine passenden CC0-Pakete hier verfügbar).
+- Ungeprüft: Leistung auf echter Hardware (ca. 95 Bäume + Schatten), Aussehen im Forward+-Renderer, Animationen aller Waffentypen.
+- Balance-Test (Einzelspieler-Bot) schlägt den Boss nur noch in etwa jedem zweiten Lauf (Bot spielt schwach, echte Spieler ausweichen). Level-Tempo ggf. nachjustieren.

@@ -1015,6 +1015,9 @@ func on_enemy_killed(e: Enemy) -> void:
 func _animate(delta: float, inp: Dictionary) -> void:
 	if model.is_empty():
 		return
+	if model.has("anim"):
+		_animate_rigged(delta)
+		return
 	var legs: Array = model["legs"]
 	var arms: Array = model["arms"]
 	var body: Node3D = model["body"]
@@ -1050,6 +1053,49 @@ func _animate(delta: float, inp: Dictionary) -> void:
 			arms[0].rotation = Vector3(-1.4, 0.3, 0.2)
 	var glow_c := Color(0.5, 0.8, 1.0)
 	_body_tilt = lerpf(_body_tilt, 0.0, 0.2)
+
+
+## Skelett-Animation (Quaternius Universal Animation Library): Clip nach Zustand wählen, Tempo an Spiel anpassen.
+func _animate_rigged(delta: float) -> void:
+	var ap: AnimationPlayer = model["anim"]
+	var horiz := Vector2(velocity.x, velocity.z).length()
+	var melee := weapon_type not in ["staff", "bow"]
+	var clip := CharacterModel.idle_clip(weapon_type)
+	var spd := 1.0
+	var blend := 0.15
+	if state == "down":
+		clip = "Death01"
+		blend = 0.2
+	elif state == "dodge":
+		clip = "Roll"
+		spd = clampf(ap.get_animation("Roll").length / 0.42, 1.0, 4.0)
+		blend = 0.05
+	elif state == "attack":
+		clip = "Sword_Attack" if melee else "Spell_Simple_Shoot"
+		var len_c := ap.get_animation(clip).length
+		spd = clampf(len_c / maxf(attack_dur, 0.1) * (1.0 if melee else 1.0), 0.8, 3.5)
+		blend = 0.06
+	elif blocking:
+		clip = "Crouch_Idle"
+	elif not is_on_floor() and velocity.y > 1.0:
+		clip = "Jump"
+	elif horiz > 0.4:
+		if horiz < 3.2:
+			clip = "Walk"
+			spd = clampf(horiz / 2.2, 0.6, 1.6)
+		elif horiz < 7.5:
+			clip = "Jog_Fwd"
+			spd = clampf(horiz / 5.5, 0.7, 1.5)
+		else:
+			clip = "Sprint"
+			spd = clampf(horiz / 9.0, 0.8, 1.4)
+	if ap.current_animation != clip:
+		ap.play(clip, blend)
+		if clip == "Sword_Attack" or clip == "Spell_Simple_Shoot":
+			ap.seek(0.0, true)
+	ap.speed_scale = spd
+	if state == "down" and ap.current_animation == "Death01" and ap.current_animation_position > ap.current_animation_length - 0.05:
+		ap.pause()
 
 
 # ------------------------------------------------------------------ Multiplayer: Client-Spieler
@@ -1236,6 +1282,8 @@ func revive(hp_fraction: float = 0.4) -> void:
 
 func _apply_down_pose() -> void:
 	if model.is_empty():
+		return
+	if model.has("anim"):
 		return
 	var root: Node3D = model["root"]
 	root.rotation.x = lerpf(0.0, -1.45, _down_pose)

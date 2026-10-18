@@ -4,11 +4,168 @@ extends RefCounted
 ## Verwendet im Charaktereditor, im Hauptmenü und im Spiel -> was man erstellt, sieht man im Run.
 ## (Prozedurale Figur im Toon-Stil = Platzhalter-Kunst bis Phase 6, siehe docs/STATUS.md.)
 
-const OUTFIT_COLORS := [Color("#8a6b4a"), Color("#6b4a3a"), Color("#4a3a7a"), Color("#3f6b3a")]
+const OUTFIT_COLORS := [Color("#3f6b8a"), Color("#7a4a3a"), Color("#5a3f8a"), Color("#3f7a4a")]
 
 
 ## Gibt ein Dictionary mit "root" und den animierbaren Teilen zurück.
 static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dictionary:
+	if ResourceLoader.exists(RIG_PATH):
+		return _build_rigged(appearance, weapon_type)
+	return _build_procedural(appearance, weapon_type)
+
+
+const RIG_PATH := "res://assets/characters/UAL1.glb"
+static var _rig_scene: PackedScene
+static var _loops_set := false
+
+
+## Skelett-Modell (Quaternius Universal Base Character, CC0) + Animationsbibliothek. Farben je Körperregion aus dem Editor.
+static func _build_rigged(appearance: Dictionary, weapon_type: String) -> Dictionary:
+	var a: Dictionary = SaveSystem.default_appearance()
+	for k in appearance:
+		a[k] = appearance[k]
+	if _rig_scene == null:
+		_rig_scene = load(RIG_PATH)
+	var root := Node3D.new()
+	var body_pivot := Node3D.new()
+	root.add_child(body_pivot)
+	var origin: Dictionary = GameData.origins.get(a["origin"], GameData.origins["human"])
+	var sc_h: float = float(a["body_height"]) * float(origin.get("height", 1.0))
+	var sc_b: float = float(a["body_build"]) * float(origin.get("build", 1.0))
+	body_pivot.scale = Vector3(sc_b, sc_h, sc_b)
+	var skin := Color(a["skin"])
+	var accent := Color(a["accent"])
+	var outfit_i: int = clampi(int(a["outfit"]), 0, 3)
+	var cloth: Color = OUTFIT_COLORS[outfit_i]
+	var cloth2: Color = cloth.lightened(0.18)
+	var leather := Color("#4a3322")
+	var inst: Node3D = _rig_scene.instantiate()
+	body_pivot.add_child(inst)
+	var sk: Skeleton3D = inst.find_child("Skeleton3D", true, false)
+	var anim: AnimationPlayer = inst.find_child("AnimationPlayer", true, false)
+	if not _loops_set:
+		_loops_set = true
+		for n in ["Idle", "Walk", "Jog_Fwd", "Sprint", "Sword_Idle", "Crouch_Idle", "Jog_Bwd", "Spell_Simple_Idle"]:
+			if anim.has_animation(n):
+				anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
+	# Körperregionen einfärben (Vertexfarben aus dem dominanten Knochen)
+	var mesh_i: MeshInstance3D = sk.get_child(0)
+	var head_pts := PackedVector3Array()
+	var new_mesh := ArrayMesh.new()
+	var src: Mesh = mesh_i.mesh
+	for sidx in src.get_surface_count():
+		var arr := src.surface_get_arrays(sidx)
+		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var bones: PackedInt32Array = arr[Mesh.ARRAY_BONES]
+		var weights: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
+		var per := bones.size() / maxi(verts.size(), 1)
+		var cols := PackedColorArray()
+		cols.resize(verts.size())
+		for v in verts.size():
+			var best := 0
+			var bw := -1.0
+			for k in per:
+				if weights[v * per + k] > bw:
+					bw = weights[v * per + k]
+					best = bones[v * per + k]
+			var bn := sk.get_bone_name(best)
+			var c: Color = _region_color(bn, skin, cloth, cloth2, leather, outfit_i)
+			cols[v] = c
+			if bn == "Head" or bn == "neck_01" and false:
+				head_pts.append(verts[v])
+		arr[Mesh.ARRAY_COLOR] = cols
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	mesh_i.mesh = new_mesh
+	var mat := Toon.make_mat(Color.WHITE, 0.0, 0.3)
+	mat.set_shader_parameter("detail", 0.0)
+	mat.set_shader_parameter("roughness", 0.7)
+	mesh_i.material_override = mat
+	# Kopfmitte/Größe aus den Kopf-Vertices
+	var hc := Vector3.ZERO
+	var hmin := Vector3(1e9, 1e9, 1e9)
+	var hmax := Vector3(-1e9, -1e9, -1e9)
+	for pnt in head_pts:
+		hc += pnt
+		hmin = hmin.min(pnt)
+		hmax = hmax.max(pnt)
+	hc = (hmin + hmax) * 0.5
+	var head_h := maxf(hmax.y - hmin.y, 0.1)
+	var head_bone := sk.find_bone("Head")
+	var ba := BoneAttachment3D.new()
+	ba.bone_name = "Head"
+	sk.add_child(ba)
+	var head := Node3D.new()
+	var rest := sk.get_bone_global_rest(head_bone)
+	head.transform = rest.affine_inverse() * Transform3D(Basis.IDENTITY, hc)
+	head.scale = Vector3((hmax.x - hmin.x) / 0.49, head_h / 0.49, (hmax.z - hmin.z) / 0.49 * 1.05)
+	ba.add_child(head)
+	_face(head, a, skin, accent)
+	# Waffe in der rechten Hand
+	var hand_bone := sk.find_bone("hand_r")
+	var wa := BoneAttachment3D.new()
+	wa.bone_name = "hand_r"
+	sk.add_child(wa)
+	var weapon := _weapon(weapon_type, accent)
+	var wrap := Node3D.new()
+	wrap.transform = Transform3D(sk.get_bone_global_rest(hand_bone).basis.inverse(), Vector3.ZERO)
+	wa.add_child(wrap)
+	wrap.add_child(weapon)
+	weapon.position = Vector3(0.0, 0.0, 0.0)
+	weapon.rotation_degrees = Vector3(-50, -90, 0)
+	anim.play(idle_clip(weapon_type))
+	return {"root": root, "body": body_pivot, "legs": [Node3D.new(), Node3D.new()], "arms": [Node3D.new(), Node3D.new()],
+			"head": head, "weapon": weapon, "torso": inst, "anim": anim, "skeleton": sk}
+
+
+static func idle_clip(weapon_type: String) -> String:
+	return "Idle" if weapon_type in ["staff", "bow"] else "Sword_Idle"
+
+
+static func _region_color(bn: String, skin: Color, cloth: Color, cloth2: Color, leather: Color, outfit_i: int) -> Color:
+	if bn == "Head" or bn == "neck_01" or bn.begins_with("hand_") or bn.find("_0") >= 0 and not bn.begins_with("spine"):
+		return skin
+	if bn.begins_with("lowerarm"):
+		return leather if outfit_i != 2 else cloth2
+	if bn.begins_with("upperarm") or bn.begins_with("clavicle"):
+		return cloth2
+	if bn.begins_with("spine") or bn == "pelvis" or bn == "root":
+		return cloth
+	if bn.begins_with("thigh"):
+		return cloth.darkened(0.15)
+	return leather
+
+
+## Gesicht, Haare, Bart, Ohren, Hörner, Narben (gemeinsam für beide Modellvarianten; Kopfmitte im Ursprung, Radius ~0.245).
+static func _face(head: Node3D, a: Dictionary, skin: Color, accent: Color) -> void:
+	var eye_c := Color(a["eye_color"])
+	var hair_c := Color(a["hair_color"])
+	for sx in [-1, 1]:
+		Toon.part(head, "sphere", Vector3(0.048, 0, 0), Color("#f4f1ea"), Vector3(0.088 * sx, 0.035, 0.19), Vector3.ZERO, null, false)
+		Toon.part(head, "sphere", Vector3(0.03, 0, 0), eye_c, Vector3(0.088 * sx, 0.035, 0.228), Vector3.ZERO, Toon.glow_mat(eye_c, 0.5), false)
+		Toon.part(head, "sphere", Vector3(0.016, 0, 0), Color("#0b0b10"), Vector3(0.088 * sx, 0.035, 0.248), Vector3.ZERO, null, false)
+		Toon.part(head, "box", Vector3(0.085, 0.017, 0.02), hair_c.darkened(0.25), Vector3(0.088 * sx, 0.1, 0.205), Vector3(0, 0, -8 * sx), null, false)
+	Toon.part(head, "sphere", Vector3(0.035, 0, 0), skin.darkened(0.08), Vector3(0, -0.03, 0.235), Vector3.ZERO, null, false)
+	Toon.part(head, "box", Vector3(0.07, 0.012, 0.012), Color("#7a3a3a"), Vector3(0, -0.105, 0.215), Vector3.ZERO, null, false)
+	_hair(head, int(a["hair_style"]), hair_c)
+	_beard(head, int(a["beard"]), hair_c)
+	var ears: int = int(a["ears"])
+	if a["origin"] == "elf" or a["origin"] == "faun":
+		ears = maxi(ears, 1)
+	for sx in [-1, 1]:
+		if ears == 0:
+			Toon.part(head, "sphere", Vector3(0.06, 0, 0), skin, Vector3(0.24 * sx, 0, 0), Vector3.ZERO, null, false)
+		elif ears == 1:
+			Toon.part(head, "cone", Vector3(0.05, 0.28, 0), skin, Vector3(0.28 * sx, 0.06, 0), Vector3(0, 0, -80 * sx), null, false)
+		else:
+			Toon.part(head, "cone", Vector3(0.08, 0.3, 0), skin, Vector3(0.14 * sx, 0.3, 0), Vector3(0, 0, -18 * sx), null, false)
+	var horns: int = int(a["horns"])
+	if a["origin"] == "faun" and horns == 0:
+		horns = 2
+	_horns(head, horns)
+	_face_marks(head, int(a["scar"]), int(a["tattoo"]), accent)
+
+
+static func _build_procedural(appearance: Dictionary, weapon_type: String = "sword") -> Dictionary:
 	var a: Dictionary = SaveSystem.default_appearance()
 	for k in appearance:
 		a[k] = appearance[k]
@@ -127,22 +284,27 @@ static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dict
 static func _hair(head: Node3D, style: int, c: Color) -> void:
 	match style:
 		1:
-			var m := Toon.part(head, "sphere", Vector3(0.255, 0.6, 0), c, Vector3(0, 0.08, -0.02))
-			m.scale = Vector3(1, 0.75, 1.02)
+			_hair_cap(head, c)
 		2:
-			Toon.part(head, "sphere", Vector3(0.26, 0.7, 0), c, Vector3(0, 0.06, -0.03))
+			_hair_cap(head, c)
 			Toon.part(head, "capsule", Vector3(0.2, 0.6, 0), c, Vector3(0, -0.2, -0.12))
 		3:
 			for i in 5:
 				Toon.part(head, "cone", Vector3(0.06, 0.2, 0), c, Vector3(0, 0.27 - i * 0.02, 0.12 - i * 0.07), Vector3(-10, 0, 0))
 		4:
-			Toon.part(head, "sphere", Vector3(0.255, 0.6, 0), c, Vector3(0, 0.08, -0.02))
+			_hair_cap(head, c)
 			var tail := Toon.part(head, "capsule", Vector3(0.07, 0.5, 0), c, Vector3(0, -0.15, -0.3), Vector3(20, 0, 0))
 			Toon.outline(tail, 0.015)
 		5:
 			for i in 7:
 				var ang := i * TAU / 7.0
 				Toon.part(head, "cone", Vector3(0.05, 0.2, 0), c, Vector3(cos(ang) * 0.14, 0.24, sin(ang) * 0.14), Vector3(0, 0, 0))
+
+
+static func _hair_cap(head: Node3D, c: Color) -> void:
+	var m := Toon.part(head, "sphere", Vector3(0.262, 0, 0), c, Vector3(0, 0.045, -0.045))
+	m.scale = Vector3(1.0, 0.82, 0.93)
+	Toon.outline(m, 0.01)
 
 
 static func _beard(head: Node3D, style: int, c: Color) -> void:

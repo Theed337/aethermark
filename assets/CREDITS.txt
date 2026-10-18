@@ -1,0 +1,4 @@
+Aethermark – Fremdassets (alle CC0 1.0 / Public Domain)
+- Quaternius: Stylized Nature MegaKit (Bäume, Büsche, Felsen, Pilze, Pflanzen) – https://quaternius.com
+- Quaternius: Universal Animation Library inkl. Mannequin-Charaktermodell (Held, 120 Animationen)
+Quelle der Dateien: GitHub tilakpatell/tilakverse-assets (unveränderte Kopien der CC0-Pakete).
