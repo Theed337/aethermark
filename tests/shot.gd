@@ -1,0 +1,59 @@
+extends Node
+## Screenshot-Werkzeug (nur Entwicklung): xvfb-run godot --rendering-method gl_compatibility res://tests/shot.tscn -- menu:character out.png
+## Argumente: menu:<seite> | arena:<gebiet>  <Ausgabedatei> [Frames] [Breite x Höhe]
+var out := "shot.png"
+var a_ref: Node
+
+func _walk(n: Node, d: int) -> void:
+	if n is Control and n.get_combined_minimum_size().x > 500:
+		print("  ".repeat(d), n.get_class(), " ", n.name, " min=", n.get_combined_minimum_size())
+	for c in n.get_children():
+		_walk(c, d + 1)
+
+func _ready() -> void:
+	var args := OS.get_cmdline_user_args()
+	var mode: String = args[0] if args.size() > 0 else "menu:play"
+	out = args[1] if args.size() > 1 else "shot.png"
+	var frames := int(args[2]) if args.size() > 2 else 40
+	Net.use_upnp = false
+	SaveSystem.save_path = "user://shot_save.json"
+	SaveSystem.data = SaveSystem.default_data()
+	SaveSystem.new_character("Testheld", SaveSystem.default_appearance())
+	var kind := mode.split(":")[0]
+	var arg := mode.split(":")[1]
+	var m: Node = null
+	if kind == "menu":
+		m = load("res://scenes/main_menu.tscn").instantiate()
+		add_child(m)
+		await get_tree().process_frame
+		m.go(arg)
+		m.spin_speed = 0.0
+		if args.size() > 4:
+			m.camera_view(args[4])
+		await get_tree().process_frame
+		if not m.model.is_empty():
+			m.model["root"].rotation.y = float(args[3]) if args.size() > 3 else 0.0
+	else:
+		RunState.area_id = arg
+		RunState.seed_value = 12345
+		RunState.bot_mode = true
+		var a: Node = load("res://scenes/arena.tscn").instantiate()
+		a_ref = a
+		add_child(a)
+	if kind == "menu" and OS.get_environment("SHOT_DEBUG") != "":
+		await get_tree().process_frame
+		_walk(m.page, 0)
+	if kind == "arena" and OS.get_environment("SHOT_SKILLS") != "":
+		for id in ["fireball", "fireball", "fireball", "frost_nova", "chain_lightning", "crit_mastery", "crit_mastery", "vitality", "swift", "iron_will", "heal_aura", "arcane_focus"]:
+			a_ref.player.add_skill_level(id)
+	if OS.get_environment("SHOT_K") != "":
+		Input.action_press("skills_overview")
+	for i in frames:
+		await get_tree().process_frame
+	if kind == "arena":
+		var h = a_ref.hud
+		print("HUD size=", h.size, " pos=", h.position, " viewport=", get_viewport().get_visible_rect().size, " win=", get_window().size, " anchors=", h.anchor_right, h.anchor_bottom)
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(out)
+	print("Screenshot: ", out, " ", get_viewport().get_visible_rect().size)
+	get_tree().quit()

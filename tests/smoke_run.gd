@@ -96,6 +96,7 @@ func _report() -> void:
 	check(max_alive <= arena.scaling["spawn_cap"] + 8, "Spawn-Obergrenze eingehalten")
 	check(saw_boss, "Boss ist erschienen")
 	check(arena.finished, "Run wurde beendet")
+	check(arena.events != null and arena.events.history.size() > 0, "Zufallsereignis trat auf (%s)" % str(arena.events.history))
 	check(rs["boss_defeated"], "Boss besiegt")
 	check(saw_shield, "Boss-Phase 2 (Schutzbarriere) wurde erreicht")
 	check(saw_phase3, "Boss-Phase 3 wurde erreicht")

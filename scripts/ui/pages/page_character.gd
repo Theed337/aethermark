@@ -53,7 +53,7 @@ func _load_draft() -> void:
 
 func _manage_row() -> Control:
 	var row := HBoxContainer.new()
-	var ob := OptionButton.new()
+	var ob := UI.option()
 	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var idx := 0
 	for i in SaveSystem.data["characters"].size():
@@ -139,7 +139,7 @@ func _build_editor() -> void:
 	_body.add_child(_name_msg)
 	_section("Herkunft & Körper")
 	var origin_ids: Array = GameData.origins.keys()
-	var ob := OptionButton.new()
+	var ob := UI.option()
 	for id in origin_ids:
 		ob.add_item(GameData.origins[id]["name"])
 	ob.select(maxi(origin_ids.find(_draft["origin"]), 0))
@@ -169,7 +169,7 @@ func _build_editor() -> void:
 	_swatches("Akzentfarbe", "accent", func(): return GameData.origin_cfg["palettes"]["accent"], true)
 	_section("Stimme")
 	var vb := HBoxContainer.new()
-	var vo := OptionButton.new()
+	var vo := UI.option()
 	for n in GameData.origin_cfg["voices"]:
 		vo.add_item(n)
 	vo.select(int(_draft["voice"]))
@@ -182,7 +182,7 @@ func _build_editor() -> void:
 	_row("Stimme", vb)
 	if not _creating:
 		_section("Titel")
-		var tb := OptionButton.new()
+		var tb := UI.option()
 		var titles := Cosmetics.unlocked_titles(character())
 		for t in titles:
 			tb.add_item(t)
@@ -206,7 +206,7 @@ func play_voice() -> void:
 
 
 func _opt(label: String, key: String, names: Array, kind: String) -> void:
-	var ob := OptionButton.new()
+	var ob := UI.option()
 	for i in names.size():
 		var locked := not Cosmetics.is_unlocked(_unlock_char, kind, i)
 		ob.add_item(names[i] + ("   (gesperrt: %s)" % Cosmetics.unlock_text(kind, i) if locked else ""), i)

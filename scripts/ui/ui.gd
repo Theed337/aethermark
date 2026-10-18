@@ -93,3 +93,12 @@ static func bar(color: Color, size: Vector2) -> ProgressBar:
 static func clear(node: Node) -> void:
 	for c in node.get_children():
 		c.queue_free()
+
+
+## Auswahlfeld, das nie breiter wird als sein Container (lange Einträge werden abgeschnitten).
+static func option() -> OptionButton:
+	var o := OptionButton.new()
+	o.clip_text = true
+	o.fit_to_longest_item = false
+	o.custom_minimum_size = Vector2(60, 0)
+	return o

@@ -51,6 +51,8 @@ var net_id := 0                  # vom Host vergeben (0 = Solo)
 var ghost := false               # Client: nur Darstellung, keine KI, kein Schaden
 var net_pos := Vector3.ZERO
 var net_yaw := 0.0
+var elem_hits: Dictionary = {}     # Element -> [Spieler, Zeit] für Koop-Kombos
+var combo_cd := 0.0
 var last_hit_by: Node = null     # Spieler, der zuletzt Schaden verursacht hat (Kill-Zuordnung)
 
 const GRAVITY := 26.0
@@ -67,7 +69,7 @@ static func spawn(arena_node: Node, type_id_: String, pos: Vector3, scaling: Dic
 	e.flank_angle = randf_range(-1.2, 1.2)
 	e.max_hp = float(e.data["hp"]) * float(scaling.get("hp_mult", 1.0))
 	e.dmg = float(e.data["damage"]) * float(scaling.get("dmg_mult", 1.0))
-	e.speed = float(e.data["speed"])
+	e.speed = float(e.data["speed"]) * float(scaling.get("speed_mult", 1.0))
 	e.model_scale = float(e.data["scale"])
 	if elite != "":
 		e.max_hp *= 2.4

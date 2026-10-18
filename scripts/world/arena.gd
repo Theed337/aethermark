@@ -20,6 +20,11 @@ var player: Player                   # lokaler Spieler (Solo oder Host)
 var players: Array = []              # alle Spieler dieses Runs
 var boss: Boss = null
 var _hazard_t := 0.0
+var xp_mult := 1.0               # Ereignisse (Blutmond)
+var event_spawn_mult := 1.0
+var event_text := ""
+var curses: Array = []
+var events: RunEvents = null
 var hud: Hud
 var map_info: Dictionary = {}
 var scaling: Dictionary = {}
@@ -74,6 +79,8 @@ func _ready() -> void:
 			sum += float(Net.players[id].get("power", 1.0))
 		avg_power = sum / float(party)
 	scaling = RunState.scaling(party, RunState.difficulty, avg_power, RunState.area_id)
+	curses = Curses.roll(RunState.difficulty, RunState.seed_value)
+	Curses.apply(curses, scaling)
 	map_info = ForestMap.build(self, RunState.seed_value)
 	var c := SaveSystem.active_character()
 	player = Player.new()
@@ -101,6 +108,11 @@ func _ready() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	hud.show_banner(_area.get("name", "Smaragdwald"), UI.GOLD, 3.5)
 	hud.show_hint("Besiege Gegner, steige auf – am Ende wartet %s" % GameData.boss.get("name", "der Boss"), 5.0)
+	events = RunEvents.new()
+	add_child(events)
+	events.setup(self)
+	if not curses.is_empty():
+		hud.show_hint(Curses.text(curses), 7.0)
 	_spawn_wave(["grunt", "grunt", "grunt"])
 
 
@@ -161,6 +173,8 @@ func _build_world_objects() -> void:
 func objective_text() -> String:
 	if boss != null and is_instance_valid(boss) and not boss.dead:
 		return "Besiege %s!" % GameData.boss.get("name", "den Boss")
+	if event_text != "":
+		return event_text
 	if boss_spawned:
 		return ""
 	var t_boss := _boss_time()
@@ -262,7 +276,7 @@ func _update_spawner(delta: float) -> void:
 	if _spawn_timer > 0.0:
 		return
 	var tier := _current_tier()
-	_spawn_timer = float(tier["interval"]) * (0.6 if RunState.quick_mode else 1.0)
+	_spawn_timer = float(tier["interval"]) * (0.6 if RunState.quick_mode else 1.0) * event_spawn_mult
 	var cap: int = scaling["spawn_cap"]
 	if boss_spawned:
 		cap = 8
@@ -410,7 +424,7 @@ func _share_xp(xp: int, at: Vector3) -> void:
 	if able.is_empty():
 		return
 	var share := 1.0 if able.size() == 1 else 0.45 + 0.55 / float(able.size())
-	var each := maxi(int(round(xp * share)), 1)
+	var each := maxi(int(round(xp * share * xp_mult)), 1)
 	for p in able:
 		p.add_xp(each)
 	FX.float_text(self, at + Vector3(0, 0.8, 0), "+%d EP" % each, Color("#f0c65a"), 30)
@@ -431,6 +445,7 @@ func _drop_item(pos: Vector3, min_rarity: String, bonus: float, owner: Player = 
 
 
 func _drop_item_for(p: Player, pos: Vector3, min_rarity: String, bonus: float) -> void:
+	bonus *= 1.0 + Curses.LOOT_BONUS_PER_CURSE * curses.size()
 	_spawn_pickup(pos, Loot.roll_item(rng, _item_level(), bonus, min_rarity), p)
 
 

@@ -40,7 +40,7 @@ func build() -> void:
 	h.add_child(mid)
 	var fr := HBoxContainer.new()
 	mid.add_child(fr)
-	var slot_opt := OptionButton.new()
+	var slot_opt := UI.option()
 	slot_opt.add_item("Alle Plätze")
 	for s in SLOT_ORDER:
 		slot_opt.add_item(GameData.items_cfg["slots"][s])
@@ -48,7 +48,7 @@ func build() -> void:
 		filter_slot = "all" if i == 0 else SLOT_ORDER[i - 1]
 		_fill_list())
 	fr.add_child(slot_opt)
-	var rar_opt := OptionButton.new()
+	var rar_opt := UI.option()
 	rar_opt.add_item("Alle Seltenheiten")
 	for r in RARITY_ORDER:
 		rar_opt.add_item(GameData.rarity_name(r))
@@ -56,7 +56,7 @@ func build() -> void:
 		filter_rarity = "all" if i == 0 else RARITY_ORDER[i - 1]
 		_fill_list())
 	fr.add_child(rar_opt)
-	var sort_opt := OptionButton.new()
+	var sort_opt := UI.option()
 	for n in ["Seltenheit", "Stufe", "Name", "Platz"]:
 		sort_opt.add_item("Sortiert: " + n)
 	sort_opt.item_selected.connect(func(i: int):

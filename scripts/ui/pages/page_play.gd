@@ -31,7 +31,7 @@ func build() -> void:
 	cv.add_child(UI.label("Waffe: " + (w["name"] if not w.is_empty() else "keine"), 15, DataColors.rarity(w.get("rarity", "common"))))
 	# Gebiet
 	v.add_child(UI.label("Gebiet", 20, UI.GOLD, true))
-	var opt := OptionButton.new()
+	var opt := UI.option()
 	var ids: Array = []
 	for a in GameData.areas:
 		if a["id"] in c["unlocked_areas"]:

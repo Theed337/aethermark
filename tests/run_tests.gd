@@ -242,6 +242,26 @@ func test_scaling() -> void:
 	check(s5["boss_adds"] > s1["boss_adds"], "Boss ruft bei größerer Gruppe mehr Begleiter")
 
 
+func test_curses_and_combos() -> void:
+	check(Curses.roll(1, 5).is_empty() and Curses.roll(2, 5).is_empty(), "Keine Flüche bei Normal/Schwer")
+	check(Curses.roll(3, 5).size() == 1 and Curses.roll(4, 5).size() == 2, "Albtraum 1 Fluch, Inferno 2 Flüche")
+	check(Curses.roll(4, 9) == Curses.roll(4, 9), "Flüche sind seed-deterministisch (Host und Test gleich)")
+	var r4 := Curses.roll(4, 9)
+	check(r4[0] != r4[1], "Flüche doppeln sich nicht")
+	var sc := RunState.scaling(1, 4)
+	var hp0: float = sc["hp_mult"]
+	Curses.apply(["bloated", "swift"], sc)
+	check(is_equal_approx(sc["hp_mult"], hp0 * 1.3) and is_equal_approx(sc["speed_mult"], 1.2), "Flüche verändern Skalierung")
+	check(CoopCombos.combo_key("frost", "fire") == "fire+frost", "Kombo-Schlüssel unabhängig von Reihenfolge")
+	for a in CoopCombos.ELEMENTS:
+		for b in CoopCombos.ELEMENTS:
+			if a != b:
+				check(CoopCombos.COMBOS.has(CoopCombos.combo_key(a, b)) or (a == "earth" and b == "frost") or (a == "frost" and b == "earth"), "Kombo definiert: %s+%s" % [a, b])
+	for u in GameData.items_cfg["uniques"]:
+		var it := Loot.from_unique(u, 5)
+		check(ItemValidator.validate(it) == "", "Artefakt gültig: " + u["id"])
+
+
 func test_name_validation() -> void:
 	check(SaveSystem.validate_name("Ab") != "", "Zu kurz")
 	check(SaveSystem.validate_name("A".repeat(17)) != "", "Zu lang")

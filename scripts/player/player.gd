@@ -200,6 +200,7 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	camera.fov = float(SaveSystem.data["settings"].get("fov", 70.0))
 	camera.far = 220.0
+	camera.near = 0.12
 	camera.current = true
 	_arm.add_child(camera)
 	_yaw_pivot.global_position = global_position + Vector3(0, 1.7, 0)
@@ -669,6 +670,8 @@ func deal_damage(e: Node, base: float, category: String, tags: Array, from_pos: 
 	run_stats["damage_dealt"] += dealt
 	if r["crit"]:
 		Sfx.play("crit", 1.0, -6.0)
+	if arena != null and arena.get("net_on") == true:
+		CoopCombos.on_hit(self, e, tags, dealt)
 	return dealt
 
 

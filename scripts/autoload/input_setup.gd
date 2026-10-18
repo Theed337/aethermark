@@ -7,14 +7,14 @@ const KEY_DEFAULTS := {
 	"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D,
 	"jump": KEY_SPACE, "sprint": KEY_SHIFT, "dodge": KEY_CTRL, "interact": KEY_E,
 	"block": KEY_F, "skill_1": KEY_1, "skill_2": KEY_2, "skill_3": KEY_3, "skill_4": KEY_4,
-	"pause": KEY_ESCAPE, "lock_on": KEY_TAB,
+	"pause": KEY_ESCAPE, "lock_on": KEY_TAB, "skills_overview": KEY_K,
 }
 
 const LABELS := {
 	"move_forward": "Vorwärts", "move_back": "Rückwärts", "move_left": "Links", "move_right": "Rechts",
 	"jump": "Springen", "sprint": "Sprinten", "dodge": "Ausweichen/Rollen", "interact": "Interagieren",
 	"block": "Blocken/Parieren", "skill_1": "Fähigkeit 1", "skill_2": "Fähigkeit 2", "skill_3": "Fähigkeit 3",
-	"skill_4": "Fähigkeit 4", "pause": "Pause", "lock_on": "Zielerfassung",
+	"skill_4": "Fähigkeit 4", "pause": "Pause", "lock_on": "Zielerfassung", "skills_overview": "Fähigkeiten-Übersicht (halten)",
 }
 
 const PAD_BUTTONS := {

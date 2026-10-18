@@ -7,7 +7,7 @@ extends Node
 ## down_at=<Run-Sekunden> (Host schickt den ersten Mitspieler zu Boden), scale=<Zeitraffer>.
 
 var cfg := {"role": "host", "total": "2", "port": "24777", "name": "Host", "weapon": "sword", "token": "", "drop_at": "-1",
-		"down_at": "-1", "scale": "2.0", "seed": "4242", "area": "emerald_forest"}
+		"down_at": "-1", "scale": "2.0", "seed": "4242", "area": "emerald_forest", "diff": "1"}
 var mon: Node
 
 
@@ -108,7 +108,7 @@ class NetMonitor extends Node:
 			if not _started and Net.state == "lobby" and Net.players.size() >= int(cfg["total"]) and Net.all_ready():
 				print("NETPEER host starting run with ", Net.players.size(), " players")
 				_started = true
-				Net.host_start_run(cfg["area"], 1)
+				Net.host_start_run(cfg["area"], int(cfg["diff"]))
 			if _start_wait > 60.0 and not _started:
 				printerr("NETPEER FEHLER: Lobby wurde nicht voll (", Net.players.size(), ")")
 				get_tree().quit(2)

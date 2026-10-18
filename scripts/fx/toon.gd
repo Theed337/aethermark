@@ -6,6 +6,7 @@ extends RefCounted
 
 static var _shader: Shader
 static var _outline_shader: Shader
+static var _alpha_shader: Shader
 static var _cache: Dictionary = {}
 
 
@@ -13,6 +14,12 @@ static func shader() -> Shader:
 	if _shader == null:
 		_shader = load("res://shaders/toon.gdshader")
 	return _shader
+
+
+static func alpha_shader() -> Shader:
+	if _alpha_shader == null:
+		_alpha_shader = load("res://shaders/toon_alpha.gdshader")
+	return _alpha_shader
 
 
 static func outline_shader() -> Shader:
@@ -31,6 +38,18 @@ static func mat(color: Color, emission: float = 0.0, rim: float = 0.35) -> Shade
 	return m
 
 
+## Laub/Gras: wie mat(), aber mit leichtem Windwiegen (Vertex-Animation im Shader).
+static func wind_mat(color: Color, strength: float = 1.0) -> ShaderMaterial:
+	var key := "wind_%s_%.2f" % [color.to_html(true), strength]
+	if _cache.has(key):
+		return _cache[key]
+	var m := make_mat(color, 0.0, 0.2)
+	m.set_shader_parameter("wind", strength)
+	m.set_shader_parameter("detail", 0.22)
+	_cache[key] = m
+	return m
+
+
 ## Eigenes Material (nicht geteilt) – z. B. für Gegner, die blitzen.
 static func make_mat(color: Color, emission: float = 0.0, rim: float = 0.35) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
@@ -45,12 +64,16 @@ static func make_mat(color: Color, emission: float = 0.0, rim: float = 0.35) -> 
 
 static func glow_mat(color: Color, energy: float = 2.0, alpha: float = 1.0) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
-	m.shader = shader()
+	# Nur wirklich transparente Materialien nutzen die Alpha-Variante: ein ALPHA-Schreibzugriff schaltet in Godot
+	# die ganze Oberfläche in die Transparenz-Pipeline (keine Tiefe, Sortierung nach Objektmitte -> Flackern).
+	m.shader = alpha_shader() if alpha < 0.999 else shader()
 	m.set_shader_parameter("albedo", color)
 	m.set_shader_parameter("emission_color", color)
 	m.set_shader_parameter("emission_energy", energy)
 	m.set_shader_parameter("rim", 0.0)
-	m.set_shader_parameter("alpha", alpha)
+	m.set_shader_parameter("detail", 0.0)
+	if alpha < 0.999:
+		m.set_shader_parameter("alpha", alpha)
 	return m
 
 

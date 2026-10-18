@@ -3,6 +3,8 @@ extends Node3D
 ## Hauptmenü: atmosphärische 3D-Szene mit dem eigenen Charakter, Navigation zu allen Bereichen.
 ## Jede Schaltfläche ist verdrahtet (siehe tests/menu_test.gd, der jede Seite öffnet und Buttons auslöst).
 
+const NARROW_W := 600.0
+
 const PAGE_DEFS := [
 	["play", "Spielen", "res://scripts/ui/pages/page_play.gd"],
 	["party", "Gruppe & Multiplayer", "res://scripts/ui/pages/page_party.gd"],
@@ -33,7 +35,7 @@ var selected_difficulty := 1
 var spin_speed := 0.35
 var _rot_drag := false
 var _t := 0.0
-var _cam_target := Vector3(0, 1.1, 3.8)
+var _cam_target := Vector3(0, 1.2, 3.0)
 var _cam_look := Vector3(0, 1.0, 0)
 var preview_appearance: Dictionary = {}
 var preview_weapon := "sword"
@@ -76,8 +78,9 @@ func _build_scene() -> void:
 	sky.sky_material = sky_mat
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.8
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color("#6f9fb0")
+	env.ambient_light_energy = 0.7
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.9
@@ -93,7 +96,7 @@ func _build_scene() -> void:
 	key.rotation_degrees = Vector3(-35, 35, 0)
 	key.light_color = Color("#ffe2b8")
 	key.light_energy = 1.4
-	key.shadow_enabled = true
+	key.shadow_enabled = OS.get_environment("SHOT_NOSHADOW") == ""
 	add_child(key)
 	var rim := OmniLight3D.new()
 	rim.position = Vector3(-2.5, 2.5, -2.5)
@@ -105,9 +108,9 @@ func _build_scene() -> void:
 	Toon.part(self, "disc", Vector3(30, 0.4, 0), Color("#2f6b45"), Vector3(0, -0.4, 0))
 	pedestal = Node3D.new()
 	add_child(pedestal)
-	var base := Toon.part(self, "disc", Vector3(1.6, 0.25, 0), Color("#8d9aa5"), Vector3(0, 0.0, 0))
+	var base := Toon.part(self, "disc", Vector3(1.05, 0.25, 0), Color("#8d9aa5"), Vector3(0, 0.0, 0))
 	Toon.outline(base, 0.02)
-	Toon.part(self, "disc", Vector3(1.2, 0.08, 0), Color("#4ecdc4"), Vector3(0, 0.15, 0), Vector3.ZERO, Toon.glow_mat(Color("#4ecdc4"), 1.4), false)
+	Toon.part(self, "disc", Vector3(0.85, 0.08, 0), Color("#4ecdc4"), Vector3(0, 0.15, 0), Vector3.ZERO, Toon.glow_mat(Color("#4ecdc4"), 1.4), false)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
 	for i in 26:
@@ -174,8 +177,8 @@ func show_active_character() -> void:
 func camera_view(view: String) -> void:
 	match view:
 		"front":
-			_cam_target = Vector3(0, 1.25, 3.4)
-			_cam_look = Vector3(0, 1.0, 0)
+			_cam_target = Vector3(0, 1.2, 3.0)
+			_cam_look = Vector3(0, 0.95, 0)
 		"head":
 			_cam_target = Vector3(0, 1.75, 1.6)
 			_cam_look = Vector3(0, 1.62, 0)
@@ -199,9 +202,9 @@ func _process(delta: float) -> void:
 		model["root"].rotation.y += delta * spin_speed
 	cam.position = cam.position.lerp(_cam_target, clampf(delta * 4.0, 0, 1))
 	cam.look_at(_cam_look)
-	# Charakter nach links schieben, damit rechts das Menü Platz hat
-	var shift := -0.55 if (page != null and not page.wide) else 0.0
-	cam.h_offset = lerpf(cam.h_offset, shift, clampf(delta * 5.0, 0, 1))
+	# Charakter in die Mitte des freien Bereichs zwischen Navigation und Seitenpanel schieben
+	var shift := -0.4 if (page != null and not page.wide) else 0.0
+	pedestal.position.x = lerpf(pedestal.position.x, shift, clampf(delta * 5.0, 0, 1))
 	pedestal.visible = page == null or not page.wide
 	for f in _fireflies:
 		var s: float = f.get_meta("seed")
@@ -226,16 +229,16 @@ func _build_ui() -> void:
 	add_child(_ui)
 	_root_ui = Control.new()
 	_root_ui.theme = UI.theme()
-	_root_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_root_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ui.add_child(_root_ui)
 	# Navigation links
-	var nav_panel := UI.panel(Vector2(280, 0))
+	var nav_panel := UI.panel(Vector2(260, 0))
 	nav_panel.set_anchors_preset(Control.PRESET_LEFT_WIDE)
-	nav_panel.offset_left = 14
-	nav_panel.offset_top = 14
-	nav_panel.offset_bottom = -14
-	nav_panel.offset_right = 294
+	nav_panel.offset_left = 16
+	nav_panel.offset_top = 16
+	nav_panel.offset_bottom = -16
+	nav_panel.offset_right = 276
 	_root_ui.add_child(nav_panel)
 	var nv := VBoxContainer.new()
 	nav_panel.add_child(nv)
@@ -277,11 +280,12 @@ func _build_ui() -> void:
 	nv.add_child(UI.button("Spiel beenden", func(): quit_game(), Vector2(0, 38)))
 	# Inhaltsbereich rechts
 	content_holder = UI.panel()
-	content_holder.set_anchors_preset(Control.PRESET_FULL_RECT)
-	content_holder.offset_left = 310
-	content_holder.offset_top = 14
-	content_holder.offset_right = -14
-	content_holder.offset_bottom = -14
+	content_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content_holder.offset_left = 292
+	content_holder.offset_top = 16
+	content_holder.offset_right = -16
+	content_holder.offset_bottom = -16
+	content_holder.clip_contents = true
 	content_holder.visible = false
 	_root_ui.add_child(content_holder)
 
@@ -335,15 +339,28 @@ func go(id: String, keep_new: bool = false) -> void:
 	content_holder.add_child(p)
 	page = p
 	p.build()
+	_wrap_long_labels(p)
 	content_holder.visible = true
 	if id != "character":
 		show_active_character()
 		camera_view("front")
+	# Schmale Seiten (z. B. Charaktereditor) sitzen rechts, der Charakter bleibt in der Mitte frei sichtbar
 	if p.wide:
-		content_holder.offset_left = 310
+		content_holder.anchor_left = 0.0
+		content_holder.offset_left = 292
 	else:
-		content_holder.offset_left = 520
+		content_holder.anchor_left = 1.0
+		content_holder.offset_left = -NARROW_W - 16
 	refresh_header()
+
+
+## Lange Texte ohne Umbruch würden das Seitenpanel über den Bildschirmrand dehnen -> automatisch umbrechen.
+func _wrap_long_labels(n: Node) -> void:
+	if n is Label and n.autowrap_mode == TextServer.AUTOWRAP_OFF and n.text.length() > 34 and n.get_parent() is Container:
+		n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		n.custom_minimum_size.x = maxf(n.custom_minimum_size.x, 1.0)
+	for c in n.get_children():
+		_wrap_long_labels(c)
 
 
 func refresh_header() -> void:

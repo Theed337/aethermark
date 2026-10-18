@@ -16,7 +16,7 @@ signal run_begin(area: String, diff: int, seed_value: int)
 signal player_left_run(slot: int)
 signal run_rejoined
 
-const PROTOCOL := 3
+const PROTOCOL := 4
 const MAX_PLAYERS := 5
 const DEFAULT_PORT := 24680
 const ALPHABET := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"

@@ -143,7 +143,7 @@ func _build_lobby() -> void:
 	var sv := VBoxContainer.new()
 	sp.add_child(sv)
 	sv.add_child(UI.label("Ziel & Schwierigkeit", 18, UI.TEAL, true))
-	_area_opt = OptionButton.new()
+	_area_opt = UI.option()
 	_area_ids.clear()
 	var c := character()
 	for a in GameData.areas:

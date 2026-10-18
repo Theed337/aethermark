@@ -25,7 +25,7 @@ func build() -> void:
 		box.add_child(slider_row(pair[0], pair[1], 0.0, 1.0, 0.05, func(): Sfx.apply_volumes()))
 	box.add_child(check_row("Alles stummschalten", "mute", func(): Sfx.apply_volumes()))
 	box.add_child(UI.label("Grafik", 20, UI.TEAL, true))
-	var q := OptionButton.new()
+	var q := UI.option()
 	for n in SettingsApply.QUALITY_NAMES:
 		q.add_item(n)
 	q.select(clampi(int(s["graphics_quality"]), 0, 2))
@@ -37,7 +37,7 @@ func build() -> void:
 	box.add_child(slider_row("Partikel-Menge", "particle_limit", 0.2, 1.0, 0.1, Callable()))
 	box.add_child(check_row("Vollbild", "fullscreen", func(): SettingsApply.apply_graphics(get_viewport())))
 	box.add_child(check_row("Schadenszahlen anzeigen", "show_damage_numbers", Callable()))
-	box.add_child(slider_row("Oberflächen-Größe", "ui_scale", 0.8, 1.5, 0.05, func(): SettingsApply.apply_graphics(get_viewport())))
+	box.add_child(slider_row("Oberflächen-Größe", "ui_scale", 0.6, 1.5, 0.05, func(): SettingsApply.apply_graphics(get_viewport())))
 	box.add_child(UI.label("Kamera & Maus", 20, UI.TEAL, true))
 	box.add_child(slider_row("Mausempfindlichkeit", "mouse_sensitivity", 0.001, 0.006, 0.0002, Callable()))
 	box.add_child(slider_row("Kameradistanz", "camera_distance", 4.0, 10.0, 0.5, Callable()))

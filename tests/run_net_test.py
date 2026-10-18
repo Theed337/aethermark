@@ -22,6 +22,7 @@ def main():
     ap.add_argument("--rejoin", action="store_true", help="erster Client trennt sich im Run und steigt wieder ein")
     ap.add_argument("--scale", default="2.0")
     ap.add_argument("--area", default="emerald_forest")
+    ap.add_argument("--diff", default="1")
     ap.add_argument("--timeout", type=int, default=600)
     a = ap.parse_args()
     project = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -33,7 +34,7 @@ def main():
         return subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT), f
 
     procs = {}
-    host_args = ["role=host", f"total={a.players}", f"port={a.port}", f"scale={a.scale}", "name=Host", f"area={a.area}"]
+    host_args = ["role=host", f"total={a.players}", f"port={a.port}", f"scale={a.scale}", "name=Host", f"area={a.area}", f"diff={a.diff}"]
     if a.down_at >= 0:
         host_args.append(f"down_at={a.down_at}")
     procs["host"] = start(host_args, "host.log")

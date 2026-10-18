@@ -96,13 +96,25 @@ static func _blocked(p: Vector3, margin: float) -> bool:
 
 
 static func _environment(root: Node3D) -> void:
+	var q: int = clampi(int(SaveSystem.data.get("settings", {}).get("graphics_quality", 2)), 0, 2)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-52, -35, 0)
+	sun.rotation_degrees = Vector3(-48, -35, 0)
 	sun.light_color = col("sun")
 	sun.light_energy = float(T["sun_energy"])
 	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 60.0
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+	# Kaskadenschatten: scharf nahe der Kamera, kein Flimmern beim Laufen
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if q >= 1 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.directional_shadow_max_distance = 90.0
+	sun.directional_shadow_split_1 = 0.06
+	sun.directional_shadow_split_2 = 0.18
+	sun.directional_shadow_split_3 = 0.45
+	sun.directional_shadow_blend_splits = true
+	sun.directional_shadow_fade_start = 0.85
+	sun.shadow_bias = 0.04
+	sun.shadow_normal_bias = 1.6
+	sun.shadow_blur = 1.4
+	sun.light_angular_distance = 0.6
+	sun.light_volumetric_fog_energy = 1.0
 	root.add_child(sun)
 	var env := Environment.new()
 	var sky_mat := ProceduralSkyMaterial.new()
@@ -110,24 +122,48 @@ static func _environment(root: Node3D) -> void:
 	sky_mat.sky_horizon_color = col("sky_horizon")
 	sky_mat.ground_bottom_color = col("sky_ground")
 	sky_mat.ground_horizon_color = col("sky_horizon")
+	sky_mat.sky_curve = 0.18
 	sky_mat.sun_angle_max = 25.0
+	sky_mat.sun_curve = 0.12
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = float(T["ambient"])
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	# Umgebungslicht als feste Farbe (in allen Renderern zuverlässig); die Himmelsfärbung steckt in der Farbe
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = col("sky_horizon").lerp(col("sky_top"), 0.4).lerp(col("ground"), 0.25)
+	env.ambient_light_energy = float(T["ambient"]) * 0.62
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_white = 6.0
 	env.glow_enabled = true
-	env.glow_intensity = 0.7
-	env.glow_bloom = 0.08
+	env.glow_intensity = 0.55
+	env.glow_strength = 1.0
+	env.glow_bloom = 0.04
+	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = col("fog")
 	env.fog_density = float(T["fog_density"])
-	env.fog_sky_affect = 0.4
+	env.fog_sky_affect = 0.35
+	env.fog_aerial_perspective = 0.35
 	env.adjustment_enabled = true
 	env.adjustment_saturation = float(T["saturation"])
-	env.adjustment_contrast = 1.05
+	env.adjustment_contrast = 1.08
+	if q >= 1:
+		env.ssao_enabled = true
+		env.ssao_radius = 1.4
+		env.ssao_intensity = 2.2
+		env.ssao_power = 1.6
+		env.ssao_detail = 0.6
+	if q >= 2:
+		# Lichtstrahlen durch die Bäume (nur Forward+; im Kompatibilitätsmodus automatisch ohne Wirkung)
+		env.volumetric_fog_enabled = true
+		env.volumetric_fog_density = 0.012
+		env.volumetric_fog_albedo = col("fog").lerp(Color.WHITE, 0.4)
+		env.volumetric_fog_anisotropy = 0.65
+		env.volumetric_fog_length = 90.0
+		env.volumetric_fog_detail_spread = 2.0
+		env.volumetric_fog_ambient_inject = 0.25
 	var we := WorldEnvironment.new()
 	we.environment = env
 	root.add_child(we)
@@ -144,26 +180,42 @@ static func _ground(root: Node3D, rng: RandomNumberGenerator) -> void:
 	cs.position.y = -1.0
 	body.add_child(cs)
 	root.add_child(body)
-	Toon.part(body, "disc", Vector3(RADIUS + 12.0, 0.2, 0), col("ground"), Vector3(0, -0.1, 0), Vector3.ZERO, Toon.mat(col("ground"), 0.0, 0.0), false)
-	# Farbflecken für Variation
-	for i in 36:
-		var ang := rng.randf() * TAU
-		var r := sqrt(rng.randf()) * (RADIUS - 4.0)
-		var pc := pal("patches")
-		var c: Color = pc[rng.randi() % pc.size()]
-		var m := Toon.part(body, "disc", Vector3(rng.randf_range(3.0, 9.0), 0.02, 0), c, Vector3(cos(ang) * r, 0.01 + i * 0.0004, sin(ang) * r), Vector3.ZERO, Toon.mat(c, 0.0, 0.0), false)
-		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# Weg von der Startlichtung zur Bossarena
-	var path_c := col("path")
+	# Ein einziges Geländenetz; Weg, Lichtung, Arena und Bodenfarben werden im Shader berechnet (kein Z-Fighting)
+	var plane := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(300.0, 300.0)
+	pm.subdivide_width = 0
+	pm.subdivide_depth = 0
+	plane.mesh = pm
+	var gm := ShaderMaterial.new()
+	gm.shader = load("res://shaders/ground.gdshader")
+	gm.set_shader_parameter("c_ground", col("ground"))
+	var pc := pal("patches")
+	gm.set_shader_parameter("c_p1", pc[0])
+	gm.set_shader_parameter("c_p2", pc[1 % pc.size()])
+	gm.set_shader_parameter("c_path", col("path"))
+	gm.set_shader_parameter("c_clear", col("clearing"))
+	gm.set_shader_parameter("c_arena", col("arena_floor"))
+	gm.set_shader_parameter("c_inner", col("arena_inner"))
+	gm.set_shader_parameter("spawn", Vector2(SPAWN_POS.x, SPAWN_POS.z))
+	gm.set_shader_parameter("boss", Vector2(BOSS_POS.x, BOSS_POS.z))
+	gm.set_shader_parameter("pond", Vector2(POND_POS.x, POND_POS.z))
+	gm.set_shader_parameter("pond_r", POND_R)
+	gm.set_shader_parameter("arena_r", BOSS_ARENA_R)
+	gm.set_shader_parameter("path_pts", path_points())
+	plane.material_override = gm
+	plane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	body.add_child(plane)
+
+
+## Stützpunkte des Weges von der Startlichtung zur Bossarena (auch vom Shader benutzt).
+static func path_points() -> PackedVector2Array:
+	var pts := PackedVector2Array()
 	for i in 14:
 		var t := float(i) / 13.0
 		var pos := SPAWN_POS.lerp(BOSS_POS, t)
-		pos.x += sin(t * 7.0) * 4.0
-		var m := Toon.part(body, "disc", Vector3(2.4 + sin(i) * 0.3, 0.03, 0), path_c, Vector3(pos.x, 0.03, pos.z), Vector3.ZERO, Toon.mat(path_c, 0.0, 0.0), false)
-		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# Startlichtung
-	var m2 := Toon.part(body, "disc", Vector3(7.0, 0.03, 0), col("clearing"), Vector3(SPAWN_POS.x, 0.035, SPAWN_POS.z), Vector3.ZERO, Toon.mat(col("clearing"), 0.0, 0.0), false)
-	m2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		pts.append(Vector2(pos.x + sin(t * 7.0) * 4.0, pos.z))
+	return pts
 
 
 static func _pond(root: Node3D) -> void:
@@ -225,13 +277,13 @@ static func _tree(parent: Node3D, pos: Vector3, scale_f: float, rng: RandomNumbe
 		pass
 	elif kind == 0:
 		for i in 3:
-			Toon.part(t, "cone", Vector3((1.5 - i * 0.35) * scale_f, 1.5 * scale_f, 0), leaf.darkened(0.04 * i), Vector3(0, h + i * 0.9 * scale_f, 0))
+			Toon.part(t, "cone", Vector3((1.5 - i * 0.35) * scale_f, 1.5 * scale_f, 0), leaf.darkened(0.04 * i), Vector3(0, h + i * 0.9 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf.darkened(0.04 * i)))
 	elif kind == 1:
-		Toon.part(t, "sphere", Vector3(1.5 * scale_f, 0.85, 0), leaf, Vector3(0, h + 0.8 * scale_f, 0))
-		Toon.part(t, "sphere", Vector3(1.0 * scale_f, 0.9, 0), leaf.lightened(0.08), Vector3(0.7 * scale_f, h + 0.3 * scale_f, 0.3))
-		Toon.part(t, "sphere", Vector3(0.9 * scale_f, 0.9, 0), leaf.darkened(0.05), Vector3(-0.6 * scale_f, h + 0.4 * scale_f, -0.4))
+		Toon.part(t, "sphere", Vector3(1.5 * scale_f, 0.85, 0), leaf, Vector3(0, h + 0.8 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf))
+		Toon.part(t, "sphere", Vector3(1.0 * scale_f, 0.9, 0), leaf.lightened(0.08), Vector3(0.7 * scale_f, h + 0.3 * scale_f, 0.3), Vector3.ZERO, Toon.wind_mat(leaf.lightened(0.08)))
+		Toon.part(t, "sphere", Vector3(0.9 * scale_f, 0.9, 0), leaf.darkened(0.05), Vector3(-0.6 * scale_f, h + 0.4 * scale_f, -0.4), Vector3.ZERO, Toon.wind_mat(leaf.darkened(0.05)))
 	else:
-		Toon.part(t, "sphere", Vector3(1.3 * scale_f, 1.1, 0), leaf, Vector3(0, h + 1.1 * scale_f, 0))
+		Toon.part(t, "sphere", Vector3(1.3 * scale_f, 1.1, 0), leaf, Vector3(0, h + 1.1 * scale_f, 0), Vector3.ZERO, Toon.wind_mat(leaf))
 		Toon.part(t, "sphere", Vector3(0.7 * scale_f, 1.0, 0), col("rune").lerp(leaf, 0.6) if style != "round" else Color("#ff9ad0").lerp(leaf, 0.3), Vector3(0.7 * scale_f, h + 1.6 * scale_f, 0.5))
 	if collide:
 		var sb := StaticBody3D.new()
@@ -263,29 +315,75 @@ static func _trees(root: Node3D, rng: RandomNumberGenerator) -> void:
 		placed += 1
 
 
+## Ein Grasbüschel aus 7 gebogenen, spitz zulaufenden Halmen (UV.y = Höhe 0..1 für Farbverlauf und Wind).
+static func grass_clump_mesh() -> ArrayMesh:
+	var verts := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var norms := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var r := RandomNumberGenerator.new()
+	r.seed = 99
+	for k in 7:
+		var ang := r.randf() * TAU
+		var off := Vector3(cos(ang), 0, sin(ang)) * r.randf_range(0.0, 0.22)
+		var yaw := r.randf() * PI
+		var side := Vector3(cos(yaw), 0, sin(yaw))
+		var lean := Vector3(-sin(yaw), 0, cos(yaw)) * r.randf_range(0.05, 0.22)
+		var hgt := r.randf_range(0.28, 0.5)
+		var w := r.randf_range(0.035, 0.055)
+		var base := verts.size()
+		for lv in 3:
+			var t := float(lv) / 3.0
+			var c := off + lean * t * t + Vector3(0, hgt * t, 0)
+			var half := w * (1.0 - t * 0.85)
+			verts.append(c - side * half)
+			verts.append(c + side * half)
+			uvs.append(Vector2(0, t))
+			uvs.append(Vector2(1, t))
+			norms.append(Vector3.UP)
+			norms.append(Vector3.UP)
+		verts.append(off + lean + Vector3(0, hgt, 0))
+		uvs.append(Vector2(0.5, 1.0))
+		norms.append(Vector3.UP)
+		for lv in 2:
+			var i0 := base + lv * 2
+			idx.append_array([i0, i0 + 1, i0 + 2, i0 + 1, i0 + 3, i0 + 2])
+		idx.append_array([base + 4, base + 5, base + 6])
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_NORMAL] = norms
+	arr[Mesh.ARRAY_TEX_UV] = uvs
+	arr[Mesh.ARRAY_INDEX] = idx
+	var m := ArrayMesh.new()
+	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	return m
+
+
 static func _undergrowth(root: Node3D, rng: RandomNumberGenerator) -> void:
 	# Gras und Blumen als MultiMesh (performant)
 	var grass := MultiMeshInstance3D.new()
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
-	var cm := CylinderMesh.new()
-	cm.top_radius = 0.0
-	cm.bottom_radius = 0.1
-	cm.height = 0.5
-	cm.radial_segments = 4
-	mm.mesh = cm
-	mm.instance_count = 900
-	for i in 900:
+	mm.mesh = grass_clump_mesh()
+	var clumps := 1700
+	mm.instance_count = clumps
+	for i in clumps:
 		var ang := rng.randf() * TAU
 		var r := sqrt(rng.randf()) * (RADIUS - 3.0)
-		var p := Vector3(cos(ang) * r, 0.2, sin(ang) * r)
-		var s := rng.randf_range(0.7, 1.7)
-		var b := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s, s))
+		var p := Vector3(cos(ang) * r, 0.0, sin(ang) * r)
+		var s := rng.randf_range(0.75, 1.45)
+		var b := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s * rng.randf_range(0.8, 1.3), s))
 		mm.set_instance_transform(i, Transform3D(b, p))
-		mm.set_instance_color(i, Color.from_hsv(rng.randf_range(float(T["grass_hue"][0]), float(T["grass_hue"][1])), rng.randf_range(0.5, 0.75), rng.randf_range(0.65, 0.95)))
+		mm.set_instance_color(i, Color.from_hsv(rng.randf_range(float(T["grass_hue"][0]), float(T["grass_hue"][1])), rng.randf_range(0.45, 0.7), rng.randf_range(0.6, 0.9)))
 	grass.multimesh = mm
-	grass.material_override = Toon.mat(Color.WHITE, 0.0, 0.1)
+	var gmat := ShaderMaterial.new()
+	gmat.shader = load("res://shaders/grass.gdshader")
+	grass.material_override = gmat
+	grass.visibility_range_end = 70.0
+	grass.visibility_range_end_margin = 12.0
+	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(grass)
 	var flowers := MultiMeshInstance3D.new()
@@ -370,9 +468,7 @@ static func _ruins(root: Node3D, rng: RandomNumberGenerator) -> void:
 static func _boss_arena(root: Node3D) -> void:
 	var c := BOSS_POS
 	var stone := col("stone").darkened(0.05)
-	Toon.part(root, "disc", Vector3(BOSS_ARENA_R, 0.12, 0), col("arena_floor"), c + Vector3(0, 0.06, 0), Vector3.ZERO, Toon.mat(col("arena_floor"), 0.0, 0.0), false)
-	Toon.part(root, "disc", Vector3(BOSS_ARENA_R - 2.5, 0.14, 0), col("arena_inner"), c + Vector3(0, 0.07, 0), Vector3.ZERO, Toon.mat(col("arena_inner"), 0.0, 0.0), false)
-	var glyph := Toon.part(root, "torus", Vector3(9.0, 8.8, 0), col("glyph"), c + Vector3(0, 0.16, 0), Vector3.ZERO, Toon.glow_mat(col("glyph"), 1.2, 0.8), false)
+	var glyph := Toon.part(root, "torus", Vector3(9.0, 8.8, 0), col("glyph"), c + Vector3(0, 0.07, 0), Vector3.ZERO, Toon.glow_mat(col("glyph"), 1.2, 0.8), false)
 	glyph.scale.y = 0.2
 	# Wächtersäulen mit Wurzeln
 	var n := 12

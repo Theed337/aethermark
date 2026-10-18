@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.0)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.1)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -6,6 +6,8 @@
 - Hauptmenü mit Bereichen, Charaktereditor, Talentbaum-UI, Inventar/Ausrüstung.
 - Koop 2–5 Spieler (Host-Server): Lobby, Lobby-Code, UPnP-Versuch, Run-Synchronisierung, Wiederbelebung, Wipe, Verbindungsabbruch + Wiederbeitritt, persönliche Beute, Ergebnis je Spieler.
   **Getestet mit echten Prozessen über localhost** (2, 3, 5 Spieler, mit erzwungenem Niederschlag und Wiederbeitritt).
+
+- Zufallsereignisse im Run (Blutmond, Hinterhalt mit Elitegegnern, Zeitjagd) mit Belohnung; Koop-Elementkombos (5 Paare aus Feuer/Frost/Blitz/Erde, nur bei zwei verschiedenen Spielern); Flüche ab Albtraum/Inferno (härter, bessere Beute). Logik per Unit-Test und Bot-/Netztest abgedeckt; **Spielgefühl/Balance dieser Systeme ungetestet** (kein Mensch hat sie gespielt).
 
 ## Teilweise / eingeschränkt
 - Alle 6 Gebiete spielbar, aber **gleiches Kartenlayout** (Startlichtung, Gefahrenzone, Ruinen, Bossarena); Unterschiede: Farbwelt/Himmel, Baumstil, Gefahrenzone (Lava/Gift/Eis/Leere = Schaden über Zeit), Gegner-Skins, zusätzliche Gegner (Kriecher, Wächterschütze, Teiler der zerfällt, Kultist), eigene Bedrohungsstufen. Getestet per Bot: Wald, Ruinen, Aschelande (Solo) und Aschelande im 3er-Koop; Frost/Schatten/Himmel starten und laufen, ein frischer Test-Charakter ohne Ausrüstung schafft sie aber nicht – **Balance der späten Gebiete ungeprüft**.
@@ -20,5 +22,5 @@
 ## Fehlt
 - Windows-Export wurde **nicht** gebaut (Export-Vorlagen nicht verfügbar); `export_presets.cfg` ist vorbereitet, ungetestet.
 - Mobile-Touch-Steuerung und Mobile-Export (nur Architektur vorbereitet).
-- Zufallsereignisse (Verteidigung, Händler, Zeit-Herausforderung), interaktive Umgebung (Fässer etc.), Koop-Elementkombos, Endgame-Modifikatoren/Flüche, Heimatbasis, eigene Kartenlayouts je Gebiet.
+- Weitere Ereignisse (Verteidigung, Händler), interaktive Umgebung (explosive Fässer etc.), Wahl der Flüche durch den Spieler (aktuell zufällig), Heimatbasis, eigene Kartenlayouts je Gebiet.
 - Subjektive Spielbarkeit/Balance auf echter Hardware mit Grafikkarte: hier nur per Bot-Läufe headless geprüft.
