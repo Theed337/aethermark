@@ -35,7 +35,7 @@ var selected_difficulty := 1
 var spin_speed := 0.35
 var _rot_drag := false
 var _t := 0.0
-var _cam_target := Vector3(0, 1.2, 3.0)
+var _cam_target := Vector3(0, 1.2, 3.4)
 var _cam_look := Vector3(0, 1.0, 0)
 var preview_appearance: Dictionary = {}
 var preview_weapon := "sword"
@@ -127,13 +127,13 @@ func _build_scene() -> void:
 	for i in 7:
 		var ang := i * TAU / 7.0 + 0.3
 		var p := Vector3(cos(ang) * 4.6, 0, sin(ang) * 4.6 - 0.5)
-		if i == 2 or i == 4:
-			_make_mirror(p)
+		if false:
+			pass
 		else:
 			var pillar := Toon.part(self, "box", Vector3(0.6, rng.randf_range(1.6, 3.0), 0.6), Color("#9aa7ad"), p + Vector3(0, 0.9, 0), Vector3(0, rad_to_deg(-ang), 0))
 			Toon.outline(pillar, 0.025)
-	_make_mirror(Vector3(-1.9, 0, -2.4))
-	_make_mirror(Vector3(1.9, 0, -2.4))
+	_make_mirror(Vector3(-2.2, 0, -2.4))
+	_make_mirror(Vector3(2.2, 0, -2.4))
 	# Glühwürmchen
 	for i in 40:
 		var f := Toon.part(self, "sphere", Vector3(0.035, 0, 0), Color("#f8ff9a"), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(Color("#f8ff9a"), 3.0), false)
@@ -168,7 +168,7 @@ func _make_mirror(p: Vector3) -> void:
 	Toon.outline(frame, 0.02)
 	Toon.part(holder, "box", Vector3(MIRROR_SIZE.x + 0.5, 0.18, 0.3), Color("#8d9aa5"), Vector3(0, -MIRROR_SIZE.y * 0.5 - 0.2, -0.05))
 	var vp := SubViewport.new()
-	vp.size = Vector2i(320, 554)
+	vp.size = Vector2i(256, 444)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	vp.msaa_3d = Viewport.MSAA_DISABLED
 	vp.transparent_bg = false
@@ -193,8 +193,12 @@ func _make_mirror(p: Vector3) -> void:
 
 
 func _update_mirrors() -> void:
+	var hidden := page != null and page.wide
 	for m in _mirrors:
 		var c: Camera3D = m["cam"]
+		(c.get_parent() as SubViewport).render_target_update_mode = SubViewport.UPDATE_DISABLED if hidden else SubViewport.UPDATE_ALWAYS
+		if hidden:
+			continue
 		var n: Vector3 = m["n"]
 		var r: Vector3 = m["r"]
 		var u: Vector3 = m["u"]
@@ -244,16 +248,16 @@ func show_active_character() -> void:
 func camera_view(view: String) -> void:
 	match view:
 		"front":
-			_cam_target = Vector3(0, 1.2, 3.0)
+			_cam_target = Vector3(0, 1.2, 3.4)
 			_cam_look = Vector3(0, 0.95, 0)
 		"head":
-			_cam_target = Vector3(0, 1.75, 1.6)
+			_cam_target = Vector3(0, 1.75, 1.8)
 			_cam_look = Vector3(0, 1.62, 0)
 		"far":
-			_cam_target = Vector3(0, 1.4, 5.2)
+			_cam_target = Vector3(0, 1.4, 5.4)
 			_cam_look = Vector3(0, 1.0, 0)
 		"back":
-			_cam_target = Vector3(0, 1.25, 3.4)
+			_cam_target = Vector3(0, 1.25, 3.6)
 			_cam_look = Vector3(0, 1.0, 0)
 			if not model.is_empty():
 				model["root"].rotation.y = PI

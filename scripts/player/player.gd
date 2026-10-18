@@ -788,6 +788,7 @@ func cast_skill(id: String, free: bool = false) -> bool:
 			return false
 		mana -= cost
 		cooldowns[id] = skill_cooldown(id)
+	cast_anim_t = 0.45
 	_cast_once(id, 1.0)
 	if skill_lv("twin_cast") > 0 and id != "spirit_wisps":
 		var m := 0.35 if skill_lv("twin_cast") == 1 else 0.6
@@ -899,7 +900,10 @@ func _cast_frost_nova(lv: int, mult: float) -> void:
 	var r: float = (6.0 if lv < 2 else 7.5) * stats["area"]
 	var slow_m := 0.25 if lv >= 5 else 0.4
 	FX.ring(arena, global_position, r, Color("#9fe0ff"), 0.5, 0.15)
+	FX.ring(arena, global_position, r * 0.6, Color("#e8faff"), 0.35, 0.15)
 	FX.burst(arena, global_position + Vector3(0, 0.4, 0), Color("#c8f0ff"), 24, 8.0, 0.15, 0.7)
+	FX.shards(arena, global_position, r * 0.85, Color("#bfe8ff"), 22, 1.6)
+	FX.dust(arena, global_position, r * 0.5, Color("#d8f4ff"))
 	shake = 0.3
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if is_instance_valid(e) and not e.dead and e.global_position.distance_to(global_position) <= r + 0.5 * e.model_scale:
@@ -919,7 +923,8 @@ func _cast_chain(lv: int, mult: float) -> void:
 	var n := 0
 	while cur != null and n < jumps:
 		var to := cur.global_position + Vector3(0, 1.0, 0)
-		FX.beam(arena, from, to, Color("#d8e8ff"), 0.22, 0.05)
+		FX.bolt(arena, from, to, Color("#a8c8ff"), 0.28, 0.06)
+		FX.burst(arena, to, Color("#cfe2ff"), 6, 4.0, 0.08, 0.3)
 		deal_damage(cur, _skill_base() * 0.9 * dmg_mult * mult, "elem", ["lightning", "chain"], global_position)
 		if lv >= 4:
 			cur.mark_t = 5.0
@@ -953,7 +958,10 @@ func _cast_earthquake(lv: int, mult: float) -> void:
 
 func _quake(center: Vector3, r: float, d: float, stun: bool) -> void:
 	FX.ring(arena, center, r, Color("#c8a070"), 0.6, 0.2)
+	FX.ring(arena, center, r * 0.55, Color("#e0c090"), 0.45, 0.2)
 	FX.burst(arena, center + Vector3(0, 0.3, 0), Color("#8a6a3a"), 30, 9.0, 0.22, 0.8)
+	FX.shards(arena, center, r * 0.9, Color("#6e5638"), 18, 1.3)
+	FX.dust(arena, center, r, Color("#a08462"))
 	Sfx.play("boom", 0.6, -1.0)
 	shake = 0.8
 	for e in get_tree().get_nodes_in_group("enemies"):
@@ -1056,45 +1064,68 @@ func _animate(delta: float, inp: Dictionary) -> void:
 
 
 ## Skelett-Animation (Quaternius Universal Animation Library): Clip nach Zustand wählen, Tempo an Spiel anpassen.
+var _air_t := 0.0
+var cast_anim_t := 0.0
+
+
 func _animate_rigged(delta: float) -> void:
 	var ap: AnimationPlayer = model["anim"]
+	var kk := CharacterModel.is_kaykit(ap)
 	var horiz := Vector2(velocity.x, velocity.z).length()
 	var melee := weapon_type not in ["staff", "bow"]
-	var clip := CharacterModel.idle_clip(weapon_type)
+	var clip := "Idle"
 	var spd := 1.0
 	var blend := 0.15
+	var one_shot := false
+	_air_t = _air_t + delta if (not is_on_floor() and net_role != "puppet") else 0.0
+	cast_anim_t = maxf(cast_anim_t - delta, 0.0)
 	if state == "down":
-		clip = "Death01"
+		clip = "Death_A" if kk else "Death01"
 		blend = 0.2
 	elif state == "dodge":
-		clip = "Roll"
-		spd = clampf(ap.get_animation("Roll").length / 0.42, 1.0, 4.0)
+		clip = "Dodge_Forward" if kk else "Roll"
+		spd = clampf(ap.get_animation(clip).length / 0.42, 1.0, 4.0)
 		blend = 0.05
+		one_shot = true
 	elif state == "attack":
-		clip = "Sword_Attack" if melee else "Spell_Simple_Shoot"
+		if kk:
+			clip = CharacterModel.kk_clip("attack", weapon_type, combo)
+		else:
+			clip = "Sword_Attack" if melee else "Spell_Simple_Shoot"
 		var len_c := ap.get_animation(clip).length
-		spd = clampf(len_c / maxf(attack_dur, 0.1) * (1.0 if melee else 1.0), 0.8, 3.5)
+		spd = clampf(len_c / maxf(attack_dur, 0.1), 0.8, 3.5)
 		blend = 0.06
+		one_shot = true
 	elif blocking:
-		clip = "Crouch_Idle"
-	elif not is_on_floor() and velocity.y > 1.0:
-		clip = "Jump"
+		clip = "Blocking" if kk else "Crouch_Idle"
+	elif _air_t > 0.1:
+		clip = "Jump_Idle" if kk else "Jump"
+		blend = 0.1
+	elif cast_anim_t > 0.0 and horiz < 2.5:
+		clip = "Spellcast_Shoot" if kk else "Spell_Simple_Shoot"
+		spd = 1.5
+		blend = 0.06
+		one_shot = true
 	elif horiz > 0.4:
 		if horiz < 3.2:
-			clip = "Walk"
+			clip = "Walking_A" if kk else "Walk"
 			spd = clampf(horiz / 2.2, 0.6, 1.6)
 		elif horiz < 7.5:
-			clip = "Jog_Fwd"
+			clip = "Running_A" if kk else "Jog_Fwd"
 			spd = clampf(horiz / 5.5, 0.7, 1.5)
 		else:
-			clip = "Sprint"
+			clip = "Running_B" if kk else "Sprint"
 			spd = clampf(horiz / 9.0, 0.8, 1.4)
-	if ap.current_animation != clip:
+	elif not kk:
+		clip = CharacterModel.idle_clip(weapon_type)
+	var dead_hold: bool = state == "down" and ap.current_animation == clip
+	var changed: bool = ap.current_animation != clip
+	if not dead_hold and (changed or (not ap.is_playing() and not one_shot)):
 		ap.play(clip, blend)
-		if clip == "Sword_Attack" or clip == "Spell_Simple_Shoot":
+		if changed:
 			ap.seek(0.0, true)
 	ap.speed_scale = spd
-	if state == "down" and ap.current_animation == "Death01" and ap.current_animation_position > ap.current_animation_length - 0.05:
+	if state == "down" and ap.current_animation == clip and ap.current_animation_position > ap.current_animation_length - 0.05:
 		ap.pause()
 
 
@@ -1408,7 +1439,9 @@ class Wisp extends Node3D:
 	var _core: MeshInstance3D
 
 	func _ready() -> void:
-		_core = Toon.part(self, "sphere", Vector3(0.2, 0, 0), Color("#8affea"), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(Color("#8affea"), 3.0), false)
+		_core = Toon.part(self, "sphere", Vector3(0.12, 0, 0), Color("#d8fff6"), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(Color("#8affea"), 4.0), false)
+		FX.glow_sprite(self, Color(0.55, 1.0, 0.92, 0.9), 1.1)
+		FX.trail(self, Color("#8affea"), 0.18, 16, 0.5)
 		var l := OmniLight3D.new()
 		l.light_color = Color("#8affea")
 		l.omni_range = 4.0
@@ -1443,7 +1476,7 @@ class Wisp extends Node3D:
 			if tgt != null:
 				var lv := owner_player.skill_lv("spirit_wisps")
 				var dm: float = owner_player.stats["damage"] * (1.0 if lv < 3 else 1.5)
-				FX.beam(owner_player.arena, global_position, tgt.global_position + Vector3(0, 1, 0), Color("#8affea"), 0.15, 0.04)
+				FX.bolt(owner_player.arena, global_position, tgt.global_position + Vector3(0, 1, 0), Color("#8affea"), 0.18, 0.035)
 				var dealt: float = owner_player.deal_damage(tgt, dm, "summon", ["summon"], global_position)
 				if lv >= 4 and dealt > 0.0:
 					owner_player._heal(dealt * 0.04)

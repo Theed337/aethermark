@@ -124,7 +124,7 @@ func _migrate(d: Dictionary) -> Dictionary:
 func default_appearance() -> Dictionary:
 	return {"body_height": 1.0, "body_build": 1.0, "skin": "#e0b090", "hair_style": 1, "hair_color": "#4a2f1b",
 			"beard": 0, "eye_color": "#3a7bd5", "ears": 0, "horns": 0, "scar": 0, "tattoo": 0,
-			"accent": "#4ecdc4", "outfit": 0, "origin": "human", "voice": 0, "female": 0}
+			"accent": "#4ecdc4", "outfit": 0, "origin": "human", "voice": 0, "female": 0, "body": 0}
 
 
 func make_item_uid() -> String:

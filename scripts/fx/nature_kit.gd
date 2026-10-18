@@ -25,6 +25,10 @@ static func make(model: String, target_height: float = 0.0) -> Node3D:
 	var n: Node3D = _scenes[model].instantiate()
 	var holder := Node3D.new()
 	holder.add_child(n)
+	# Leistung: weit entfernte Natur wird nicht mehr gezeichnet
+	for g in n.find_children("*", "GeometryInstance3D", true, false):
+		g.visibility_range_end = 95.0
+		g.visibility_range_end_margin = 8.0
 	if target_height > 0.0:
 		var h := _height(n)
 		if h > 0.01:

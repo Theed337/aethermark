@@ -9,6 +9,8 @@ const OUTFIT_COLORS := [Color("#3f6b8a"), Color("#7a4a3a"), Color("#5a3f8a"), Co
 
 ## Gibt ein Dictionary mit "root" und den animierbaren Teilen zurück.
 static func build(appearance: Dictionary, weapon_type: String = "sword") -> Dictionary:
+	if ResourceLoader.exists(KK_DIR + "Knight.glb"):
+		return _build_kaykit(appearance, weapon_type)
 	if ResourceLoader.exists(RIG_PATH):
 		return _build_rigged(appearance, weapon_type)
 	return _build_procedural(appearance, weapon_type)
@@ -60,7 +62,7 @@ static func _build_rigged(appearance: Dictionary, weapon_type: String) -> Dictio
 	var anim: AnimationPlayer = inst.find_child("AnimationPlayer", true, false)
 	if not _loops_set:
 		_loops_set = true
-		for n in ["Idle", "Walk", "Jog_Fwd", "Sprint", "Sword_Idle", "Crouch_Idle", "Jog_Bwd", "Spell_Simple_Idle"]:
+		for n in ["Idle", "Walk", "Jog_Fwd", "Sprint", "Sword_Idle", "Crouch_Idle", "Jog_Bwd", "Spell_Simple_Idle", "Jump"]:
 			if anim.has_animation(n):
 				anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
 	# Körperregionen einfärben (Vertexfarben aus dem dominanten Knochen)
@@ -130,6 +132,95 @@ static func _build_rigged(appearance: Dictionary, weapon_type: String) -> Dictio
 	anim.play(idle_clip(weapon_type))
 	return {"root": root, "body": body_pivot, "legs": [Node3D.new(), Node3D.new()], "arms": [Node3D.new(), Node3D.new()],
 			"head": head, "weapon": weapon, "torso": inst, "anim": anim, "skeleton": sk}
+
+
+# ------------------------------------------------------------------ KayKit-Helden (Adventurers Pack, CC0)
+
+const KK_DIR := "res://assets/kaykit/"
+const KK_BODIES := ["Knight", "Barbarian", "Mage", "Rogue", "Rogue_Hooded"]
+const KK_BODY_NAMES := ["Ritter", "Barbar", "Magier", "Waldläuferin", "Kapuzenmantel"]
+const KK_SCALE := 0.65
+const KK_WEAPONS := {"sword": "sword_1handed", "axe": "axe_1handed", "hammer": "axe_2handed", "dagger": "dagger",
+		"bow": "crossbow_2handed", "staff": "staff"}
+static var _kk_scenes: Dictionary = {}
+static var _kk_loops_set := false
+
+
+static func is_kaykit(ap: AnimationPlayer) -> bool:
+	return ap != null and ap.has_animation("Running_A")
+
+
+## Animationsname je Zweck für KayKit-Modelle ("kind": idle, walk, jog, sprint, attack, cast, dodge, down, block, air).
+static func kk_clip(kind: String, weapon_type: String, combo: int = 1) -> String:
+	match kind:
+		"idle": return "Idle"
+		"walk": return "Walking_A"
+		"jog": return "Running_A"
+		"sprint": return "Running_B"
+		"cast": return "Spellcast_Shoot"
+		"dodge": return "Dodge_Forward"
+		"down": return "Death_A"
+		"block": return "Blocking"
+		"air": return "Jump_Idle"
+		"attack":
+			match weapon_type:
+				"staff": return "Spellcast_Shoot"
+				"bow": return "2H_Ranged_Shoot"
+				"hammer": return "2H_Melee_Attack_Chop"
+				"dagger": return "1H_Melee_Attack_Stab"
+				_:
+					return ["1H_Melee_Attack_Slice_Diagonal", "1H_Melee_Attack_Chop", "1H_Melee_Attack_Slice_Horizontal"][clampi(combo - 1, 0, 2)]
+	return "Idle"
+
+
+static func _build_kaykit(appearance: Dictionary, weapon_type: String) -> Dictionary:
+	var a: Dictionary = SaveSystem.default_appearance()
+	for k in appearance:
+		a[k] = appearance[k]
+	var bi := clampi(int(a.get("body", 0)), 0, KK_BODIES.size() - 1)
+	var bname: String = KK_BODIES[bi]
+	if not _kk_scenes.has(bname):
+		_kk_scenes[bname] = load(KK_DIR + bname + ".glb")
+	var root := Node3D.new()
+	var body_pivot := Node3D.new()
+	root.add_child(body_pivot)
+	var origin: Dictionary = GameData.origins.get(a["origin"], GameData.origins["human"])
+	var sc_h: float = float(a["body_height"]) * float(origin.get("height", 1.0)) * KK_SCALE
+	var sc_b: float = float(a["body_build"]) * float(origin.get("build", 1.0)) * KK_SCALE
+	body_pivot.scale = Vector3(sc_b, sc_h, sc_b)
+	var inst: Node3D = _kk_scenes[bname].instantiate()
+	body_pivot.add_child(inst)
+	var sk: Skeleton3D = inst.find_child("Skeleton3D", true, false)
+	var anim: AnimationPlayer = inst.find_child("AnimationPlayer", true, false)
+	if not _kk_loops_set:
+		_kk_loops_set = true
+		for n in ["Idle", "Walking_A", "Walking_B", "Walking_C", "Running_A", "Running_B", "Jump_Idle", "Blocking", "Spellcasting",
+				"2H_Melee_Idle", "Unarmed_Idle", "1H_Ranged_Aiming", "2H_Ranged_Aiming"]:
+			if anim.has_animation(n):
+				anim.get_animation(n).loop_mode = Animation.LOOP_LINEAR
+	# eingebaute Waffen/Schilde ausblenden, nur Kopfbedeckung und Umhang behalten
+	for c in sk.get_children():
+		if c is BoneAttachment3D:
+			var n := String(c.name)
+			if not (n.contains("Hat") or n.contains("Cape") or n.contains("Helmet") or n.contains("Hood")):
+				c.visible = false
+	# Waffe in der rechten Hand
+	var wa := BoneAttachment3D.new()
+	wa.bone_name = "handslot.r"
+	sk.add_child(wa)
+	var weapon := Node3D.new()
+	var wpath := KK_DIR + "weapons/%s.gltf" % KK_WEAPONS.get(weapon_type, "sword_1handed")
+	var wmesh: Node3D = null
+	if ResourceLoader.exists(wpath):
+		wmesh = (load(wpath) as PackedScene).instantiate()
+		weapon.add_child(wmesh)
+	wa.add_child(weapon)
+	# gleiche Lage wie die eingebauten Waffenknochen des Modells (Y um 180° gedreht, minimal nach oben)
+	weapon.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(0, 0.0333, 0))
+	weapon.set_meta("mesh", wmesh)
+	anim.play("Idle")
+	return {"root": root, "body": body_pivot, "legs": [Node3D.new(), Node3D.new()], "arms": [Node3D.new(), Node3D.new()],
+			"head": Node3D.new(), "weapon": weapon, "torso": inst, "anim": anim, "skeleton": sk}
 
 
 static func idle_clip(weapon_type: String) -> String:

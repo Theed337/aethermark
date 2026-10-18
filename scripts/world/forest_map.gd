@@ -104,9 +104,9 @@ static func _environment(root: Node3D) -> void:
 	sun.light_energy = float(T["sun_energy"])
 	sun.shadow_enabled = true
 	# Kaskadenschatten: scharf nahe der Kamera, kein Flimmern beim Laufen
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if q >= 1 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
-	sun.directional_shadow_max_distance = 90.0
-	sun.directional_shadow_split_1 = 0.06
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS if q >= 0 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.directional_shadow_max_distance = 55.0
+	sun.directional_shadow_split_1 = 0.15
 	sun.directional_shadow_split_2 = 0.18
 	sun.directional_shadow_split_3 = 0.45
 	sun.directional_shadow_blend_splits = true

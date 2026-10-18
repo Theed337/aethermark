@@ -20,7 +20,16 @@ func _ready() -> void:
 	FX.ring(self, Vector3(1.2, 0, 0), 1.6, Color("#9a6bff"), 0.9)
 	FX.zone(self, Vector3(3.2, 0, 0), 1.2, Color("#ff5a2a"), 5.0)
 	FX.beam(self, Vector3(-3, 2.5, -2), Vector3(3, 2.2, -2), Color("#7ad7ff"), 1.0, 0.07)
-	for i in 5:
+	FX.shards(self, Vector3(-2.2, 0, 2.5), 1.6, Color("#bfe8ff"), 16, 1.4)
+	FX.dust(self, Vector3(-2.2, 0, 2.5), 1.4, Color("#d8f4ff"))
+	FX.shards(self, Vector3(2.6, 0, 2.5), 1.6, Color("#6e5638"), 14, 1.2)
+	FX.dust(self, Vector3(2.6, 0, 2.5), 1.6, Color("#a08462"))
+	FX.bolt(self, Vector3(-3, 1.2, 1), Vector3(1.5, 2.2, 1), Color("#a8c8ff"), 1.0, 0.06)
+	var pr := Projectile.new()
+	pr.ghost = true
+	pr.life = 5.0
+	pr.setup(self, Vector3(-1, 1.2, 3), Vector3(2.0, 0, 0), Color("#ff8a2a"), 0.4)
+	for i in 4:
 		await get_tree().process_frame
 	get_viewport().get_texture().get_image().save_png(OS.get_cmdline_user_args()[0])
 	get_tree().quit()

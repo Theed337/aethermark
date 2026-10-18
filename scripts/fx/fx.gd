@@ -21,8 +21,10 @@ static func apply_event(parent: Node, kind: String, a: Array) -> void:
 		"burst": burst(parent, a[0], a[1], a[2], a[3], a[4], a[5])
 		"ring": ring(parent, a[0], a[1], a[2], a[3], a[4], a[5])
 		"float": float_text(parent, a[0], a[1], a[2], a[3], a[4])
-		"beam": beam(parent, a[0], a[1], a[2], a[3], a[4])
+		"beam": beam(parent, a[0], a[1], a[2], a[3], a[4], a[5] if a.size() > 5 else true)
 		"zone": zone(parent, a[0], a[1], a[2], a[3])
+		"shards": shards(parent, a[0], a[1], a[2], a[3], a[4])
+		"dust": dust(parent, a[0], a[1], a[2])
 		"tele":
 			var t := telegraph(parent, a[0], a[1], a[2], a[3])
 			parent.get_tree().create_timer(float(a[2]) + 0.05).timeout.connect(func(): if is_instance_valid(t): t.queue_free())
@@ -234,8 +236,8 @@ static func float_text(parent: Node, pos: Vector3, text: String, color: Color = 
 	tw.chain().tween_callback(l.queue_free)
 
 
-static func beam(parent: Node, a: Vector3, b: Vector3, color: Color, duration: float = 0.18, width: float = 0.07) -> void:
-	_emit("beam", [a, b, color, duration, width])
+static func beam(parent: Node, a: Vector3, b: Vector3, color: Color, duration: float = 0.18, width: float = 0.07, flashes: bool = true) -> void:
+	_emit("beam", [a, b, color, duration, width, flashes])
 	var d := b - a
 	var len := d.length()
 	if len < 0.05:
@@ -258,8 +260,9 @@ static func beam(parent: Node, a: Vector3, b: Vector3, color: Color, duration: f
 	if axis.length() < 0.001:
 		axis = Vector3.RIGHT
 	mi.global_transform.basis = Basis(axis.normalized(), Vector3.UP.angle_to(up))
-	flash(parent, a, color, width * 14.0, duration)
-	flash(parent, b, color, width * 20.0, duration * 1.4)
+	if flashes:
+		flash(parent, a, color, width * 14.0, duration)
+		flash(parent, b, color, width * 20.0, duration * 1.4)
 	var tw := mi.create_tween()
 	tw.tween_method(func(v: float): mat.set_shader_parameter("alpha", v), 0.95, 0.0, duration)
 	tw.tween_callback(mi.queue_free)
@@ -331,6 +334,165 @@ static func zone(parent: Node, pos: Vector3, radius: float, color: Color, durati
 	root.add_child(light)
 	root.get_tree().create_timer(duration).timeout.connect(func(): if is_instance_valid(root): root.queue_free())
 	return root
+
+
+## Dauerhafter Glow-Sprite (Billboard) zum Anhängen an Geschosse, Wisps usw. (kein Netzwerkereignis).
+static func glow_sprite(parent: Node3D, color: Color, size: float, tex_name: String = "glow") -> MeshInstance3D:
+	var q := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2.ONE
+	q.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_texture = fx_tex(tex_name)
+	m.albedo_color = color
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.billboard_keep_scale = true
+	q.material_override = m
+	q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	q.scale = Vector3(size, size, size)
+	parent.add_child(q)
+	return q
+
+
+## Partikelschweif, der hinter einem bewegten Knoten zurückbleibt.
+static func trail(parent: Node3D, color: Color, size: float, amount: int = 22, life: float = 0.45) -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	p.amount = maxi(int(amount * _limit()), 4)
+	p.lifetime = life
+	p.local_coords = false
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = size * 0.4
+	p.direction = Vector3.UP
+	p.spread = 180.0
+	p.initial_velocity_min = 0.1
+	p.initial_velocity_max = 0.7
+	p.gravity = Vector3(0, 0.6, 0)
+	var qm := QuadMesh.new()
+	qm.size = Vector2.ONE
+	p.mesh = qm
+	p.material_override = glow_tex_mat("glow")
+	p.scale_amount_min = size * 3.0
+	p.scale_amount_max = size * 5.0
+	p.scale_amount_curve = _scale_curve(1.0, 0.05)
+	p.color_ramp = _fade_ramp(color)
+	parent.add_child(p)
+	return p
+
+
+## Zackige Blitzlinie aus mehreren Strahl-Segmenten.
+static func bolt(parent: Node, a: Vector3, b: Vector3, color: Color, duration: float = 0.25, width: float = 0.05) -> void:
+	var d := b - a
+	var len := d.length()
+	if len < 0.1:
+		return
+	var dirn := d / len
+	var side := dirn.cross(Vector3.UP)
+	if side.length() < 0.01:
+		side = Vector3.RIGHT
+	side = side.normalized()
+	var up := side.cross(dirn).normalized()
+	var segs := clampi(int(len / 0.9), 3, 9)
+	var prev := a
+	for i in range(1, segs + 1):
+		var t := float(i) / segs
+		var pt := a + d * t
+		if i < segs:
+			var jit := minf(0.45, len * 0.06)
+			pt += side * randf_range(-jit, jit) + up * randf_range(-jit, jit)
+		beam(parent, prev, pt, color, duration, width, false)
+		prev = pt
+	beam(parent, a, b, Color(1, 1, 1), duration * 0.7, width * 0.35, false)
+	flash(parent, a, color, width * 16.0, duration)
+	flash(parent, b, color, width * 28.0, duration * 1.4)
+
+
+## Aufragende Splitter (Eis/Stein) im Kreis um pos.
+static func shards(parent: Node, pos: Vector3, radius: float, color: Color, count: int = 14, rise: float = 1.4) -> void:
+	_emit("shards", [pos, radius, color, count, rise])
+	var n := maxi(int(count * _limit()), 4)
+	for i in n:
+		var ang := randf() * TAU
+		var rr := radius * sqrt(randf()) * 0.95
+		var h := randf_range(0.5, 1.0) * rise
+		var sh := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.0
+		cm.bottom_radius = randf_range(0.12, 0.26) * (0.6 + rise * 0.3)
+		cm.height = h
+		cm.radial_segments = 5
+		sh.mesh = cm
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = color
+		mat.emission_enabled = true
+		mat.emission = color
+		mat.emission_energy_multiplier = 0.8
+		mat.roughness = 0.2
+		mat.metallic_specular = 0.8
+		sh.material_override = mat
+		sh.top_level = true
+		sh.position = pos + Vector3(cos(ang) * rr, -h * 0.5, sin(ang) * rr)
+		sh.rotation = Vector3(randf_range(-0.35, 0.35), randf() * TAU, randf_range(-0.35, 0.35))
+		sh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		parent.add_child(sh)
+		var tw := sh.create_tween()
+		tw.tween_property(sh, "position:y", pos.y + h * 0.45, 0.22).set_ease(Tween.EASE_OUT).set_delay(randf() * 0.15)
+		tw.tween_interval(0.5)
+		tw.tween_property(sh, "position:y", pos.y - h * 0.6, 0.45).set_ease(Tween.EASE_IN)
+		tw.tween_callback(sh.queue_free)
+
+
+## Aufgewirbelter Staub / Nebel (Alpha-Rauch) in einer wachsenden Ringwolke.
+static func dust(parent: Node, pos: Vector3, radius: float, color: Color) -> void:
+	_emit("dust", [pos, radius, color])
+	if fx_tex("smoke") == null:
+		return
+	var p := CPUParticles3D.new()
+	p.emitting = true
+	p.one_shot = true
+	p.explosiveness = 0.9
+	p.amount = maxi(int(26 * _limit()), 6)
+	p.lifetime = 1.1
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	p.emission_ring_axis = Vector3.UP
+	p.emission_ring_radius = radius * 0.5
+	p.emission_ring_inner_radius = radius * 0.3
+	p.emission_ring_height = 0.1
+	p.direction = Vector3.UP
+	p.spread = 25.0
+	p.initial_velocity_min = radius * 0.6
+	p.initial_velocity_max = radius * 1.2
+	p.radial_accel_min = radius * 0.6
+	p.radial_accel_max = radius * 1.2
+	p.gravity = Vector3(0, 0.4, 0)
+	p.damping_min = 2.0
+	p.damping_max = 4.0
+	var qm := QuadMesh.new()
+	qm.size = Vector2.ONE
+	p.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_texture = fx_tex("smoke")
+	m.vertex_color_use_as_albedo = true
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	m.billboard_keep_scale = true
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	p.material_override = m
+	p.scale_amount_min = 1.6
+	p.scale_amount_max = 3.2
+	p.scale_amount_curve = _scale_curve(0.5, 1.4)
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.3, 1.0])
+	g.colors = PackedColorArray([Color(color.r, color.g, color.b, 0.0), Color(color.r, color.g, color.b, 0.55), Color(color.r, color.g, color.b, 0.0)])
+	p.color_ramp = g
+	p.position = pos + Vector3(0, 0.25, 0)
+	p.top_level = true
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(p)
+	_free_later(p, 1.8)
 
 
 static func _free_later(n: Node, t: float) -> void:

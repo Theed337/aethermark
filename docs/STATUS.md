@@ -1,4 +1,4 @@
-# Ehrlicher Statusbericht (Stand dieser Version 0.9.5)
+# Ehrlicher Statusbericht (Stand dieser Version 0.9.6)
 
 ## Fertig und getestet
 - Kernlogik: Loot/Seltenheiten, Item-Validierung, Talentbaum (ohne Klassen), Progression, Speichern mit Backup – 65 000+ automatisierte Prüfungen.
@@ -62,3 +62,11 @@
 - Inventar: Kachel-Raster mit Seltenheitsrahmen, grünem "ANGELEGT"-Streifen, Platz-Kacheln links (leere Plätze sichtbar), Doppelklick zum Anlegen/Ablegen, Tooltips.
 - Sound: echte CC0-Aufnahmen statt Sinus-Piepsern (je Klang 3–4 Varianten). Ich kann sie nicht hören; Auswahl nach Dateinamen/Länge, Lautstärkeabgleich per loudnorm. Fehlt eine Datei, greift der alte prozedurale Klang. Weiterhin KEINE Musik.
 - Effekte: Texturen (Glow, Funken, Ringe, Flamme) statt Kugeln/Torus: Treffer-Funken mit Blitz, Schockwellenringe, Flammenflächen mit Glut, Strahlen mit Endblitzen. Aussehen nur im Compatibility-Renderer geprüft.
+
+## Änderungen 0.9.6 (neue Helden, Bewegung, Fähigkeiten-Effekte)
+- Helden: KayKit Adventurers (CC0) ersetzen das nackte Mannequin: 5 Figuren (Ritter, Barbar, Magier, Waldläuferin, Kapuzenmantel) mit Kleidung, Waffenmodellen in der Hand und echten Animationen (Laufen, Angriffe je Waffentyp, Ausweichen, Zauber, Springen, Blocken, Tod). Im Editor wählt man die "Figur"; Haut-/Haar-/Bart-/Ohren-/Hörner-/Narben-Optionen und die Farbwahl der Figur entfallen (Modell hat feste Farben), Größe/Statur und Akzentfarbe bleiben. Das UAL1/Mannequin-Modell bleibt nur als Rückfall im Projekt.
+- Waffen: KayKit-Waffen (Schwert, Axt, Hammer = große Axt, Dolch, Stab, "Bogen" = Armbrust) sitzen am Handknochen wie im Original. Es gibt weder Hammer- noch Bogenmodell im Pack.
+- Bewegung: Sprung- und Zauber-Animation hingen nach einem Durchlauf fest (einmalige Clips wurden nicht neu gestartet). Jetzt eigene Luft-Animation (auch beim Fallen) und Zauber-Animation beim Wirken (nur wenn man langsam ist, sonst läuft man weiter).
+- Fähigkeiten-Effekte: Geschosse mit Glow-Kern, Lichthof und Partikelschweif; Frost-Nova mit Eissplittern und Nebel; Kettenblitz als zackiger Blitz mit Einschlagfunken; Erdbeben mit Steinsplittern und Staubwolke; Geisterlichter mit Glow und Schweif.
+- Leistung: Schatten nur bis 55 m, ferne Bäume/Pflanzen ab 95 m ausgeblendet, im Menü nur noch 2 Spiegel (pausieren bei breiten Seiten). Ob die Ruckler damit weg sind, kann ich ohne deine Hardware nicht messen.
+- Ungeprüft: Gegner/Bosse haben weiter die alten Figuren (passen stilistisch nicht zu den neuen Helden). Optik nur im Compatibility-Renderer gesehen.

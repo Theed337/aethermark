@@ -13,8 +13,15 @@ func _ready() -> void:
 		ap0["female"] = 1
 	if OS.get_environment("HAIR") != "":
 		ap0["hair_style"] = int(OS.get_environment("HAIR"))
+	if OS.get_environment("BODY") != "":
+		ap0["body"] = int(OS.get_environment("BODY"))
 	var m := CharacterModel.build(ap0, wt)
 	add_child(m["root"])
+	if OS.get_environment("EMBED") != "":
+		m["weapon"].visible = false
+		for c in m["skeleton"].get_children():
+			if c is BoneAttachment3D and String(c.name) == OS.get_environment("EMBED"):
+				c.visible = true
 	if a.size() > 5:
 		var r := a[5].split(",")
 		m["weapon"].rotation_degrees = Vector3(float(r[0]), float(r[1]), float(r[2]))
@@ -37,6 +44,9 @@ func _ready() -> void:
 	add_child(cam)
 	cam.position = Vector3(0, 1.2, 3.4)
 	cam.look_at(Vector3(0, 1.0, 0))
+	if OS.get_environment("CAMZ") != "":
+		cam.position = Vector3(0, 1.4, float(OS.get_environment("CAMZ")))
+		cam.look_at(Vector3(0, 1.0, 0))
 	if OS.get_environment("ZOOM") == "1":
 		cam.position = Vector3(0, 1.65, 1.1)
 		cam.look_at(Vector3(0, 1.6, 0))

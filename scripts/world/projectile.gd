@@ -36,14 +36,16 @@ func setup(arena: Node, pos: Vector3, vel: Vector3, col: Color, size: float = 0.
 	color = col
 	visual_size = size
 	top_level = true
-	var core := Toon.part(self, "sphere", Vector3(size, 0, 0), col, Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(col, 3.0), false)
-	var halo := Toon.part(self, "sphere", Vector3(size * 1.8, 0, 0), col, Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(col, 1.0, 0.3), false)
-	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var core := Toon.part(self, "sphere", Vector3(size * 0.55, 0, 0), col.lightened(0.6), Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(col.lightened(0.5), 4.0), false)
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	FX.glow_sprite(self, Color(col.r, col.g, col.b, 0.9), size * 5.0)
+	FX.glow_sprite(self, Color(1, 1, 1, 0.7).lerp(col, 0.3), size * 2.6, "flash")
+	FX.trail(self, col, size, 20, 0.45)
 	var l := OmniLight3D.new()
 	l.light_color = col
-	l.omni_range = 4.0
-	l.light_energy = 1.2
+	l.omni_range = 3.5
+	l.light_energy = 0.8
+	l.shadow_enabled = false
 	add_child(l)
 	arena.add_child(self)
 	if not ghost and arena.has_method("net_proj_spawn"):
@@ -119,6 +121,7 @@ func _impact() -> void:
 
 func _explode() -> void:
 	FX.ring(_arena, global_position, explode_radius, color, 0.35)
+	FX.flash(_arena, global_position + Vector3(0, 0.3, 0), color, explode_radius * 1.4, 0.25)
 	FX.burst(_arena, global_position, color, 18, 6.0, 0.14, 0.5)
 	Sfx.play("boom", 1.2, -6.0)
 	for e in get_tree().get_nodes_in_group("enemies"):
