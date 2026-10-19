@@ -121,3 +121,16 @@
 - Truhen/Schreine: im Solo-Test (3 Gebiete) funktionieren sie; die gemeldete Störung konnte ich nicht nachstellen. Interaktionsradius auf 4 m erhöht – falls es weiter hakt, bitte genau beschreiben (Solo/Koop, Hinweistext sichtbar?).
 - Neue Modelle für Charaktere konnten nicht geladen werden (nur GitHub erreichbar, keine animierten Heldenmodelle außer KayKit); Vielfalt kommt aus Kombinationen.
 - Grafik: nur FXAA ergänzt, kein großes Upgrade; echte GPU weiter ungeprüft.
+
+
+## Änderungen 0.9.11 (Feedback-Runde 8)
+- Ausrüstung am Charakter und Beute am Boden: echte Quaternius-Modelle (58 Stück) statt Würfeln; Truhen mit Modell (offen/zu).
+- Editor: Haare, Bart, Hörner, Ohren neu geformt, sitzen am Kopf, Gesicht bleibt frei (Vorschau 11 Varianten geprüft).
+- Fadenkreuz-Ziel: Gegner unter dem Fadenkreuz bekommt Bodenring, Pfeil und Lebensbalken; Zielrahmen (Name, Leben) oben; Fadenkreuz wird rot; Zielhilfe nutzt dieses Ziel zuerst.
+- Doppelter eigener Lebensbalken entfernt (nur Kugel; Gruppenrahmen zeigt nur Mitspieler).
+- Enter nach dem Boss beendet sofort (im Koop nur der Host).
+- Wiederbeleben: 2 s statt 3 s, 5 m Reichweite, Taste darf kurz losgelassen werden (0,5 s Toleranz), Fortschritt in % im Hinweis.
+## Ehrlich: nicht verifiziert (0.9.11)
+- Wiederbeleben mit echten Menschen: Ursache des Fehlers unbekannt; Bot-Test (3 Spieler) besteht, Änderungen oben sind Verbesserungen auf Verdacht.
+- Rüstungsteile: Sitz/Größe nur in Charakter-Vorschau geprüft, nicht jede Seltenheit/Rüstungsart; Tränke sind weiß (keine Textur).
+- Zielmarkierung und Enter-Beenden nur per Code/Bot-Test, nicht in einem echten Spiel gesehen; echte GPU und Internet-Koop weiter ungeprüft.

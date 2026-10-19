@@ -54,6 +54,8 @@ var empowered := false
 var frost_shield_t := 0.0
 var shake := 0.0
 var lock_target: Node3D = null
+var crosshair_target: Node3D = null
+var _marked: Node3D = null
 var _regen_acc := 0.0
 var _walk_phase := 0.0
 var _aim_yaw := 0.0
@@ -89,7 +91,7 @@ const HOLD_LIGHT := 1
 const HOLD_BLOCK := 2
 const HOLD_INTERACT := 4
 const BLEED_TIME := 30.0          # so lange kann ein kampfunfähiger Spieler wiederbelebt werden
-const REVIVE_TIME := 3.0          # so lange muss ein Mitspieler die Interaktionstaste halten
+const REVIVE_TIME := 2.0          # so lange muss ein Mitspieler die Interaktionstaste halten
 const STATE_CODES := ["idle", "attack", "dodge", "down"]
 
 var net_role := "none"
@@ -99,6 +101,7 @@ var net_slot := 0
 var display_name := ""
 var run_stats: Dictionary = {}
 var interact_held := false
+var interact_grace := 0.0
 var bleed_t := 0.0
 var revive_progress := 0.0
 var permadown := false
@@ -223,6 +226,10 @@ func _ready() -> void:
 	camera.current = true
 	_arm.add_child(camera)
 	_yaw_pivot.global_position = global_position + Vector3(0, 1.7, 0)
+
+
+func _grace_tick(delta: float, active: bool) -> void:
+	interact_grace = 0.5 if active else maxf(interact_grace - delta, 0.0)
 
 
 func is_down() -> bool:
@@ -385,8 +392,10 @@ func _physics_process(delta: float) -> void:
 		_apply_down_pose()
 	var inp := gather_input()
 	interact_held = inp.get("interact_held", false)
+	_grace_tick(delta, interact_held or inp.get("interact", false))
 	_tick_timers(delta)
 	_camera_update(delta, inp)
+	_update_crosshair_target()
 	_movement(delta, inp)
 	if net_role == "local_client":
 		_client_combat(delta, inp)
@@ -539,6 +548,8 @@ func _aim_yaw_target() -> float:
 func _aim_target() -> Node3D:
 	if lock_target != null and is_instance_valid(lock_target) and not lock_target.dead:
 		return lock_target
+	if crosshair_target != null and is_instance_valid(crosshair_target) and not crosshair_target.dead:
+		return crosshair_target
 	var best: Node3D = null
 	var best_d := 14.0
 	var fwd := Vector3(-sin(cam_yaw), 0, -cos(cam_yaw))
@@ -566,6 +577,36 @@ func _nearest_downed_ally() -> Node3D:
 				best_d = d
 				best = a
 	return best
+
+
+## Gegner, auf den das Fadenkreuz (Bildschirmmitte) zeigt – Winkel zur Kamerasicht.
+func _update_crosshair_target() -> void:
+	var best: Node3D = null
+	if camera != null and is_local_view():
+		var o := camera.global_position
+		var fwd := -camera.global_transform.basis.z
+		var best_a := 1.0
+		for e in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(e) or e.dead:
+				continue
+			var ms: float = e.model_scale if "model_scale" in e else 1.0
+			var pt: Vector3 = e.global_position + Vector3(0, 0.9 * ms, 0)
+			var v := pt - o
+			var dist := v.length()
+			if dist < 0.5 or dist > 45.0 or e.global_position.distance_to(global_position) > 40.0:
+				continue
+			var a := fwd.angle_to(v)
+			var tol := atan(0.85 * maxf(ms, 0.8) / dist) + deg_to_rad(2.0)
+			if a < tol and a < best_a:
+				best_a = a
+				best = e
+	crosshair_target = best
+	if _marked != best:
+		if _marked != null and is_instance_valid(_marked) and _marked.has_method("set_targeted"):
+			_marked.set_targeted(false)
+		_marked = best
+		if _marked != null and _marked.has_method("set_targeted"):
+			_marked.set_targeted(true)
 
 
 func _nearest_enemy(max_dist: float) -> Node3D:
@@ -1519,6 +1560,7 @@ const REMOTE_TELEPORT_LIMIT := 14.0
 func _remote_step(delta: float) -> void:
 	var inp := _remote_input()
 	interact_held = inp["interact_held"]
+	_grace_tick(delta, interact_held or inp["interact"])
 	var down := state == "down"
 	var prev := global_position
 	if net_away:

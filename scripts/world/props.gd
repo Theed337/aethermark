@@ -8,23 +8,36 @@ static func make_chest(parent: Node3D, pos: Vector3) -> Dictionary:
 	var n := Node3D.new()
 	n.position = pos
 	parent.add_child(n)
-	var wood := Color("#8a5a2a")
-	Toon.outline(Toon.part(n, "box", Vector3(1.0, 0.6, 0.7), wood, Vector3(0, 0.3, 0)), 0.02)
-	var lid := Toon.part(n, "cyl", Vector3(0.35, 1.0, 0.35), wood.lightened(0.1), Vector3(0, 0.62, 0), Vector3(0, 0, 90))
-	Toon.part(n, "box", Vector3(0.14, 0.2, 0.05), Color("#f0c65a"), Vector3(0, 0.55, 0.37), Vector3.ZERO, Toon.glow_mat(Color("#f0c65a"), 1.0))
+	var closed := ItemModels.make("ChestClosed", 1.25)
+	var opened := ItemModels.make("ChestOpen", 1.25)
+	if closed != null and opened != null:
+		closed.name = "Closed"
+		opened.name = "Opened"
+		opened.visible = false
+		n.add_child(closed)
+		n.add_child(opened)
+	else:
+		var wood := Color("#8a5a2a")
+		Toon.outline(Toon.part(n, "box", Vector3(1.0, 0.6, 0.7), wood, Vector3(0, 0.3, 0)), 0.02)
+		var lid0 := Toon.part(n, "cyl", Vector3(0.35, 1.0, 0.35), wood.lightened(0.1), Vector3(0, 0.62, 0), Vector3(0, 0, 90))
+		lid0.name = "Lid"
 	var l := OmniLight3D.new()
 	l.light_color = Color("#ffd98a")
 	l.omni_range = 4.0
 	l.light_energy = 0.8
 	l.position.y = 1.0
 	n.add_child(l)
-	lid.name = "Lid"
 	return {"node": n, "open": false, "kind": "chest"}
 
 
 static func open_chest_visual(c: Dictionary, parent: Node) -> void:
 	c["open"] = true
-	c["node"].get_node("Lid").rotation_degrees.x = -70
+	var nd: Node3D = c["node"]
+	if nd.has_node("Closed"):
+		nd.get_node("Closed").visible = false
+		nd.get_node("Opened").visible = true
+	elif nd.has_node("Lid"):
+		nd.get_node("Lid").rotation_degrees.x = -70
 	FX.burst(parent, c["node"].global_position + Vector3(0, 0.8, 0), Color("#ffd98a"), 14, 5.0)
 
 
@@ -61,7 +74,17 @@ static func make_pickup(parent: Node3D, pos: Vector3, item: Dictionary) -> Node3
 	n.position = Vector3(pos.x, 0.0, pos.z)
 	n.top_level = true
 	parent.add_child(n)
-	var gem := Toon.part(n, "prism", Vector3(0.35, 0.5, 0.35), col, Vector3(0, 0.7, 0), Vector3.ZERO, Toon.glow_mat(col, 2.2), false)
+	var gem: Node3D = Node3D.new()
+	gem.position = Vector3(0, 0.7, 0)
+	var mdl := ItemModels.make(ItemModels.model_name(item), 0.95 if item.get("slot", "") != "weapon" else 1.3)
+	if mdl != null:
+		mdl.position.y = -0.4
+		gem.add_child(mdl)
+		var ring := Toon.part(n, "torus", Vector3(0.62, 0.52, 0), col, Vector3(0, 0.05, 0), Vector3.ZERO, Toon.glow_mat(col, 2.0, 0.8), false)
+		ring.name = "Ring"
+	else:
+		Toon.part(gem, "prism", Vector3(0.35, 0.5, 0.35), col, Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(col, 2.2), false)
+	n.add_child(gem)
 	gem.name = "Gem"
 	var beam := Toon.part(n, "cyl", Vector3(0.12, 4.0, 0.12), col, Vector3(0, 2.0, 0), Vector3.ZERO, Toon.glow_mat(col, 1.4, 0.25), false)
 	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

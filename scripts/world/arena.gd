@@ -13,7 +13,7 @@ const TIME_SCALE_QUICK := 0.33
 const OFFER_TIMEOUT := 25.0          # Koop: nach dieser Zeit wird eine Option automatisch gewählt
 const SNAP_INTERVAL := 1.0 / 15.0
 const ME_INTERVAL := 1.0 / 20.0
-const REVIVE_RANGE := 4.0
+const REVIVE_RANGE := 5.0
 const WIPE_DELAY := 2.0
 
 var player: Player                   # lokaler Spieler (Solo oder Host)
@@ -222,6 +222,10 @@ func player_banner(p: Player, text: String, color: Color = UI.GOLD, duration: fl
 
 # ------------------------------------------------------------------ Hauptschleife
 
+func _enter_pressed() -> bool:
+	return Input.is_action_just_pressed("ui_accept") or Input.is_physical_key_pressed(KEY_ENTER) or Input.is_physical_key_pressed(KEY_KP_ENTER)
+
+
 func _process(delta: float) -> void:
 	if finished:
 		return
@@ -240,8 +244,8 @@ func _process(delta: float) -> void:
 		_hint_t -= delta
 		if _hint_t <= 0.0 and hud != null:
 			_hint_t = 1.0
-			hud.show_hint("Beute einsammeln – Rückkehr in %d s  (Enter: jetzt beenden)" % int(ceil(victory_t)), 1.2)
-		if victory_t <= 0.0 or (Input.is_action_just_pressed("ui_accept") and not RunState.bot_mode and not net_on):
+			hud.show_hint("Beute einsammeln – Rückkehr in %d s  (Enter: jetzt beenden%s)" % [int(ceil(victory_t)), " – Host" if net_on else ""], 1.2)
+		if victory_t <= 0.0 or (_enter_pressed() and not RunState.bot_mode):
 			_finish(true)
 			return
 	_update_spawner(delta)
@@ -570,8 +574,8 @@ func _update_prompt() -> void:
 		hud.show_hint("[%s] %s" % [InputSetup.key_name("interact"), kind], 0.2)
 	elif net_on:
 		for p in players:
-			if is_instance_valid(p) and p != player and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 4.0:
-				hud.show_hint("[%s halten] %s wiederbeleben" % [InputSetup.key_name("interact"), p.display_name], 0.2)
+			if is_instance_valid(p) and p != player and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 5.0:
+				hud.show_hint("[%s halten] %s wiederbeleben  %d %%" % [InputSetup.key_name("interact"), p.display_name, int(p.revive_progress * 100.0)], 0.2)
 				break
 
 
@@ -798,7 +802,7 @@ func _update_revive(delta: float) -> void:
 		for h in players:
 			if h == p or not is_instance_valid(h) or h.is_down() or h.net_away:
 				continue
-			if h.interact_held and h.global_position.distance_to(p.global_position) <= REVIVE_RANGE:
+			if (h.interact_held or h.interact_grace > 0.0) and h.global_position.distance_to(p.global_position) <= REVIVE_RANGE:
 				helper = h
 				break
 		if helper != null:

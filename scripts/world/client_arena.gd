@@ -193,8 +193,8 @@ func _update_prompt() -> void:
 		return
 	for slot in puppets:
 		var p: Player = puppets[slot]
-		if is_instance_valid(p) and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 4.0:
-			hud.show_hint("[%s halten] %s wiederbeleben" % [InputSetup.key_name("interact"), p.display_name], 0.2)
+		if is_instance_valid(p) and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 5.0:
+			hud.show_hint("[%s halten] %s wiederbeleben  %d %%" % [InputSetup.key_name("interact"), p.display_name, int(p.revive_progress * 100.0)], 0.2)
 			return
 
 

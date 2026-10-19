@@ -53,6 +53,8 @@ var _bar_root: Node3D
 var _knock := Vector3.ZERO
 var _burn_tick := 0.0
 var show_bar := true
+var targeted := false
+var _mark: Node3D
 
 # Multiplayer
 var net_id := 0                  # vom Host vergeben (0 = Solo)
@@ -474,6 +476,46 @@ func _build_elite_aura() -> void:
 	crown.name = "Crown"
 
 
+## Fadenkreuz-Markierung: Bodenring + Pfeil über dem Gegner.
+func set_targeted(on: bool) -> void:
+	if on == targeted:
+		return
+	targeted = on
+	if on and _mark == null:
+		_mark = Node3D.new()
+		add_child(_mark)
+		var r := 0.9 * maxf(model_scale, 0.8)
+		var ring := MeshInstance3D.new()
+		var t := TorusMesh.new()
+		t.outer_radius = r
+		t.inner_radius = r - 0.09
+		ring.mesh = t
+		ring.position.y = 0.06
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.albedo_color = Color(1.0, 0.25, 0.15)
+		m.no_depth_test = true
+		m.render_priority = 5
+		ring.material_override = m
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_mark.add_child(ring)
+		var ar := MeshInstance3D.new()
+		var c := CylinderMesh.new()
+		c.top_radius = 0.28
+		c.bottom_radius = 0.0
+		c.height = 0.5
+		c.radial_segments = 4
+		ar.mesh = c
+		ar.material_override = m
+		ar.position.y = 2.1 * model_scale + 0.95
+		ar.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_mark.add_child(ar)
+	if _mark != null:
+		_mark.visible = on
+	if _bar_root != null:
+		_bar_root.visible = show_bar and (hp < max_hp or targeted) and not dead
+
+
 func display_name() -> String:
 	var n: String = data["name"]
 	if is_mini:
@@ -496,7 +538,7 @@ func _ghost_step(delta: float) -> void:
 	_mesh_update(delta)
 	_update_flash(delta)
 	_visual_tint_ghost()
-	_bar_root.visible = show_bar and hp < max_hp and not dead
+	_bar_root.visible = show_bar and (hp < max_hp or targeted) and not dead
 	if _bar_fill != null:
 		var f := clampf(hp / max_hp, 0.001, 1.0)
 		_bar_fill.scale.x = f
@@ -574,7 +616,7 @@ func _physics_process(delta: float) -> void:
 	if move_vec.length() > 0.1 and state == "move":
 		_face(move_vec, delta)
 	_update_flash(delta)
-	_bar_root.visible = show_bar and hp < max_hp and not dead
+	_bar_root.visible = show_bar and (hp < max_hp or targeted) and not dead
 	if _bar_fill != null:
 		var f := clampf(hp / max_hp, 0.001, 1.0)
 		_bar_fill.scale.x = f

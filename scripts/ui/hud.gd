@@ -13,6 +13,9 @@ const SLOT := 80.0
 
 var arena: Node
 var player: Player
+var _crosshair: Control
+var _tgt_label: Label
+var _tgt_bar: ProgressBar
 var health_orb: Orb
 var mana_orb: Orb
 var xp_bar: ProgressBar
@@ -60,13 +63,15 @@ func bind(a: Node, p: Player) -> void:
 # ------------------------------------------------------------------ Aufbau
 
 class Crosshair extends Control:
+	var on_enemy := false
+
 	func _process(_d: float) -> void:
 		visible = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 		queue_redraw()
 
 	func _draw() -> void:
 		var c := size * 0.5
-		var col := Color(1, 1, 1, 0.9)
+		var col := Color(1, 0.25, 0.2, 1.0) if on_enemy else Color(1, 1, 1, 0.9)
 		var sh := Color(0, 0, 0, 0.7)
 		for d in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
 			draw_line(c + d * 7.0 + Vector2(1, 1), c + d * 17.0 + Vector2(1, 1), sh, 3.0)
@@ -77,6 +82,7 @@ class Crosshair extends Control:
 
 func _build_crosshair() -> void:
 	var ch := Crosshair.new()
+	_crosshair = ch
 	ch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ch.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ch)
@@ -292,9 +298,40 @@ func flash_hurt() -> void:
 
 # ------------------------------------------------------------------ Aktualisierung
 
+func _update_target_frame() -> void:
+	var t = player.crosshair_target
+	var ok: bool = t != null and is_instance_valid(t) and not t.dead
+	if _crosshair != null:
+		_crosshair.on_enemy = ok
+	if _tgt_label == null:
+		_tgt_label = _outlined(UI.label("", 17, Color("#ffd9a0"), true))
+		_tgt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_tgt_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		_tgt_label.offset_left = -200
+		_tgt_label.offset_right = 200
+		_tgt_label.offset_top = 96
+		_tgt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_tgt_label)
+		_tgt_bar = UI.bar(Color("#d8342a"), Vector2(260, 12))
+		_tgt_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		_tgt_bar.offset_left = -130
+		_tgt_bar.offset_right = 130
+		_tgt_bar.offset_top = 122
+		_tgt_bar.offset_bottom = 134
+		_tgt_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_tgt_bar)
+	_tgt_label.visible = ok
+	_tgt_bar.visible = ok
+	if ok:
+		_tgt_label.text = "%s  (%d / %d)" % [t.display_name(), int(ceil(t.hp)), int(t.max_hp)]
+		_tgt_bar.max_value = maxf(t.max_hp, 1.0)
+		_tgt_bar.value = t.hp
+
+
 func _process(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
+	_update_target_frame()
 	var maxhp: float = maxf(float(player.stats["max_hp"]), 1.0)
 	health_orb.set_level(player.hp / maxhp, delta)
 	var shield_txt := ("+%d" % int(player.shield)) if player.shield > 0.5 else ""
@@ -407,6 +444,12 @@ func _update_party() -> void:
 	else:
 		members = [{"name": player.character.get("name", "Held"), "hp": player.hp, "max": player.stats["max_hp"], "down": false,
 				"away": false, "level": player.level, "self": true, "lost": false}]
+	var others: Array = []
+	for m0 in members:
+		if not bool(m0.get("self", false)):
+			others.append(m0)
+	members = others   # eigener Lebensbalken: nur die Kugel unten
+	party_box.visible = not members.is_empty()
 	if members.size() != _party_rows.size():
 		UI.clear(party_box)
 		_party_rows.clear()
