@@ -13,7 +13,7 @@ const TIME_SCALE_QUICK := 0.33
 const OFFER_TIMEOUT := 25.0          # Koop: nach dieser Zeit wird eine Option automatisch gewählt
 const SNAP_INTERVAL := 1.0 / 15.0
 const ME_INTERVAL := 1.0 / 20.0
-const REVIVE_RANGE := 2.4
+const REVIVE_RANGE := 4.0
 const WIPE_DELAY := 2.0
 
 var player: Player                   # lokaler Spieler (Solo oder Host)
@@ -543,9 +543,10 @@ func _update_pickups(delta: float) -> void:
 func _update_prompt() -> void:
 	_prompt_target = null
 	if player.is_down():
-		hud.show_hint("Du bist kampfunfähig – ein Mitspieler kann dich wiederbeleben" if net_on else "", 0.2)
+		if net_on:
+			hud.show_hint(("Du bist kampfunfähig – du siehst %s zu (Linksklick: nächster Spieler)" % player.spec_name) if player.spec_name != "" else "Du bist kampfunfähig – ein Mitspieler kann dich wiederbeleben", 0.2)
 		return
-	var best := 3.0
+	var best := 4.0
 	var chest_nodes: Array = []
 	for c in _chests:
 		chest_nodes.append(c["node"])
@@ -569,7 +570,7 @@ func _update_prompt() -> void:
 		hud.show_hint("[%s] %s" % [InputSetup.key_name("interact"), kind], 0.2)
 	elif net_on:
 		for p in players:
-			if is_instance_valid(p) and p != player and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 3.5:
+			if is_instance_valid(p) and p != player and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 4.0:
 				hud.show_hint("[%s halten] %s wiederbeleben" % [InputSetup.key_name("interact"), p.display_name], 0.2)
 				break
 
@@ -592,12 +593,12 @@ func player_interact(p: Node) -> void:
 		return
 	for i in _chests.size():
 		var c: Dictionary = _chests[i]
-		if not c["open"] and c["node"].global_position.distance_to(p.global_position) <= 3.0:
+		if not c["open"] and c["node"].global_position.distance_to(p.global_position) <= 4.0:
 			_open_chest(i, p)
 			return
 	for i in _shrines.size():
 		var s: Dictionary = _shrines[i]
-		if s["state"] == "idle" and s["node"].global_position.distance_to(p.global_position) <= 3.0:
+		if s["state"] == "idle" and s["node"].global_position.distance_to(p.global_position) <= 4.0:
 			_activate_shrine(i, p)
 			return
 
@@ -654,7 +655,10 @@ func _update_offers() -> void:
 			continue
 		if p.level_pending > 0 and p.net_offers.is_empty() and not p.is_down() and not p.net_away:
 			_start_offer(p)
-		elif not p.net_offers.is_empty() and net_on and run_time > p.offer_deadline and p != player:
+		elif not p.net_offers.is_empty() and net_on and p != player and not p.net_away and run_time > p.offer_resend:
+			p.offer_resend = run_time + 3.0
+			_send_offer(p)
+		if not p.net_offers.is_empty() and net_on and run_time > p.offer_deadline and p != player:
 			var o: Dictionary = p.net_offers[p.rng.randi() % p.net_offers.size()]
 			_resolve_offer(p, "pick", o["id"])
 

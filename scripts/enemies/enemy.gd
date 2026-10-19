@@ -282,7 +282,7 @@ func _build_mesh_monster(src: Dictionary) -> bool:
 	_mesh_fly = 0.55 if MON_FLY.has(nm) else 0.0
 	_mesh_base = -box.position.y * sc + _mesh_fly
 	inst.position = Vector3(0, 0, 0)
-	inst.rotation.y = PI
+	inst.rotation.y = 0.0
 	_mesh_pivot = Node3D.new()
 	_mesh_pivot.position.y = _mesh_base
 	_visual.add_child(_mesh_pivot)
@@ -445,8 +445,8 @@ func _build_bar() -> void:
 		mi.mesh = q
 		var m := StandardMaterial3D.new()
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 		m.no_depth_test = true
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		m.render_priority = 10 + i
 		m.albedo_color = Color(0.1, 0.05, 0.08, 0.85) if i == 0 else (Color("#ff5a4a") if elite_mod == "" and not is_mini else Color("#ffb340"))
 		mi.material_override = m
@@ -455,6 +455,15 @@ func _build_bar() -> void:
 		if i == 1:
 			_bar_fill = mi
 	_bar_root.visible = false
+
+
+func _orient_bar() -> void:
+	var cam := get_viewport().get_camera_3d()
+	var sc := maxf(model_scale, 0.9)
+	if cam != null:
+		_bar_root.global_transform = Transform3D(cam.global_transform.basis.scaled(Vector3.ONE * sc), _bar_root.global_position)
+	else:
+		_bar_root.scale = Vector3.ONE * sc
 
 
 func _build_elite_aura() -> void:
@@ -492,7 +501,7 @@ func _ghost_step(delta: float) -> void:
 		var f := clampf(hp / max_hp, 0.001, 1.0)
 		_bar_fill.scale.x = f
 		_bar_fill.position.x = -0.5 * (1.0 - f)
-	_bar_root.scale = Vector3.ONE * maxf(model_scale, 0.9)
+	_orient_bar()
 
 
 func _visual_tint_ghost() -> void:
@@ -570,7 +579,7 @@ func _physics_process(delta: float) -> void:
 		var f := clampf(hp / max_hp, 0.001, 1.0)
 		_bar_fill.scale.x = f
 		_bar_fill.position.x = -0.5 * (1.0 - f)
-	_bar_root.scale = Vector3.ONE * maxf(model_scale, 0.9)
+	_orient_bar()
 
 
 ## Nächster Spieler, der kämpfen kann (nicht kampfunfähig, nicht getrennt). Im Koop wechselt das Ziel dadurch laufend.

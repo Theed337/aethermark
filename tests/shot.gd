@@ -18,7 +18,12 @@ func _ready() -> void:
 	Net.use_upnp = false
 	SaveSystem.save_path = "user://shot_save.json"
 	SaveSystem.data = SaveSystem.default_data()
-	SaveSystem.new_character("Testheld", SaveSystem.default_appearance())
+	var app0: Dictionary = SaveSystem.default_appearance()
+	if OS.get_environment("SHOT_APP") != "":
+		var over: Dictionary = JSON.parse_string(OS.get_environment("SHOT_APP"))
+		for k in over:
+			app0[k] = over[k]
+	SaveSystem.new_character("Testheld", app0)
 	if OS.get_environment("SHOT_ITEMS") != "":
 		var rng := RandomNumberGenerator.new()
 		rng.seed = 5

@@ -186,7 +186,9 @@ static func _build_kaykit(appearance: Dictionary, weapon_type: String, gear: Dic
 	root.add_child(body_pivot)
 	var origin: Dictionary = GameData.origins.get(a["origin"], GameData.origins["human"])
 	var sc_h: float = float(a["body_height"]) * float(origin.get("height", 1.0)) * KK_SCALE
-	var sc_b: float = float(a["body_build"]) * float(origin.get("build", 1.0)) * KK_SCALE
+	var sc_b: float = float(a["body_build"]) * float(origin.get("build", 1.0)) * KK_SCALE * (0.9 if int(a.get("female", 0)) == 1 else 1.0)
+	if int(a.get("female", 0)) == 1:
+		sc_h *= 0.97
 	body_pivot.scale = Vector3(sc_b, sc_h, sc_b)
 	var inst: Node3D = _kk_scenes[bname].instantiate()
 	body_pivot.add_child(inst)
@@ -204,7 +206,8 @@ static func _build_kaykit(appearance: Dictionary, weapon_type: String, gear: Dic
 			var n := String(c.name)
 			if not (n.contains("Hat") or n.contains("Cape") or n.contains("Helmet") or n.contains("Hood")):
 				c.visible = false
-	_apply_gear(sk, bname, gear, int(a.get("female", 0)) == 1)
+	_apply_gear(sk, bname, gear, int(a.get("female", 0)) == 1, int(a.get("head_style", -1)))
+	_apply_custom(sk, a, gear)
 	# Waffe in der rechten Hand
 	var wa := BoneAttachment3D.new()
 	wa.bone_name = "handslot.r"
@@ -241,6 +244,13 @@ static func gear_looks(c: Dictionary) -> Dictionary:
 	if c.is_empty():
 		return out
 	var eq: Dictionary = c.get("equipment", {})
+	var info := {}
+	for slot in ["head", "chest", "hands", "legs", "feet", "amulet", "artifact", "offhand"]:
+		if eq.has(slot):
+			var it0 := SaveSystem.find_item(c, eq[slot])
+			if not it0.is_empty():
+				info[slot] = {"rarity": str(it0.get("rarity", "common")), "base": str(it0.get("base_id", ""))}
+	out["info"] = info
 	for slot in ["head", "chest", "legs"]:
 		if eq.has(slot):
 			var it := SaveSystem.find_item(c, eq[slot])
@@ -302,7 +312,7 @@ static func _hide_named(sk: Skeleton3D, tokens: Array) -> void:
 					c.visible = false
 
 
-static func _apply_gear(sk: Skeleton3D, base: String, gear: Dictionary, female: bool) -> void:
+static func _apply_gear(sk: Skeleton3D, base: String, gear: Dictionary, female: bool, head_override: int = -1) -> void:
 	var base_short := base.split("_")[0]
 	var head_style := base
 	if gear.has("head"):
@@ -318,6 +328,8 @@ static func _apply_gear(sk: Skeleton3D, base: String, gear: Dictionary, female: 
 	var head_src := head_style
 	if female:
 		head_src = "Rogue_Hooded" if head_style == "Rogue_Hooded" else "Rogue"
+	if head_override >= 0 and not gear.has("head"):
+		head_src = KK_BODIES[clampi(head_override, 0, KK_BODIES.size() - 1)]
 	if head_src != base or gear.has("head"):
 		var src := _kk_instance(head_src)
 		var ssk: Skeleton3D = src.find_child("Skeleton3D", true, false)
@@ -342,12 +354,182 @@ static func _apply_gear(sk: Skeleton3D, base: String, gear: Dictionary, female: 
 		for part in ["LegLeft", "LegRight"]:
 			_graft_mesh(sk, ssk3, "%s_%s" % [lshort, part], "%s_%s" % [base_short, part])
 		src3.free()
+	_apply_overlays(sk, gear.get("info", {}))
 	if gear.has("shield"):
 		var sname: String = gear["shield"]
 		var ssrc := _kk_instance("Barbarian" if sname.begins_with("Barbarian") else "Knight")
 		var ssk4: Skeleton3D = ssrc.find_child("Skeleton3D", true, false)
 		_graft_attachment(sk, ssk4, sname)
 		ssrc.free()
+
+
+const RAR_RANK := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4, "mythic": 5}
+const RAR_COL := {"common": "#9a7b55", "uncommon": "#4fae5a", "rare": "#4a8fe0", "epic": "#a45ad8", "legendary": "#f0a030", "mythic": "#e0405a"}
+
+
+static func _att(sk: Skeleton3D, bone: String) -> BoneAttachment3D:
+	if sk.find_bone(bone) < 0:
+		return null
+	var a := BoneAttachment3D.new()
+	a.bone_name = bone
+	a.name = "GearAtt_" + bone
+	sk.add_child(a)
+	return a
+
+
+static func _metal(rar: String) -> ShaderMaterial:
+	var rk: int = int(RAR_RANK.get(rar, 0))
+	var col := Color(RAR_COL.get(rar, "#9a7b55"))
+	return Toon.mat(col.lerp(Color("#cfd6de"), 0.25 if rk >= 1 else 0.0), 0.0 if rk < 2 else 0.25 * rk, 0.4)
+
+
+static func _trim(rar: String) -> ShaderMaterial:
+	var rk: int = int(RAR_RANK.get(rar, 0))
+	return Toon.glow_mat(Color(RAR_COL.get(rar, "#9a7b55")).lightened(0.2), 0.8 + 0.7 * rk)
+
+
+## Sichtbare Rüstungsteile je Platz (Schulterplatten, Brustplatte, Handschuhe, Beinschienen, Stiefel, Amulett, Artefakt),
+## Farbe und Leuchten nach Seltenheit. Sitzt auf den Knochen, bewegt sich also mit den Animationen.
+static func _apply_overlays(sk: Skeleton3D, info: Dictionary) -> void:
+	if info.has("chest"):
+		var r: String = info["chest"]["rarity"]
+		var m := _metal(r)
+		var ch := _att(sk, "chest")
+		if ch != null:
+			var plate := Toon.part(ch, "box", Vector3(0.58, 0.42, 0.14), Color.WHITE, Vector3(0, 0.02, 0.2), Vector3.ZERO, m)
+			Toon.outline(plate, 0.012)
+			Toon.part(ch, "box", Vector3(0.14, 0.14, 0.04), Color.WHITE, Vector3(0, 0.04, 0.28), Vector3(0, 0, 45), _trim(r), false)
+		for side in ["l", "r"]:
+			var ua := _att(sk, "upperarm." + side)
+			if ua != null:
+				var pd := Toon.part(ua, "sphere", Vector3(0.17, 0, 0), Color.WHITE, Vector3(0, 0.1, 0), Vector3.ZERO, m)
+				pd.scale = Vector3(1.0, 0.7, 1.0)
+				Toon.outline(pd, 0.012)
+				if int(RAR_RANK[r]) >= 3:
+					Toon.part(ua, "cone", Vector3(0.07, 0.26, 0), Color.WHITE, Vector3(0, 0.26, 0), Vector3.ZERO, _trim(r), false)
+	if info.has("hands"):
+		var r2: String = info["hands"]["rarity"]
+		for side in ["l", "r"]:
+			var h := _att(sk, "hand." + side)
+			if h != null:
+				var g := Toon.part(h, "box", Vector3(0.2, 0.2, 0.2), Color.WHITE, Vector3(0, 0.05, 0), Vector3.ZERO, _metal(r2))
+				Toon.outline(g, 0.01)
+			var w := _att(sk, "lowerarm." + side)
+			if w != null:
+				Toon.part(w, "cyl", Vector3(0.14, 0.2, 0), Color.WHITE, Vector3(0, 0.14, 0), Vector3.ZERO, _trim(r2) if int(RAR_RANK[r2]) >= 2 else _metal(r2))
+	if info.has("legs"):
+		var r3: String = info["legs"]["rarity"]
+		for side in ["l", "r"]:
+			var ul := _att(sk, "upperleg." + side)
+			if ul != null:
+				var t := Toon.part(ul, "box", Vector3(0.24, 0.34, 0.26), Color.WHITE, Vector3(0, 0.2, 0), Vector3.ZERO, _metal(r3))
+				Toon.outline(t, 0.01)
+			var ll := _att(sk, "lowerleg." + side)
+			if ll != null:
+				var k := Toon.part(ll, "sphere", Vector3(0.14, 0, 0), Color.WHITE, Vector3(0, 0.0, 0.1), Vector3.ZERO, _metal(r3))
+				k.scale = Vector3(1.0, 0.8, 0.8)
+	if info.has("feet"):
+		var r4: String = info["feet"]["rarity"]
+		for side in ["l", "r"]:
+			var ll2 := _att(sk, "lowerleg." + side)
+			if ll2 != null:
+				var b := Toon.part(ll2, "cyl", Vector3(0.15, 0.3, 0), Color.WHITE, Vector3(0, 0.2, 0), Vector3.ZERO, _metal(r4))
+				Toon.outline(b, 0.01)
+			var ft := _att(sk, "foot." + side)
+			if ft != null:
+				Toon.part(ft, "box", Vector3(0.2, 0.12, 0.34), Color.WHITE, Vector3(0, 0.03, 0.08), Vector3.ZERO, _metal(r4))
+	if info.has("amulet"):
+		var ch2 := _att(sk, "chest")
+		if ch2 != null:
+			Toon.part(ch2, "sphere", Vector3(0.07, 0, 0), Color.WHITE, Vector3(0, 0.22, 0.2), Vector3.ZERO, _trim(info["amulet"]["rarity"]), false)
+	if info.has("artifact"):
+		var ch3 := _att(sk, "chest")
+		if ch3 != null:
+			var orb := Toon.part(ch3, "sphere", Vector3(0.09, 0, 0), Color.WHITE, Vector3(0.38, 0.5, -0.15), Vector3.ZERO, _trim(info["artifact"]["rarity"]), false)
+			orb.name = "ArtifactOrb"
+	if info.has("head"):
+		var r5: String = info["head"]["rarity"]
+		if int(RAR_RANK[r5]) >= 2:
+			var hd := _att(sk, "head")
+			if hd != null:
+				Toon.part(hd, "cone", Vector3(0.1, 0.5, 0), Color.WHITE, Vector3(0, 0.7, -0.05), Vector3.ZERO, _trim(r5), false)
+
+
+## Editor-Anpassungen auf dem KayKit-Körper: Hauttönung, Kleidungsfarbe, Umhang, Rock, Frisur, Bart, Ohren, Hörner.
+const HEAD_S := 1.3
+
+static func _tint_meshes(sk: Skeleton3D, tokens: Array, col: Color, amount: float) -> void:
+	for c in sk.get_children():
+		if c is MeshInstance3D:
+			var nm := String(c.name)
+			var hit := false
+			for t in tokens:
+				if nm.contains(t):
+					hit = true
+			if not hit:
+				continue
+			var mi := c as MeshInstance3D
+			for i in mi.mesh.get_surface_count():
+				var base: Material = mi.get_active_material(i)
+				if base is StandardMaterial3D:
+					var dup := (base as StandardMaterial3D).duplicate() as StandardMaterial3D
+					dup.albedo_color = Color.WHITE.lerp(col, amount)
+					mi.set_surface_override_material(i, dup)
+
+
+static func _apply_custom(sk: Skeleton3D, a: Dictionary, gear: Dictionary) -> void:
+	var female := int(a.get("female", 0)) == 1
+	# Haut
+	var skin := Color(str(a.get("skin", "#e0b090")))
+	if str(a.get("skin", "#e0b090")).to_lower() != "#e0b090":
+		_tint_meshes(sk, ["_Head"], skin.lerp(Color.WHITE, 0.15), 0.9)
+	# Kleidungsfarbe
+	var cloth := str(a.get("cloth", "#ffffff"))
+	if cloth.to_lower() != "#ffffff":
+		_tint_meshes(sk, ["_Body", "_Arm", "_Leg"], Color(cloth), 0.75)
+	# Umhang
+	var cape := int(a.get("cape", 0))
+	if cape > 0 and not gear.has("chest"):
+		var cs: String = KK_BODIES[clampi(cape - 1, 0, KK_BODIES.size() - 1)]
+		_hide_named(sk, ["Cape"])
+		var src := _kk_instance(cs)
+		var ssk: Skeleton3D = src.find_child("Skeleton3D", true, false)
+		_graft_attachment(sk, ssk, "%s_Cape" % cs.split("_")[0])
+		src.free()
+	# Rock (Frauen standardmäßig, sonst Option)
+	var skirt := int(a.get("skirt", -1))
+	if skirt < 0:
+		skirt = 1 if female else 0
+	if skirt > 0:
+		var hips := _att(sk, "hips")
+		if hips != null:
+			var col := Color(cloth) if cloth.to_lower() != "#ffffff" else Color(str(a.get("accent", "#4ecdc4"))).darkened(0.25)
+			var sk_m := Toon.part(hips, "cone", Vector3(0.52 if skirt == 1 else 0.62, 0.6, 0), col, Vector3(0, -0.2, 0), Vector3(180, 0, 0), Toon.mat(col, 0.0, 0.3))
+			Toon.outline(sk_m, 0.012)
+	# Frisur & Co
+	var head := _att(sk, "head")
+	if head == null:
+		return
+	var hc := Node3D.new()
+	hc.position = Vector3(0, 0.3, 0)
+	hc.scale = Vector3.ONE * HEAD_S
+	head.add_child(hc)
+	var hair_c := Color(str(a.get("hair_color", "#4a2f1b")))
+	var hs := int(a.get("hair_style", 1))
+	if hs > 0:
+		_hair(hc, hs, hair_c)
+	if not female or int(a.get("beard", 0)) >= 0:
+		_beard(hc, int(a.get("beard", 0)), hair_c)
+	var ears := int(a.get("ears", 0))
+	if str(a.get("origin", "human")) in ["elf", "faun"]:
+		ears = maxi(ears, 1)
+	var skin_m := Toon.mat(skin.lerp(Color.WHITE, 0.15), 0.0, 0.3)
+	for sx in [-1, 1]:
+		if ears == 1:
+			Toon.part(hc, "cone", Vector3(0.05, 0.3, 0), skin, Vector3(0.27 * sx, 0.06, 0), Vector3(0, 0, -80 * sx), skin_m, false)
+		elif ears >= 2:
+			Toon.part(hc, "cone", Vector3(0.07, 0.3, 0), skin, Vector3(0.18 * sx, 0.3, 0), Vector3(0, 0, -15 * sx), skin_m, false)
+	_horns(hc, int(a.get("horns", 0)))
 
 
 static func idle_clip(weapon_type: String) -> String:
@@ -540,6 +722,32 @@ static func _hair(head: Node3D, style: int, c: Color) -> void:
 			for i in 7:
 				var ang := i * TAU / 7.0
 				Toon.part(head, "cone", Vector3(0.05, 0.2, 0), c, Vector3(cos(ang) * 0.14, 0.24, sin(ang) * 0.14), Vector3(0, 0, 0))
+		6:   # Bob
+			_hair_cap(head, c)
+			var bob := Toon.part(head, "sphere", Vector3(0.33, 0, 0), c, Vector3(0, -0.06, -0.06))
+			bob.scale = Vector3(1.0, 0.8, 0.95)
+		7:   # Dutt
+			_hair_cap(head, c)
+			Toon.part(head, "sphere", Vector3(0.13, 0, 0), c, Vector3(0, 0.34, -0.1))
+		8:   # Zöpfe
+			_hair_cap(head, c)
+			for sx in [-1, 1]:
+				var t := Toon.part(head, "capsule", Vector3(0.06, 0.55, 0), c, Vector3(0.2 * sx, -0.25, 0.0), Vector3(0, 0, 8 * sx))
+				Toon.outline(t, 0.012)
+		9:   # Wilde Mähne
+			_hair_cap(head, c)
+			Toon.part(head, "capsule", Vector3(0.34, 1.0, 0), c, Vector3(0, -0.35, -0.2))
+			for i in 5:
+				Toon.part(head, "cone", Vector3(0.07, 0.24, 0), c, Vector3((i - 2) * 0.1, 0.3, 0.02 * i), Vector3(-15, 0, (i - 2) * 12))
+		10:  # hoher Pferdeschwanz
+			_hair_cap(head, c)
+			var pt := Toon.part(head, "capsule", Vector3(0.09, 0.7, 0), c, Vector3(0, 0.2, -0.32), Vector3(-35, 0, 0))
+			Toon.outline(pt, 0.012)
+		11:  # Locken
+			_hair_cap(head, c)
+			for i in 9:
+				var ang2 := i * TAU / 9.0
+				Toon.part(head, "sphere", Vector3(0.09, 0, 0), c, Vector3(cos(ang2) * 0.24, 0.06 - (i % 3) * 0.05, sin(ang2) * 0.24 - 0.03))
 
 
 static func _hair_cap(head: Node3D, c: Color) -> void:
@@ -558,6 +766,10 @@ static func _beard(head: Node3D, style: int, c: Color) -> void:
 		3:
 			for i in 3:
 				Toon.part(head, "capsule", Vector3(0.04, 0.4, 0), c, Vector3((i - 1) * 0.07, -0.28, 0.17), Vector3(10, 0, 0))
+		4:
+			Toon.part(head, "box", Vector3(0.2, 0.035, 0.04), c, Vector3(0, -0.07, 0.24), Vector3(0, 0, 0))
+		5:
+			Toon.part(head, "cone", Vector3(0.05, 0.28, 0), c, Vector3(0, -0.28, 0.2), Vector3(170, 0, 0))
 
 
 static func _horns(head: Node3D, style: int) -> void:

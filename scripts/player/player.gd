@@ -103,6 +103,7 @@ var bleed_t := 0.0
 var revive_progress := 0.0
 var permadown := false
 var _shield_idle := 0.0
+var offer_resend := 0.0
 var aura_dmg_mult := 1.0          # Bonus durch "Heilende Aura" eines Verbündeten (Stufe 4)
 var level_pending := 0            # Host: noch nicht vergebene Levelaufstiege
 var net_offers: Array = []        # Host: aktuell angebotene Verbesserungen
@@ -376,6 +377,8 @@ func _physics_process(delta: float) -> void:
 		_apply_down_pose()
 		if net_role == "local_client":
 			_update_cosmetic_wisps(delta)
+		if is_local_view() and _yaw_pivot != null:
+			_spectate(delta)
 		return
 	if _down_pose > 0.0:
 		_down_pose = move_toward(_down_pose, 0.0, delta * 3.0)
@@ -422,6 +425,39 @@ func _tick_timers(delta: float) -> void:
 		_regen_acc = 0.0
 	elif hp >= stats["max_hp"]:
 		_regen_acc = 0.0
+
+
+var _spec: Node3D = null
+var spec_name := ""
+
+
+func _spec_candidates() -> Array:
+	var out: Array = []
+	for grp in ["player", "puppets"]:
+		for a in get_tree().get_nodes_in_group(grp):
+			if a != self and is_instance_valid(a) and not a.is_down() and a.get("net_away") != true:
+				out.append(a)
+	return out
+
+
+## Kampfunfähig: Kamera folgt einem Mitspieler. Linksklick wechselt zum nächsten.
+func _spectate(delta: float) -> void:
+	var c := _spec_candidates()
+	spec_name = ""
+	if c.is_empty():
+		return
+	if _spec == null or not is_instance_valid(_spec) or not (_spec in c):
+		_spec = c[0]
+	elif Input.is_action_just_pressed("attack_light") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_spec = c[(c.find(_spec) + 1) % c.size()]
+	spec_name = str(_spec.get("display_name") if _spec.get("display_name") != null else "Mitspieler")
+	var look := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if look.length() > 0.1:
+		cam_yaw -= look.x * 2.8 * delta
+		cam_pitch = clampf(cam_pitch - look.y * 2.0 * delta, -1.1, 0.5)
+	_yaw_pivot.global_position = _yaw_pivot.global_position.lerp(_spec.global_position + Vector3(0, 1.7, 0), clampf(delta * 8.0, 0.0, 1.0))
+	_yaw_pivot.rotation.y = cam_yaw
+	_pitch_pivot.rotation.x = cam_pitch
 
 
 func _camera_update(delta: float, inp: Dictionary) -> void:

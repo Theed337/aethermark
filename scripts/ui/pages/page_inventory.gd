@@ -111,6 +111,7 @@ func refresh() -> void:
 	elif tab == "shop":
 		_fill_shop()
 	_update_gold()
+	_update_sell_all_text()
 
 
 # ------------------------------------------------------------------ Tab Ausrüstung
@@ -146,6 +147,7 @@ func _build_gear() -> void:
 	midp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(midp)
 	_build_filters(midp)
+	midp.add_child(_make_sell_all_button())
 	var lp := DropZone.new()
 	lp.add_theme_stylebox_override("panel", UI.box(Color("#142033"), 10, Color("#2a3a55"), 2, 8))
 	lp.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -543,6 +545,7 @@ func _build_shop() -> void:
 	iv.add_child(tip)
 	var bulk := UI.button("Alle gewöhnlichen (nicht gesperrt/angelegt) verkaufen", func(): _sell_common(), Vector2(0, 36))
 	iv.add_child(bulk)
+	iv.add_child(_make_sell_all_button())
 	var lsc := ScrollContainer.new()
 	lsc.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	lsc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -561,6 +564,61 @@ func _build_shop() -> void:
 	dsc.add_child(_detail)
 	_shop_rot = Shop.rotation_id()
 	_fill_shop()
+
+
+var _sell_all_btns: Array = []
+var _sell_all_armed := 0.0
+
+
+func _sellable_all() -> Array:
+	var c := character()
+	var out: Array = []
+	for it in c["inventory"]:
+		if Shop.can_sell(c, it):
+			out.append(it)
+	return out
+
+
+func _make_sell_all_button() -> Button:
+	_sell_all_btns = _sell_all_btns.filter(func(x): return is_instance_valid(x))
+	var b := UI.button("", func(): _sell_all_pressed(), Vector2(0, 38))
+	_sell_all_btns.append(b)
+	_update_sell_all_text()
+	return b
+
+
+func _update_sell_all_text() -> void:
+	var items := _sellable_all()
+	var total := 0
+	for it in items:
+		total += Shop.sell_price(it)
+	var armed := _sell_all_armed > 0.0
+	for b in _sell_all_btns:
+		if is_instance_valid(b):
+			b.disabled = items.is_empty()
+			b.text = ("Wirklich? %d Gegenstände für %d Gold verkaufen – nochmal klicken" % [items.size(), total]) if armed else ("Alles verkaufen (ohne gesperrte/angelegte): %d Gegenstände, +%d Gold" % [items.size(), total])
+
+
+func _sell_all_pressed() -> void:
+	if _sell_all_armed <= 0.0:
+		_sell_all_armed = 4.0
+		_update_sell_all_text()
+		return
+	_sell_all_armed = 0.0
+	var c := character()
+	var total := 0
+	var n := 0
+	for it in _sellable_all().duplicate():
+		var p := Shop.sell(c, it["uid"])
+		if p > 0:
+			total += p
+			n += 1
+	if n > 0:
+		SaveSystem.save_game()
+		Sfx.play("loot", 0.8, -6.0)
+	_say("%d Gegenstände verkauft (+%d Gold). Gesperrte und angelegte bleiben erhalten." % [n, total])
+	selected_uid = ""
+	refresh()
 
 
 func _sell_common() -> void:
@@ -638,6 +696,11 @@ func _update_timer() -> void:
 
 
 func _process(delta: float) -> void:
+	if _sell_all_armed > 0.0:
+		_sell_all_armed -= delta
+		if _sell_all_armed <= 0.0:
+			_sell_all_armed = 0.0
+			_update_sell_all_text()
 	_tick += delta
 	if tab == "shop" and _tick >= 1.0:
 		_tick = 0.0

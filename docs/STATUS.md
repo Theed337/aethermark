@@ -106,3 +106,18 @@
 - Tests: 65 000+ Prüfungen bestanden; neuer Fähigkeiten-Test wirft alle aktiven Fähigkeiten ohne Fehler.
 ## Ehrlich: nicht verifiziert (0.9.9)
 - Aussehen/Performance auf echter Grafikkarte (hier nur Software-Renderer), Balance der neuen Fähigkeiten und der Zeitkurve (kein Mensch hat gespielt), Netzwerk-Sync der neuen Effekte nur per Netztest, Launcher-Download von echtem GitHub.
+
+
+## Änderungen 0.9.10 (Feedback-Runde 7)
+- Monster: Blickrichtung korrigiert (liefen rückwärts), Lebensbalken statt zwei versetzter Hälften jetzt ein Balken (zur Kamera ausgerichtet), Boss mit Modell hatte keine Schutzbarriere (Skriptfehler im Koop-Test) – behoben.
+- Minimap-Pfeil zeigt jetzt in Blickrichtung.
+- Fähigkeitenwahl: Tasten deaktiviert (nur Maus, Fokus aus), Host sendet das Angebot alle 3 s erneut, damit kein Mitspieler es verpasst.
+- Nach dem Tod: Kamera folgt einem Mitspieler (Linksklick = nächster). Wiederbeleben-Reichweite 2,4 → 4,0 m (Hinweis erschien schon ab 3,5 m, Wirkung erst ab 2,4 m). Net-Test mit erzwungenem Niederschlag: Wiederbelebung erfolgreich.
+- Inventar: „Alles verkaufen“ (ohne gesperrte/angelegte, mit Bestätigungsklick) in Ausrüstung und Händler.
+- Charaktereditor: 12 Frisuren, 6 Bärte, Ohren, Hörner, Kopfform, Umhang, Rock, Kleidungsfarbe, Haarfarben (12), Hauttöne; Frauen: schlankere Figur, langes Haar, Rock.
+- Rüstung am Charakter: Schulterplatten, Brustplatte, Handschuhe, Beinschienen, Stiefel, Amulett, Artefakt-Kugel, Helmzier – Farbe/Leuchten nach Seltenheit.
+- Kantenglättung FXAA zusätzlich zu MSAA.
+## Ehrlich: nicht verifiziert (0.9.10)
+- Truhen/Schreine: im Solo-Test (3 Gebiete) funktionieren sie; die gemeldete Störung konnte ich nicht nachstellen. Interaktionsradius auf 4 m erhöht – falls es weiter hakt, bitte genau beschreiben (Solo/Koop, Hinweistext sichtbar?).
+- Neue Modelle für Charaktere konnten nicht geladen werden (nur GitHub erreichbar, keine animierten Heldenmodelle außer KayKit); Vielfalt kommt aus Kombinationen.
+- Grafik: nur FXAA ergänzt, kein großes Upgrade; echte GPU weiter ungeprüft.

@@ -67,7 +67,7 @@ func _draw() -> void:
 				_dot(c, rad, _to_map(p.global_position, origin, yaw, rad), Color("#5aff8a") if not p.is_down() else Color("#aaaaaa"), 4.0, true)
 	# Spieler als Pfeil (zeigt in Blickrichtung der Figur relativ zur Kamera)
 	var rel_yaw := player.rotation.y - yaw
-	var dir := Vector2(-sin(rel_yaw), -cos(rel_yaw))
+	var dir := Vector2(sin(rel_yaw), cos(rel_yaw))
 	var side := Vector2(-dir.y, dir.x)
 	_poly(PackedVector2Array([c + dir * 9.0, c - dir * 6.0 + side * 6.0, c - dir * 2.0, c - dir * 6.0 - side * 6.0]), Color("#fff2c0"))
 	# Rahmen

@@ -1,7 +1,7 @@
 class_name LevelUpUI
 extends Control
 ## Auswahl der zufälligen Fähigkeiten beim Levelaufstieg (3 Karten, Neuwurf, Überspringen).
-## Läuft im pausierten Spiel (process_mode = always). Tasten 1-3 wählen, R würfelt neu, S überspringt.
+## Läuft im pausierten Spiel (process_mode = always). Bedienung nur mit der Maus (Tasten sind absichtlich deaktiviert, damit Kampftasten nichts auswählen).
 
 signal picked(id: String)
 signal reroll_requested
@@ -39,9 +39,11 @@ func _ready() -> void:
 	var btns := HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_child(btns)
-	_reroll_btn = UI.button("Neu würfeln [R]", func(): reroll_requested.emit(), Vector2(220, 44))
+	_reroll_btn = UI.button("Neu würfeln", func(): reroll_requested.emit(), Vector2(220, 44))
+	_reroll_btn.focus_mode = Control.FOCUS_NONE
 	btns.add_child(_reroll_btn)
-	_skip_btn = UI.button("Überspringen [S]  (+25 % LP, +50 % Mana)", func(): skipped.emit(), Vector2(380, 44))
+	_skip_btn = UI.button("Überspringen  (+25 % LP, +50 % Mana)", func(): skipped.emit(), Vector2(380, 44))
+	_skip_btn.focus_mode = Control.FOCUS_NONE
 	btns.add_child(_skip_btn)
 
 
@@ -53,7 +55,7 @@ func show_offers(level: int, offers_: Array, rerolls_left: int, pending: int) ->
 	cards.clear()
 	for i in offers.size():
 		_row.add_child(_card(i, offers[i]))
-	_reroll_btn.text = "Neu würfeln [R]  (%d übrig)" % rerolls_left
+	_reroll_btn.text = "Neu würfeln  (%d übrig)" % rerolls_left
 	_reroll_btn.disabled = rerolls_left <= 0
 
 
@@ -66,7 +68,7 @@ func _card(i: int, o: Dictionary) -> Control:
 	p.add_child(v)
 	var top := HBoxContainer.new()
 	v.add_child(top)
-	top.add_child(UI.label("[%d]" % (i + 1), 18, UI.DIM))
+	top.add_child(UI.label("", 18, UI.DIM))
 	var rar := UI.label(GameData.rarity_name("common") if false else _rarity_label(o["rarity"]), 15, col, true)
 	rar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rar.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -87,7 +89,9 @@ func _card(i: int, o: Dictionary) -> Control:
 		var sl := UI.label(syn, 14, UI.GOLD)
 		sl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		v.add_child(sl)
-	v.add_child(UI.button("Wählen", func(): picked.emit(o["id"]), Vector2(0, 42)))
+	var pick_btn := UI.button("Wählen", func(): picked.emit(o["id"]), Vector2(0, 42))
+	pick_btn.focus_mode = Control.FOCUS_NONE
+	v.add_child(pick_btn)
 	return p
 
 
@@ -100,19 +104,6 @@ func _synergy_hint(o: Dictionary) -> String:
 		if e["requires"].has(o["id"]):
 			return "★ Evolution: %s" % e["name"]
 	return ""
-
-
-func _unhandled_key_input(event: InputEvent) -> void:
-	if not visible or not (event is InputEventKey) or not event.pressed or event.echo:
-		return
-	match event.keycode:
-		KEY_1: _pick_idx(0)
-		KEY_2: _pick_idx(1)
-		KEY_3: _pick_idx(2)
-		KEY_R:
-			if _rerolls > 0:
-				reroll_requested.emit()
-		KEY_S: skipped.emit()
 
 
 func _pick_idx(i: int) -> void:

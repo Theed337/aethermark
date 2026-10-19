@@ -486,11 +486,19 @@ func _sanitize_info(info: Dictionary) -> Dictionary:
 			app[k] = given[k]
 		elif given.has(k) and typeof(app[k]) == TYPE_FLOAT and typeof(given[k]) == TYPE_INT:
 			app[k] = float(given[k])
-	for k in ["skin", "hair_color", "eye_color", "accent"]:
+	for k in ["skin", "hair_color", "eye_color", "accent", "cloth"]:
 		if not str(app[k]).is_valid_html_color():
 			app[k] = SaveSystem.default_appearance()[k]
 	if not GameData.origins.has(app["origin"]):
 		app["origin"] = "human"
+	app["hair_style"] = clampi(int(app["hair_style"]), 0, 11)
+	app["beard"] = clampi(int(app["beard"]), 0, 5)
+	app["ears"] = clampi(int(app["ears"]), 0, 2)
+	app["horns"] = clampi(int(app["horns"]), 0, 3)
+	app["cape"] = clampi(int(app["cape"]), 0, 5)
+	app["skirt"] = clampi(int(app["skirt"]), -1, 2)
+	app["head_style"] = clampi(int(app["head_style"]), -1, 4)
+	app["body"] = clampi(int(app["body"]), 0, 4)
 	app["body_height"] = clampf(float(app["body_height"]), 0.85, 1.15)
 	app["body_build"] = clampf(float(app["body_build"]), 0.8, 1.2)
 	var w := str(info.get("weapon", "sword"))

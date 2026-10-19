@@ -57,6 +57,7 @@ func display_name() -> String:
 
 func _build_visual() -> void:
 	if GameData.boss.has("mesh") and _build_mesh_monster(GameData.boss):
+		_build_barrier()
 		return
 	var bark := Color(data["color"])
 	var leaf := bark.lightened(0.25)
@@ -103,7 +104,16 @@ func _build_visual() -> void:
 			for sx in [-1, 1]:
 				Toon.part(v, "box", Vector3(0.1, 2.4, 1.6), leaf.lightened(0.15), Vector3(1.6 * sx, 2.6, -0.5), Vector3(0, 0, 55 * sx), Toon.glow_mat(ac, 0.6, 0.85))
 	_core = Toon.part(v, "sphere", Vector3(0.3, 0, 0), ac, Vector3(0, 1.5, 0.82), Vector3.ZERO, Toon.glow_mat(ac, 2.5, 0.95), false)
-	# Schutzbarriere
+	_build_barrier()
+	for n in v.find_children("*", "MeshInstance3D", true, false):
+		var m: Material = n.material_override
+		if m is ShaderMaterial and m.shader == Toon.shader() and n != _barrier:
+			var dup: ShaderMaterial = m.duplicate()
+			n.material_override = dup
+			_mats.append(dup)
+
+
+func _build_barrier() -> void:
 	_barrier = MeshInstance3D.new()
 	var sm := SphereMesh.new()
 	sm.radius = 2.2
@@ -113,13 +123,7 @@ func _build_visual() -> void:
 	_barrier.position = Vector3(0, 1.8, 0)
 	_barrier.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_barrier.visible = false
-	v.add_child(_barrier)
-	for n in v.find_children("*", "MeshInstance3D", true, false):
-		var m: Material = n.material_override
-		if m is ShaderMaterial and m.shader == Toon.shader() and n != _barrier:
-			var dup: ShaderMaterial = m.duplicate()
-			n.material_override = dup
-			_mats.append(dup)
+	_visual.add_child(_barrier)
 
 
 func _build_elite_aura() -> void:
@@ -325,13 +329,15 @@ func _do_spore_rain(player: Node3D) -> void:
 	dmg_taken_mult = 1.5
 	if announce.is_valid():
 		announce.call("Der Kern liegt offen – jetzt angreifen!")
-	_core.scale = Vector3.ONE * 1.6
+	if _core != null:
+		_core.scale = Vector3.ONE * 1.6
 	busy = false
 	cd = 3.5
 	if not await _wait(3.5):
 		return
 	dmg_taken_mult = 1.0
-	_core.scale = Vector3.ONE
+	if _core != null:
+		_core.scale = Vector3.ONE
 
 
 ## Linienangriff: markiert eine Schneise zum Ziel, danach stürmt der Boss hindurch.

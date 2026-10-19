@@ -1,9 +1,9 @@
 {
- "version": "0.9.9",
+ "version": "0.9.10",
  "url": "https://github.com/Theed337/aethermark/tree/main/dist",
  "parts": [
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part00",
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part01"
  ],
- "notes": "0.9.9: neue Monster-Modelle, neues Hauptmenü, einzigartige Arenen, Multiplayer-Menü zentriert, 13 neue Fähigkeiten + neue Effekte, Talentpunkte nur durch Hauptmenü-Level-Ups (langsamer, max. 60), Balancing."
+ "notes": "0.9.10: Monster schauen in Laufrichtung, ein Lebensbalken, Minimap-Pfeil korrigiert, Boss-Barriere-Fehler behoben, Fähigkeitenwahl nur per Maus (wird erneut gesendet), Zuschauen nach dem Tod, größere Wiederbeleben-Reichweite, Alles-verkaufen-Knopf, Charaktereditor mit Frisuren/Bart/Ohren/Hörnern/Umhang/Rock/Kleidungsfarbe/Kopfform, sichtbare Rüstungsteile am Charakter."
 }

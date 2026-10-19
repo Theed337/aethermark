@@ -123,6 +123,20 @@ func _row(label: String, ctrl: Control) -> void:
 	_body.add_child(r)
 
 
+func _opt_list(label: String, key: String, names: Array, auto_value: int) -> void:
+	# Auswahl mit fester Liste; Eintrag 0 kann „Automatisch“ (auto_value) bedeuten
+	var ob := UI.option()
+	for n in names:
+		ob.add_item(n)
+	var cur := int(_draft.get(key, auto_value))
+	var idx := cur + 1 if auto_value == -1 and key == "head_style" else (cur + 1 if auto_value == -1 else cur)
+	ob.select(clampi(idx, 0, names.size() - 1))
+	ob.item_selected.connect(func(i: int):
+		_draft[key] = (i - 1) if auto_value == -1 else i
+		_preview())
+	_row(label, ob)
+
+
 func _section(t: String) -> void:
 	_body.add_child(UI.label(t, 19, UI.TEAL, true))
 
@@ -170,20 +184,27 @@ func _build_editor() -> void:
 	_body.add_child(_origin_desc)
 	_slider("Körpergröße", "body_height", 0.9, 1.1)
 	_slider("Statur", "body_build", 0.85, 1.15)
-	if not ResourceLoader.exists(CharacterModel.KK_DIR + "Knight.glb"):
-		_section("Gesicht & Haut")
-		_swatches("Hautfarbe", "skin", func(): return GameData.origins[_draft["origin"]]["skin"], true)
-		_opt("Frisur", "hair_style", GameData.origin_cfg["hair_styles"], "hair_style")
-		_swatches("Haarfarbe", "hair_color", func(): return GameData.origin_cfg["palettes"]["hair"], true)
-		_opt("Bart", "beard", GameData.origin_cfg["beards"], "beard")
+	var kk := ResourceLoader.exists(CharacterModel.KK_DIR + "Knight.glb")
+	_section("Gesicht & Haut")
+	_swatches("Hautfarbe", "skin", func(): return GameData.origins[_draft["origin"]]["skin"], true)
+	if kk:
+		_opt_list("Kopfform", "head_style", ["Automatisch", "Ritter", "Barbar", "Magier", "Waldläuferin", "Kapuze"], -1)
+	_opt("Frisur", "hair_style", GameData.origin_cfg["hair_styles"], "hair_style")
+	_swatches("Haarfarbe", "hair_color", func(): return GameData.origin_cfg["palettes"]["hair"], true)
+	_opt("Bart", "beard", GameData.origin_cfg["beards"], "beard")
+	_opt("Ohren", "ears", GameData.origin_cfg["ears"], "ears")
+	_opt("Hörner", "horns", GameData.origin_cfg["horns"], "horns")
+	if not kk:
 		_swatches("Augenfarbe", "eye_color", func(): return GameData.origin_cfg["palettes"]["eyes"], true)
-		_opt("Ohren", "ears", GameData.origin_cfg["ears"], "ears")
-		_opt("Hörner", "horns", GameData.origin_cfg["horns"], "horns")
 		_opt("Narben", "scar", GameData.origin_cfg["scars"], "scar")
 		_opt("Tätowierung", "tattoo", GameData.origin_cfg["tattoos"], "tattoo")
 	_section("Kleidung & Farbe")
-	if not ResourceLoader.exists(CharacterModel.KK_DIR + "Knight.glb"):
+	if not kk:
 		_opt("Startkleidung", "outfit", GameData.origin_cfg["outfits"], "outfit")
+	else:
+		_opt_list("Umhang", "cape", ["Keiner", "Ritterumhang", "Barbarenfell", "Magiermantel", "Schattenumhang", "Kapuzenumhang"], 0)
+		_opt_list("Rock", "skirt", ["Standard", "Kurzer Rock", "Langer Rock"], -1)
+		_swatches("Kleidungsfarbe", "cloth", func(): return GameData.origin_cfg["palettes"]["cloth"], true)
 	_swatches("Akzentfarbe", "accent", func(): return GameData.origin_cfg["palettes"]["accent"], true)
 	_section("Stimme")
 	var vb := HBoxContainer.new()

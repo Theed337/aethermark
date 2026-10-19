@@ -4,7 +4,7 @@ config_version=5
 [application]
 
 config/name="Aethermark"
-config/version="0.9.9"
+config/version="0.9.10"
 config/description="3D-Fantasy-Action-Roguelite mit Koop-Ausrichtung (Arbeitstitel)"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
@@ -34,4 +34,5 @@ window/stretch/aspect="expand"
 [rendering]
 
 anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/screen_space_aa=1
 environment/defaults/default_clear_color=Color(0.07, 0.09, 0.12, 1)

@@ -172,9 +172,9 @@ func _cleanup_ghosts() -> void:
 
 func _update_prompt() -> void:
 	if player.is_down():
-		hud.show_hint("Du bist kampfunfähig – ein Mitspieler kann dich wiederbeleben", 0.2)
+		hud.show_hint(("Du bist kampfunfähig – du siehst %s zu (Linksklick: nächster Spieler)" % player.spec_name) if player.spec_name != "" else "Du bist kampfunfähig – ein Mitspieler kann dich wiederbeleben", 0.2)
 		return
-	var best := 3.0
+	var best := 4.0
 	var kind := ""
 	for c in _chests:
 		if not c["open"]:
@@ -193,7 +193,7 @@ func _update_prompt() -> void:
 		return
 	for slot in puppets:
 		var p: Player = puppets[slot]
-		if is_instance_valid(p) and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 3.5:
+		if is_instance_valid(p) and p.is_down() and not p.permadown and p.global_position.distance_to(player.global_position) <= 4.0:
 			hud.show_hint("[%s halten] %s wiederbeleben" % [InputSetup.key_name("interact"), p.display_name], 0.2)
 			return
 
@@ -422,6 +422,12 @@ func _show_offer(d: Array) -> void:
 		Net.run.send_req("offer", ["pick", offers[randi() % offers.size()]["id"]])
 		return
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if _levelup_ui != null and is_instance_valid(_levelup_ui) and _levelup_ui.visible and _levelup_ui.offers.size() == offers.size():
+		var same := true
+		for i in offers.size():
+			same = same and _levelup_ui.offers[i]["id"] == offers[i]["id"]
+		if same and _levelup_ui._rerolls == int(d[2]):
+			return   # Wiederholtes Angebot vom Host: Karten nicht neu aufbauen
 	if _levelup_ui == null or not is_instance_valid(_levelup_ui):
 		_levelup_ui = LevelUpUI.new()
 		_ui_layer.add_child(_levelup_ui)
