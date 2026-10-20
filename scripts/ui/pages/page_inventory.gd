@@ -122,7 +122,7 @@ func _build_gear() -> void:
 	h.add_theme_constant_override("separation", 8)
 	_content.add_child(h)
 	# Paper-Doll
-	var dp := UI.panel(Vector2(520, 0))
+	var dp := UI.panel(Vector2(470, 0))
 	h.add_child(dp)
 	var dv := VBoxContainer.new()
 	dp.add_child(dv)
@@ -132,7 +132,7 @@ func _build_gear() -> void:
 	dv.add_child(mid)
 	mid.add_child(_slot_column(LEFT_SLOTS))
 	_preview = CharPreview.new()
-	_preview.custom_minimum_size = Vector2(250, 400)
+	_preview.custom_minimum_size = Vector2(215, 400)
 	mid.add_child(_preview)
 	mid.add_child(_slot_column(RIGHT_SLOTS))
 	var bottom := HBoxContainer.new()
@@ -161,13 +161,13 @@ func _build_gear() -> void:
 	_list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lsc.add_child(_list_box)
 	# Details
-	var dtp := UI.panel(Vector2(340, 0))
+	var dtp := UI.panel(Vector2(280, 0))
 	h.add_child(dtp)
 	var dsc := ScrollContainer.new()
 	dsc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dtp.add_child(dsc)
 	_detail = VBoxContainer.new()
-	_detail.custom_minimum_size = Vector2(315, 0)
+	_detail.custom_minimum_size = Vector2(245, 0)
 	dsc.add_child(_detail)
 	refresh()
 
@@ -176,7 +176,7 @@ func _slot_column(slots: Array) -> VBoxContainer:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	for s in slots:
-		col.add_child(_slot_tile(s, Vector2(104, 72)))
+		col.add_child(_slot_tile(s, Vector2(104, 78)))
 	return col
 
 
@@ -277,7 +277,7 @@ func _build_filters(parent: Control) -> void:
 	slot_opt.item_selected.connect(func(i: int):
 		filter_slot = "all" if i == 0 else SLOT_ORDER[i - 1]
 		_fill_list())
-	slot_opt.custom_minimum_size = Vector2(150, 0)
+	slot_opt.custom_minimum_size = Vector2(125, 0)
 	fr.add_child(slot_opt)
 	var rar_opt := UI.option()
 	rar_opt.add_item("Alle Seltenheiten")
@@ -286,7 +286,7 @@ func _build_filters(parent: Control) -> void:
 	rar_opt.item_selected.connect(func(i: int):
 		filter_rarity = "all" if i == 0 else RARITY_ORDER[i - 1]
 		_fill_list())
-	rar_opt.custom_minimum_size = Vector2(170, 0)
+	rar_opt.custom_minimum_size = Vector2(140, 0)
 	fr.add_child(rar_opt)
 	var sort_opt := UI.option()
 	for n in ["Seltenheit", "Stufe", "Name", "Platz"]:
@@ -294,7 +294,7 @@ func _build_filters(parent: Control) -> void:
 	sort_opt.item_selected.connect(func(i: int):
 		sort_mode = i
 		_fill_list())
-	sort_opt.custom_minimum_size = Vector2(170, 0)
+	sort_opt.custom_minimum_size = Vector2(140, 0)
 	fr.add_child(sort_opt)
 	_count_label = UI.label("", 15, UI.DIM)
 	fr.add_child(_count_label)
@@ -560,7 +560,7 @@ func _build_shop() -> void:
 	dsc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dtp.add_child(dsc)
 	_detail = VBoxContainer.new()
-	_detail.custom_minimum_size = Vector2(305, 0)
+	_detail.custom_minimum_size = Vector2(245, 0)
 	dsc.add_child(_detail)
 	_shop_rot = Shop.rotation_id()
 	_fill_shop()

@@ -402,7 +402,16 @@ static func _put(att: Node3D, model: String, size: float, pos: Vector3 = Vector3
 	return m
 
 
+const RAR_TINT := {"common": Color("#ffffff"), "uncommon": Color("#8fe39a"), "rare": Color("#7fb2ff"), "epic": Color("#c48cff"), "legendary": Color("#ffc34d")}
+
+
 static func _apply_overlays(sk: Skeleton3D, info: Dictionary) -> void:
+	# Seltenheit färbt die Rüstungsteile des Körpers (sofort sichtbar, sitzt per Definition am Charakter)
+	for slot_tokens in [["chest", ["_Body", "_Arm"]], ["legs", ["_Leg"]]]:
+		if info.has(slot_tokens[0]):
+			var rr: String = info[slot_tokens[0]]["rarity"]
+			if rr != "common":
+				_tint_meshes(sk, slot_tokens[1], RAR_TINT.get(rr, Color.WHITE), 0.45)
 	if info.has("chest"):
 		var r: String = info["chest"]["rarity"]
 		var ch := _att(sk, "chest")
@@ -420,7 +429,7 @@ static func _apply_overlays(sk: Skeleton3D, info: Dictionary) -> void:
 	if info.has("artifact"):
 		var ch3 := _att(sk, "chest")
 		if ch3 != null:
-			var orb := _put(ch3, str(ItemModels.ARTIFACTS[absi(hash(str(info["artifact"].get("base", "")))) % ItemModels.ARTIFACTS.size()]), 0.3, Vector3(0.4, 0.35, -0.2))
+			var orb := _put(ch3, str(ItemModels.ARTIFACTS[absi(hash(str(info["artifact"].get("base", "")))) % ItemModels.ARTIFACTS.size()]), 0.34, Vector3(0.62, 0.62, -0.1))
 			if orb != null:
 				orb.name = "ArtifactOrb"
 	if info.has("head"):
@@ -428,7 +437,7 @@ static func _apply_overlays(sk: Skeleton3D, info: Dictionary) -> void:
 		if int(RAR_RANK[r5]) >= 3:
 			var hd := _att(sk, "head")
 			if hd != null:
-				_put(hd, "Crown" if int(RAR_RANK[r5]) >= 4 else "Crown2", 0.42, Vector3(0, 0.42, 0))
+				_put(hd, "Crown" if int(RAR_RANK[r5]) >= 4 else "Crown2", 0.5, Vector3(0, 0.82, 0))
 
 
 ## Editor-Anpassungen auf dem KayKit-Körper: Hauttönung, Kleidungsfarbe, Umhang, Rock, Frisur, Bart, Ohren, Hörner.
@@ -527,7 +536,7 @@ static func _strand(parent: Node3D, r: float, h: float, pos: Vector3, rot: Vecto
 
 
 static func _hair_kk(h: Node3D, style: int, c: Color) -> void:
-	_blob(h, 0.37, Vector3(0, 0.2, -0.1), Vector3(1.0, 0.8, 1.0), c)   # Kappe
+	_blob(h, 0.345, Vector3(0, 0.3, -0.1), Vector3(1.0, 0.85, 1.05), c)   # Kappe
 	match style:
 		2:
 			_strand(h, 0.2, 0.9, Vector3(0, -0.15, -0.3), Vector3(0, 0, 0), c)
@@ -574,7 +583,7 @@ static func _beard_kk(h: Node3D, style: int, c: Color) -> void:
 		1:
 			_blob(h, 0.22, Vector3(0, -0.2, 0.12), Vector3(1.0, 0.5, 0.8), c.darkened(0.2))
 		2:
-			_blob(h, 0.2, Vector3(0, -0.27, 0.15), Vector3(1.0, 0.95, 0.8), c)
+			_blob(h, 0.12, Vector3(0, -0.22, 0.2), Vector3(1.1, 1.0, 0.5), c)
 		3:
 			for i in 3:
 				_strand(h, 0.035, 0.32, Vector3((i - 1) * 0.08, -0.36, 0.27), Vector3(8, 0, (i - 1) * -5), c)

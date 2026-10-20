@@ -4,7 +4,7 @@ config_version=5
 [application]
 
 config/name="Aethermark"
-config/version="0.9.11"
+config/version="0.9.12"
 config/description="3D-Fantasy-Action-Roguelite mit Koop-Ausrichtung (Arbeitstitel)"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")

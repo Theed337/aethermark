@@ -76,7 +76,7 @@ static func make_pickup(parent: Node3D, pos: Vector3, item: Dictionary) -> Node3
 	parent.add_child(n)
 	var gem: Node3D = Node3D.new()
 	gem.position = Vector3(0, 0.7, 0)
-	var mdl := ItemModels.make(ItemModels.model_name(item), 0.95 if item.get("slot", "") != "weapon" else 1.3)
+	var mdl := ItemModels.make(ItemModels.model_name(item), 1.25 if item.get("slot", "") != "weapon" else 1.7)
 	if mdl != null:
 		mdl.position.y = -0.4
 		gem.add_child(mdl)
@@ -86,7 +86,7 @@ static func make_pickup(parent: Node3D, pos: Vector3, item: Dictionary) -> Node3
 		Toon.part(gem, "prism", Vector3(0.35, 0.5, 0.35), col, Vector3.ZERO, Vector3.ZERO, Toon.glow_mat(col, 2.2), false)
 	n.add_child(gem)
 	gem.name = "Gem"
-	var beam := Toon.part(n, "cyl", Vector3(0.12, 4.0, 0.12), col, Vector3(0, 2.0, 0), Vector3.ZERO, Toon.glow_mat(col, 1.4, 0.25), false)
+	var beam := Toon.part(n, "cyl", Vector3(0.07, 4.0, 0.07), col, Vector3(0, 2.0, 0), Vector3.ZERO, Toon.glow_mat(col, 1.4, 0.25), false)
 	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var l := OmniLight3D.new()
 	l.light_color = col

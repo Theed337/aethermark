@@ -76,6 +76,18 @@ static func make(it: Dictionary, slot_name: String, size: Vector2, equipped: boo
 	box.add_child(nm)
 	if size.y >= 60:
 		box.add_child(info)
+	var ico: Texture2D = ItemIcons.icon_for(it)
+	if ico != null:
+		var isz := 42.0 if size.y >= 60 else 30.0
+		var tr := TextureRect.new()
+		tr.texture = ico
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.custom_minimum_size = Vector2(isz, isz)
+		tr.size = Vector2(isz, isz)
+		tr.position = Vector2(size.x - isz - 4, size.y - isz - 3)
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(tr)
 	if empty:
 		nm.text = slot_name
 		nm.add_theme_color_override("font_color", UI.DIM)

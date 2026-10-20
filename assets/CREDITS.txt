@@ -11,3 +11,4 @@ Quelle der Dateien: GitHub tilakpatell/tilakverse-assets (unveränderte Kopien d
 - KayKit (Kay Lousberg): Skeletons Character Pack 1.0 – Skelett-Gegner (Minion, Warrior, Rogue, Mage), Waffenmodelle, CC0 (assets/skeleton). Quelle: GitHub KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0.
 - Quaternius (quaternius.com): Ultimate Monsters, Animated Monster, Easy Enemy, Ultimate Nature, Modular Ruins, CubeWorld, Medieval Dungeon – Monster- und Kulissenmodelle (assets/monsters, assets/env), CC0. Quelle: GitHub chibifire-stages/quaternius-stage (USD, per eigenem Skript nach GLB konvertiert).
 - Quaternius (quaternius.com): Ultimate RPG Items, Medieval Weapons, RPG Item Pack – Waffen, Rüstung, Ringe, Amulette, Schilde, Truhen (assets/items), CC0. Quelle: GitHub chibifire-stages/quaternius-stage (USD, per eigenem Skript nach GLB konvertiert).
+- UI-Texturen (assets/ui): selbst erzeugt per tools/gen_ui.py (CC0).

@@ -1,9 +1,9 @@
 {
- "version": "0.9.11",
+ "version": "0.9.12",
  "url": "https://github.com/Theed337/aethermark/tree/main/dist",
  "parts": [
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part00",
   "https://raw.githubusercontent.com/Theed337/aethermark/main/dist/Aethermark-Windows.zip.part01"
  ],
- "notes": "0.9.11: Ausrüstung und Beute als echte Modelle (Rüstungen, Helme, Ringe, Schilde, Truhen) statt Würfel, Haare/Bart/Hörner sitzen am Kopf, Zielmarkierung unter dem Fadenkreuz (Ring, Pfeil, Zielrahmen, rotes Fadenkreuz), nur noch ein eigener Lebensbalken, Enter beendet nach dem Boss (auch Host im Koop), Wiederbeleben toleranter (2 s, 5 m, Fortschritt in %)."
+ "notes": "0.9.12: neues Menü-Design (Stein-Rahmen mit Goldkante, Leisten mit Glanz), Item-Symbole als gerenderte 3D-Modelle in Inventar/Händler/Handel, Rüstung färbt den Charakter nach Seltenheit, Krone/Artefakt sichtbar, flachere Haare/Bart, größere Beute-Modelle."
 }

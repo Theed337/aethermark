@@ -134,3 +134,15 @@
 - Wiederbeleben mit echten Menschen: Ursache des Fehlers unbekannt; Bot-Test (3 Spieler) besteht, Änderungen oben sind Verbesserungen auf Verdacht.
 - Rüstungsteile: Sitz/Größe nur in Charakter-Vorschau geprüft, nicht jede Seltenheit/Rüstungsart; Tränke sind weiß (keine Textur).
 - Zielmarkierung und Enter-Beenden nur per Code/Bot-Test, nicht in einem echten Spiel gesehen; echte GPU und Internet-Koop weiter ungeprüft.
+
+
+## Änderungen 0.9.12 (Feedback-Runde 9: Stil überarbeiten)
+- Menü/UI: selbst gestaltete Texturen (Stein mit Goldrahmen, Buttons mit Zuständen, Leisten mit Glanz) über das zentrale Theme – gilt für alle Seiten.
+- Inventar, Händler, Handel: jede Kachel zeigt ein gerendertes Symbol des echten 3D-Modells (Schwert, Schild, Rüstung, Ring, Helm …).
+- Charakter: Seltenheit färbt Rüstung/Beine (sofort sichtbar), Krone ab Episch über dem Helm, Artefakt schwebt an der Schulter; Haarkappe flacher, Bart kleiner.
+- Beute am Boden: Modelle größer, Strahl dünner. Inventar-Seite passt jetzt in 1280 px Breite.
+## Ehrlich: nicht verifiziert / nicht gemacht (0.9.12)
+- Keine neuen animierten Heldenmodelle: die verfügbaren Pakete (Quaternius-Charaktere) haben andere Skelette als die KayKit-Animationen; ein Austausch würde Animationen kosten. Monster waren schon echte Modelle seit 0.9.9, hier nicht erneut angefasst.
+- Haare/Bart sind weiter selbst geformte Teile (keine echten Haarmodelle verfügbar), nur besser geformt.
+- Tränke bleiben weiß; Umgebungs-Ruinen sind eckige Quaternius-Module.
+- Echte GPU und Internet-Koop weiter ungeprüft.
